@@ -12,15 +12,12 @@ on:
 jobs:
   build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
     container: debian:stable-slim
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout
         uses: actions/checkout@v2
-
-      - name: Run a one-line script
-        run: echo Hello, world!
 
       - name: GCP call
         uses: actions-hub/gcloud@master
