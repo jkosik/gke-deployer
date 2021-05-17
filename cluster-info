@@ -1,0 +1,6 @@
+DSO_OWNER=owner1
+DSO_PROJECT=tfs-project
+DSO_GKE_PROJECT=gitops-gke-1
+DSO_GKE_REGION=europe-central2
+DSO_GKE_ZONE=europe-central2-a
+

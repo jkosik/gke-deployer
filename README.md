@@ -1,2 +1,2 @@
 # gke-deployer
-GitOps based GKE deployment and post-deploy automation
+GitOps based GKE deployment and post-deploy automation.
