@@ -16,22 +16,18 @@ jobs:
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
       - name: Run a one-line script
         run: echo Hello, world!
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
 
-  deploy:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+      - name: GCP call
+        uses: actions-hub/gcloud@master
+        env:
+          #PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
+          APPLICATION_CREDENTIALS: ${{secrets.DSO_SA_GITOPS_GKE_MASTER}}
+        with:
+          args: compute instances list
 
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
 
-      - name: Run a one-line script
-        run: echo Hello, world!
