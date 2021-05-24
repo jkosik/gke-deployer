@@ -32,9 +32,9 @@ jobs:
 
       - name: Auth to GCP as client SA
         run: |
-          
-          ls
-          echo "Deploying to $DSO_PROJECT"
+          # separate shell. merge steps
+          source gcp-client/project.vars
+
           # normally deployment.yaml generates SA_OWNER key for Client GCP project
           printf "%s" "${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}" > creds-sa-owner-$DSO_PROJECT.json
           gcloud auth list
