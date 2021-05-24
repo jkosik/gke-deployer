@@ -36,9 +36,10 @@ jobs:
           ls
           echo "Deploying to $DSO_PROJECT"
           # normally deployment.yaml generates SA_OWNER key for Client GCP project
-          echo "${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}" > creds-sa-owner-${DSO_PROJECT}.json
+          echo "${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}" > creds-sa-owner-$DSO_PROJECT.json
           ls 
-          gcloud auth activate-service-account --key-file=creds-sa-owner-${DSO_PROJECT}.json --project=$DSO_PROJECT
+          cat creds-sa-owner-$DSO_PROJECT.json
+          gcloud auth activate-service-account --key-file=creds-sa-owner-"$DSO_PROJECT".json --project=$DSO_PROJECT
 
       - name: Jumphost tests
         run: |
