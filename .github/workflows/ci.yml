@@ -20,9 +20,9 @@ jobs:
 
       - name: Source project.vars
         run: |
-          source project.vars
+          source gcp-client/project.vars
 
-      - name: Source project.vars
+      - name: tst
         run: |
           ls ~/
           pwd          
