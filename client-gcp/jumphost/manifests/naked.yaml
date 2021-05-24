@@ -1,0 +1,23 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: naked
+  labels:
+    app: naked
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: naked
+  template:
+    metadata:
+      labels:
+        app: naked
+    spec:
+      containers:
+      - name: naked
+        image: busybox
+        imagePullPolicy: Always
+        command: ["/bin/sh", "-ec", "sleep 3600"]
+

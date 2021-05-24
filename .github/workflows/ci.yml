@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  deploy:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     container: debian:stable-slim
@@ -22,8 +22,8 @@ jobs:
       - name: GCP call
         uses: actions-hub/gcloud@master
         env:
-          PROJECT_ID: gitops-gke-master
-          APPLICATION_CREDENTIALS: ${{secrets.DSO_SA_GITOPS_GKE_MASTER}}
+          PROJECT_ID: dso-master
+          APPLICATION_CREDENTIALS: ${{secrets.SA_OWNER_DSO_MASTER}}
         with:
           args: compute instances list
 
