@@ -20,7 +20,7 @@ jobs:
 
       - name: Source project.vars
         run: |
-          source gcp-client/project.vars
+          cat gcp-client/project.vars
 
       - name: tst
         run: |
