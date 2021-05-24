@@ -39,7 +39,8 @@ jobs:
           echo "${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}" > creds-sa-owner-$DSO_PROJECT.json
           pwd
           echo $pwd
-          gcloud auth activate-service-account --key-file=./creds-sa-owner-$DSO_PROJECT.json --project=$DSO_PROJECT
+          echo $GITHUB_WORKSPACE
+          gcloud auth activate-service-account --key-file=$GITHUB_WORKSPACE/creds-sa-owner-$DSO_PROJECT.json --project=$DSO_PROJECT
 
       - name: Jumphost tests
         run: |
