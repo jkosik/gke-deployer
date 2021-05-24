@@ -28,7 +28,7 @@ jobs:
 
       - name: Auth to GCP as client SA
         run: |
-          # normally deployment.yaml generates SA_OWNER key for Client GCP pdoroject
+          # normally deployment.yaml generates SA_OWNER key for Client GCP project
           echo ${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}} > /tmp/creds-sa-owner-$DSO_PROJECT.json
           gcloud auth activate-service-account --key-file=/tmp/creds-sa-owner-$DSO_PROJECT.json --project=$DSO_PROJECT
 
@@ -36,6 +36,7 @@ jobs:
         run: |
           gcloud container clusters describe $DSO_PROJECT --format="value(status)"
           echo ${{secrets.GCP_SSH_KEY}} > /tmp/gcp-ssh-key
+          gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
           JH_IP=$(gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
           ssh -i /tmp/gcp-ssh-key user@$JH_IP "gcloud projects list"
           ssh -i /tmp/gcp-ssh-key user@$JH_IP "kubectl get ns"
