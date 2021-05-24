@@ -38,12 +38,13 @@ gcloud config set compute/zone $DSO_GCP_ZONE
 echo "--- Creating SA ---"
 gcloud iam service-accounts create sa-owner --description="sa-owner" --display-name="sa-owner"
 gcloud projects add-iam-policy-binding $DSO_PROJECT --member=serviceAccount:sa-owner@$DSO_PROJECT.iam.gserviceaccount.com --role=roles/owner
-gcloud iam service-accounts keys create /tmp/creds-sa-owner-$DSO_PROJECT.json --iam-account=sa-owner@$DSO_PROJECT.iam.gserviceaccount.com
+gcloud iam service-accounts keys create creds-sa-owner-$DSO_PROJECT.json --iam-account=sa-owner@$DSO_PROJECT.iam.gserviceaccount.com
 
-gcloud secrets create sa-owner --data-file=/tmp/creds-sa-owner-$DSO_PROJECT.json --labels=dso_owner=$DSO_OWNER,dso_project=$DSO_PROJECT
+gcloud secrets create sa-owner --data-file=creds-sa-owner-$DSO_PROJECT.json --labels=dso_owner=$DSO_OWNER,dso_project=$DSO_PROJECT
 
 # Switch to SA (use full path)
-gcloud auth activate-service-account --key-file=/tmp/creds-sa-owner-$DSO_PROJECT.json --project=$DSO_PROJECT
+gcloud auth activate-service-account --key-file=creds-sa-owner-$DSO_PROJECT.json --project=$DSO_PROJECT
+rm creds-sa-owner-$DSO_PROJECT.json
 
 # Create GKE network. 
 echo "--- Preparing networking for GKE ---"
