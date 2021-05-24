@@ -34,9 +34,11 @@ jobs:
         run: |
           # separate shell. merge steps
           source gcp-client/project.vars
-          echo -n ${{secrets.AAA}}
+          echo "$SHELL"
+          ps -p $$
+
           # normally deployment.yaml generates SA_OWNER key for Client GCP project
-          echo -n "${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}" > creds-sa-owner-$DSO_PROJECT.json
+          echo "${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}" > creds-sa-owner-$DSO_PROJECT.json
           gcloud auth list
           gcloud auth activate-service-account --key-file=$GITHUB_WORKSPACE/creds-sa-owner-$DSO_PROJECT.json --project=$DSO_PROJECT
 
