@@ -35,6 +35,7 @@ jobs:
           source gcp-client/project.vars
           ls
           echo "Deploying to $DSO_PROJECT"
+          # normally deployment.yaml generates SA_OWNER key for Client GCP project
 
           ls 
 
