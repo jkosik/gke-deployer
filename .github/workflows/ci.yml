@@ -23,8 +23,11 @@ jobs:
           path: repo
       - name: Scripts
         run: |
+          echo "--- ls ---"
           ls
+          echo "--- ls repo ---"
           ls repo
+          echo "--- gcloud version ---"
           gcloud version
   
   GCP:
