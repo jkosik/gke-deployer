@@ -25,6 +25,9 @@ jobs:
           source ${GITHUB_WORKSPACE}/project.vars
   
   GCP:
+    runs-on: ubuntu-latest
+    container: debian:stable-slim
+    steps:
       - name: GCP call
         uses: actions-hub/gcloud@master
         env:
