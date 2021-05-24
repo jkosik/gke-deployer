@@ -36,9 +36,8 @@ jobs:
           ls
           echo "Deploying to $DSO_PROJECT"
           # normally deployment.yaml generates SA_OWNER key for Client GCP project
-          echo ${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}} > creds-sa-owner-$DSO_PROJECT.json
+          cat <<< "${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}" > creds-sa-owner-$DSO_PROJECT.json
           cat creds-sa-owner-$DSO_PROJECT.json
-          pwd
           echo $GITHUB_WORKSPACE
           gcloud auth list
           gcloud auth activate-service-account --key-file=$GITHUB_WORKSPACE/creds-sa-owner-$DSO_PROJECT.json --project=$DSO_PROJECT
