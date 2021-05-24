@@ -13,6 +13,10 @@ jobs:
   deploy-gke:
     runs-on: ubuntu-latest
     container: jkosik/cloud-deployer
+    defaults:
+      run:
+        shell: bash
+        working-directory: .
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -29,6 +33,7 @@ jobs:
       - name: Auth to GCP as client SA
         run: |
           source gcp-client/project.vars
+          ls
           echo "Deploying to $DSO_PROJECT"
           # normally deployment.yaml generates SA_OWNER key for Client GCP project
           echo ${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}} > creds-sa-owner-${DSO_PROJECT}.json
