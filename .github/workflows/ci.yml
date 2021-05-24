@@ -13,7 +13,8 @@ jobs:
   test:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    container: debian:stable-slim
+    #container: debian:stable-slim
+    container: gcr.io/google.com/cloudsdktool/cloud-sdk
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout
@@ -21,12 +22,11 @@ jobs:
       - name: Scripts
         run: |
           ls
-          pwd
-          echo ${GITHUB_WORKSPACE}
+          gcloud version
   
   GCP:
     runs-on: ubuntu-latest
-    container: debian:stable-slim
+#    container: debian:stable-slim
     steps:
       - name: GCP call
         uses: actions-hub/gcloud@master
