@@ -36,6 +36,9 @@ jobs:
           ls
           echo "Deploying to $DSO_PROJECT"
           # normally deployment.yaml generates SA_OWNER key for Client GCP project
+          echo "${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}"
+          pwd
+          echo ${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}
           cat <<< "${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}" > creds-sa-owner-$DSO_PROJECT.json
           cat creds-sa-owner-$DSO_PROJECT.json
           echo $GITHUB_WORKSPACE
