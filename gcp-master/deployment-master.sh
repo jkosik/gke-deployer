@@ -8,7 +8,7 @@ set -e
 # Vars
 source ./project.vars
 
-# Create master project
+# Create project
 echo "--- Creating project $DSO_PROJECT ---"
 gcloud projects create $DSO_PROJECT --labels=dso_owner=$DSO_OWNER,dso_project=$DSO_PROJECT
 gcloud config set project $DSO_PROJECT
@@ -75,4 +75,3 @@ gcloud compute firewall-rules create $DSO_PROJECT-adminhost --network $DSO_PROJE
 echo "--- Bootstrapping adminhost ---"
 gcloud compute scp --ssh-key-file=$PRIVATE_SSH_KEY_PATH bootstrap-adminhost.sh user@adminhost:~/
 gcloud compute ssh --ssh-key-file=$PRIVATE_SSH_KEY_PATH user@adminhost -- 'source bootstrap-adminhost.sh'
-

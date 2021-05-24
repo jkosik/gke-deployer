@@ -9,9 +9,9 @@ source ./project.vars
 
 # Switch to Master SA (use full path)
 echo "--- Using master SA to create client project ---"
-gcloud config set account juraj.kosik@gmail.com # to be used in Free Tier only!
+gcloud config set account juraj.kosik@gmail.com # to be used in Free Tier only! Service accounts cannot create projects without a parent.
 
-# Create client project
+# Create project
 echo "--- Creating project $DSO_PROJECT ---"
 gcloud projects create $DSO_PROJECT --labels=dso_owner=$DSO_OWNER,dso_project=$DSO_PROJECT
 gcloud config set project $DSO_PROJECT
@@ -67,6 +67,7 @@ gcloud container clusters create $DSO_PROJECT \
     --cluster-secondary-range-name secondary-subnet-pods \
     --services-secondary-range-name secondary-subnet-services \
     --enable-master-authorized-networks \
+    --master-authorized-networks 178.41.36.135/32 \
     --enable-ip-alias \
     --enable-private-nodes \
     --master-ipv4-cidr 172.16.0.0/28 \
@@ -92,3 +93,4 @@ gcloud compute firewall-rules create $DSO_PROJECT-jh --network $DSO_PROJECT --al
 gcloud compute scp --ssh-key-file=$PRIVATE_SSH_KEY_PATH --recurse jumphost/ user@jh:~/jumphost
 gcloud compute scp --ssh-key-file=$PRIVATE_SSH_KEY_PATH project.vars user@jh:~/jumphost/project.vars
 gcloud compute ssh --ssh-key-file=$PRIVATE_SSH_KEY_PATH user@jh -- 'cd ~/jumphost && source bootstrap-jh.sh'
+

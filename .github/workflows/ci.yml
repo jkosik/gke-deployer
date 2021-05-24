@@ -1,4 +1,4 @@
-name: CI
+name: deploy-gke
 
 on:
   push:
@@ -10,36 +10,68 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
-    # The type of runner that the job will run on
+  deploy-gke:
     runs-on: ubuntu-latest
-    #container: debian:stable-slim
     container: gcr.io/google.com/cloudsdktool/cloud-sdk
+    #container: debian:stable-slim
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          path: repo
-      - name: Scripts
+
+      - name: Source project.vars
         run: |
-          echo "--- ls ---"
-          ls
-          echo "--- ls repo ---"
-          ls repo
-          echo "--- gcloud version ---"
-          gcloud version
-  
-  GCP:
-    runs-on: ubuntu-latest
-#    container: debian:stable-slim
-    steps:
-      - name: GCP call
-        uses: actions-hub/gcloud@master
-        env:
-          PROJECT_ID: dso-master
-          APPLICATION_CREDENTIALS: ${{secrets.SA_OWNER_DSO_MASTER}}
-        with:
-          args: compute instances list
+          source project.vars
 
+      - name: Source project.vars
+        run: |
+          ls ~/
+          pwd          
 
+      - name: Auth to gcloud
+        run: |
+          echo ${{secrets.SA_OWNER_DSO_MASTER}} > /tmp/sa-owner-dso-master.json
+          gcloud auth activate-service-account --key-file=/tmp/sa-owner-dso-master.json --project=$DSO_PROJECT
+
+      - name: Run gcloud commands
+        run: |
+          gcloud compute instances list
+
+      # - name: Deploy GKE    
+      #   run: |
+      #     source deployment.sh
+      
+      # - name: Get secret
+      #   run: |
+      #     mkdir ~/.kube || true
+      #     > ~/.kube/config 
+      #     gcloud container clusters get-credentials $DSO_PROJECT --zone $DSO_GCP_ZONE --project $DSO_PROJECT --internal-ip    
+      #     cat ~/.kube/config 
+
+  # get-secrets:
+  #   needs: deploy-gke
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
+
+  #     - name: Source project.vars
+  #       run: |
+  #         source project.vars
+
+  #     - name: Check cluster readiness
+  #       uses: actions-hub/gcloud@master
+  #       env:
+  #         PROJECT_ID: dso-master
+  #         APPLICATION_CREDENTIALS: ${{secrets.SA_OWNER_DSO_MASTER}}
+  #       with:
+  #         args: container clusters describe $DSO_PROJECT --format="value(status)"
+
+  # get-artifacts:
+  #   needs: deploy-gke
+  #   runs-on: ubuntu-latest
+  #   container: debian:stable-slim
+  #   steps:
+  #     - name: Archive code coverage results
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: code-coverage-report
+  #         path: output/test/code-coverage.html   
