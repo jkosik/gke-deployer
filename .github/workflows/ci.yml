@@ -37,7 +37,7 @@ jobs:
           source gcp-client/project.vars
           echo "$SHELL"
 
-          echo "${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}"
+          echo "${{secrets.AAA}}"
           #echo -n "${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}" > aaa
           #cat aaa
           # normally deployment.yaml generates SA_OWNER key for Client GCP project
