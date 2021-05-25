@@ -33,17 +33,8 @@ jobs:
       - name: Auth to GCP as client SA
         shell: bash  
         run: |
-          # separate shell. merge steps
           source gcp-client/project.vars
-          #echo "$SHELL"
-
           echo "${{secrets.AAA}}"
-          #echo -n "${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}" > aaa
-          #cat aaa
-          # normally deployment.yaml generates SA_OWNER key for Client GCP project
-          #echo "${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}" > creds-sa-owner-$DSO_PROJECT.json
-          #gcloud auth list
-          #gcloud auth activate-service-account --key-file=$GITHUB_WORKSPACE/creds-sa-owner-$DSO_PROJECT.json --project=$DSO_PROJECT
 
       # - name: Jumphost tests
       #   run: |
