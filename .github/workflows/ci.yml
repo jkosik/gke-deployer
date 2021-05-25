@@ -22,14 +22,14 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Source vars
-        run: source gcp-client/project.vars
+        run: ./gcp-client/project.vars
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@master
         with:
           project_id: dso-master
           service_account_key: ${{ secrets.SA_OWNER_DSO_MASTER }}
-          zone: $DSO_GKE_ZONE
+          zone: $DSO_GCE_ZONE
 
       - name: Source project.vars
         run: |
