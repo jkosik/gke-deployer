@@ -54,6 +54,7 @@ jobs:
           echo "Client GKE in state:" $(gcloud container clusters describe ${{ env.DSO_PROJECT }} --format="value(status)")
           JH_IP=$(gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
           echo "Jumphost listening on:" $JH_IP
+          echo "JH_IP=$JH_IP" >> $GITHUB_ENV
 
       - name: Test Jumphost
         env:
@@ -62,8 +63,8 @@ jobs:
           echo "Deploying to ${{ env.DSO_PROJECT }}"
           mkdir -p ~/.ssh
           touch ~/.ssh/known_hosts
-          echo $JH_IP
-          ssh-keyscan -H $JH_IP >> ~/.ssh/known_hosts          
+          echo ${{ env.JH_IP }}
+          ssh-keyscan -H ${{ env.JH_IP }} >> ~/.ssh/known_hosts          
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${{ secrets.GCP_SSH_PRIVATE_KEY }}"
 
