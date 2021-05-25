@@ -41,7 +41,7 @@ jobs:
       - name: Jumphost tests
         run: |
           #gcloud container clusters describe $DSO_PROJECT --format="value(status)"
-          echo ${{secrets.GCP_SSH_KEY}} > /tmp/gcp-ssh-key
+          #echo ${{secrets.GCP_SSH_KEY}} > /tmp/gcp-ssh-key
           #gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
           #JH_IP=$(gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
           JH_IP=34.116.209.201
