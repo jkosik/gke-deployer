@@ -29,21 +29,21 @@ jobs:
         with:
           project_id: dso-master
           service_account_key: ${{ secrets.SA_OWNER_DSO_MASTER }}
-          zone: $DSO_GCE_ZONE
 
-      - name: Grab data from GCP
+      # - name: Deploy GKE    
+      #   run: |
+      #     echo "Deploying to $DSO_PROJECT"
+      #     source deployment.sh
+
+        - name: Grab data from GCP
         run: |
-          echo "Deploying to $DSO_PROJECT"
+          source gcp-client/project.vars
           gcloud container clusters describe $DSO_PROJECT --format="value(status)"
           gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
           JH_IP=$(gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
           echo $JH_IP
 
-      # - name: Deploy GKE    
-      #   run: |
-      #     source deployment.sh
-
-      - name: SSH auth
+      - name: Test Jumphost
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
