@@ -35,7 +35,7 @@ jobs:
       #     echo "Deploying to $DSO_PROJECT"
       #     source deployment.sh
 
-        - name: Grab data from GCP
+      - name: Grab data from GCP
         run: |
           source gcp-client/project.vars
           gcloud container clusters describe $DSO_PROJECT --format="value(status)"
