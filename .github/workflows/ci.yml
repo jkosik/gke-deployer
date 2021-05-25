@@ -22,18 +22,17 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Source vars
-        run: ./gcp-client/project.vars
+        run: source gcp-client/project.vars
 
-      - name: Set up Cloud SDK
+      - name: Set up GCP Cloud SDK
         uses: google-github-actions/setup-gcloud@master
         with:
           project_id: dso-master
           service_account_key: ${{ secrets.SA_OWNER_DSO_MASTER }}
           zone: $DSO_GCE_ZONE
 
-      - name: Source project.vars
+      - name: Grab data from GCP
         run: |
-          source gcp-client/project.vars
           echo "Deploying to $DSO_PROJECT"
           gcloud container clusters describe $DSO_PROJECT --format="value(status)"
           gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
