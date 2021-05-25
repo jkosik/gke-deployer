@@ -56,7 +56,7 @@ jobs:
           #gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
           #JH_IP=$(gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
           JH_IP=34.116.209.201
-          ssh user@$JH_IP "gcloud projects list"
+          ssh -o StrictHostKeyChecking=no user@$JH_IP "gcloud projects list"
           #ssh -i /tmp/gcp-ssh-key user@$JH_IP "kubectl get ns"
 
  
