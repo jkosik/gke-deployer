@@ -42,21 +42,19 @@ jobs:
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
-          mkdir -p /home/runner/.ssh
-          #ssh-keyscan 34.116.209.201 >> /home/runner/.ssh/known_hosts
-          #ssh-keyscan example.com >> /home/runner/.ssh/known_hosts
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${{ secrets.GCP_SSH_PRIVATE_KEY }}"
+
       - name: SSH
         env:
             SSH_AUTH_SOCK: /tmp/ssh_agent.sock          
         run: |
           #gcloud container clusters describe $DSO_PROJECT --format="value(status)"
-          #echo ${{secrets.GCP_SSH_KEY}} > /tmp/gcp-ssh-key
+
           #gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
           #JH_IP=$(gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
           JH_IP=34.116.209.201
           ssh -o StrictHostKeyChecking=no user@$JH_IP "gcloud projects list"
-          #ssh -i /tmp/gcp-ssh-key user@$JH_IP "kubectl get ns"
+          ssh -o StrictHostKeyChecking=no user@$JH_IP "kubectl get ns"
 
  
