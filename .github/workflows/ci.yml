@@ -38,6 +38,7 @@ jobs:
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
+          mkdir ~/.ssh
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${{ secrets.GCP_SSH_PRIVATE_KEY }}"
           ssh-keyscan -H 34.116.209.201 >> ~/.ssh/known_hosts
