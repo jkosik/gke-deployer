@@ -35,7 +35,8 @@ jobs:
         run: |
           source gcp-client/project.vars
           echo "${{secrets.AAA}}" > aaa
-          cat aaa          
+          ls
+          cat ./aaa          
 
       # - name: Jumphost tests
       #   run: |
