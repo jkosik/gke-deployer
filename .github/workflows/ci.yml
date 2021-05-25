@@ -30,22 +30,19 @@ jobs:
       #   run: |
       #     source deployment.sh
 
-      - name: Auth to GCP as client SA
+      - name: GCP auth as client SA
         run: |
-          source gcp-client/project.vars
-          echo "${{secrets.AAA}}" > aaa
           ls
-          #sdfsfsdfds
-          cat ./aaa          
 
-      - name: Jumphost tests
+      - name: SSH auth
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${{ secrets.GCP_SSH_PRIVATE_KEY }}"
+          ssh-keyscan -H 34.116.209.201 >> ~/.ssh/known_hosts
 
-      - name: SSH
+      - name: Jumphost tests
         env:
             SSH_AUTH_SOCK: /tmp/ssh_agent.sock          
         run: |
@@ -54,7 +51,9 @@ jobs:
           #gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
           #JH_IP=$(gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
           JH_IP=34.116.209.201
-          ssh -o StrictHostKeyChecking=no user@$JH_IP "gcloud projects list"
-          ssh -o StrictHostKeyChecking=no user@$JH_IP "kubectl get ns"
+          #ssh -o StrictHostKeyChecking=no user@$JH_IP "gcloud projects list"
+          #ssh -o StrictHostKeyChecking=no user@$JH_IP "kubectl get ns"
+          ssh user@$JH_IP "gcloud projects list"
+          ssh user@$JH_IP "kubectl get ns"
 
  
