@@ -21,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set up GCP Cloud SDK
+      - name: Set up GCP Cloud SDK for Master
         uses: google-github-actions/setup-gcloud@master
         with:
           project_id: dso-master
@@ -31,6 +31,16 @@ jobs:
       #   run: |
       #     echo "Deploying to $DSO_PROJECT"
       #     source deployment.sh
+
+      - name: Source
+        run: source gcp-client/project.vars
+
+      - name: Set up GCP Cloud SDK for Client
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: $DSO_PROJECT
+          service_account_key: ${{ secrets.SA_OWNER_DSO_GKE_CLIENT_1 }}
+
 
       - name: Grab data from GCP
         run: |
