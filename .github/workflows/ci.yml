@@ -21,6 +21,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: dso-master
+          service_account_key: ${{ secrets.SA_OWNER_DSO_MASTER }}
+          export_default_credentials: true
+
       - name: Source project.vars
         run: |
           source gcp-client/project.vars
@@ -30,14 +37,11 @@ jobs:
       #   run: |
       #     source deployment.sh
 
-      - name: GCP auth as client SA
-        run: |
-          ls
-
       - name: SSH auth
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
+          mkdir ~/.ssh
           touch ~/.ssh/known_hosts          
           ssh-keyscan -H 34.116.209.201 >> ~/.ssh/known_hosts          
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
