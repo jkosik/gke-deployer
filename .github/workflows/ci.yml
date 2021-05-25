@@ -31,7 +31,6 @@ jobs:
       #     source deployment.sh
 
       - name: Auth to GCP as client SA
-        shell: bash  
         run: |
           source gcp-client/project.vars
           echo "${{secrets.AAA}}" > aaa
@@ -39,14 +38,14 @@ jobs:
           #sdfsfsdfds
           cat ./aaa          
 
-       - name: Jumphost tests
-         run: |
+      - name: Jumphost tests
+        run: |
       #     gcloud container clusters describe $DSO_PROJECT --format="value(status)"
-           echo ${{secrets.GCP_SSH_KEY}} > /tmp/gcp-ssh-key
+          echo ${{secrets.GCP_SSH_KEY}} > /tmp/gcp-ssh-key
       #     gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
       #     JH_IP=$(gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
-            JH_IP=34.116.209.201
-           ssh -i /tmp/gcp-ssh-key user@$JH_IP "gcloud projects list"
-           ssh -i /tmp/gcp-ssh-key user@$JH_IP "kubectl get ns"
+          JH_IP=34.116.209.201
+          ssh -i /tmp/gcp-ssh-key user@$JH_IP "gcloud projects list"
+          ssh -i /tmp/gcp-ssh-key user@$JH_IP "kubectl get ns"
 
  
