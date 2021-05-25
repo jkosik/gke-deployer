@@ -16,7 +16,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: .
+#        working-directory: .
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -27,20 +27,27 @@ jobs:
           project_id: dso-master
           service_account_key: ${{ secrets.SA_OWNER_DSO_MASTER }}
 
-      # - name: Deploy GKE    
+      # - name: Deploy Client GKE    
       #   run: |
       #     echo "Deploying to $DSO_PROJECT"
       #     source deployment.sh
 
-      - name: Source
-        run: source gcp-client/project.vars
+      - name: Source Client variables
+        run: |
+          source gcp-client/project.vars
+
+      - name: dotenv
+        id: dotenv
+        uses: gcp-client/project.vars
+
+      - name: lala
+        run: cat ${{ steps.dotenv.outputs.DSO_PROJECT }}
 
       - name: Set up GCP Cloud SDK for Client
         uses: google-github-actions/setup-gcloud@master
         with:
           project_id: $DSO_PROJECT
           service_account_key: ${{ secrets.SA_OWNER_DSO_GKE_CLIENT_1 }}
-
 
       - name: Grab data from GCP
         run: |
