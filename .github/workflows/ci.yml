@@ -35,7 +35,7 @@ jobs:
         run: |
           # separate shell. merge steps
           source gcp-client/project.vars
-          echo "$SHELL"
+          #echo "$SHELL"
 
           echo "${{secrets.AAA}}"
           #echo -n "${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}" > aaa
