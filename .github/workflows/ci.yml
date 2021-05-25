@@ -44,6 +44,9 @@ jobs:
         run: |
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${{ secrets.GCP_SSH_PRIVATE_KEY }}"
+          cat ~/.ssh/known_hosts
+          ssh-keygen -R jh
+          cat ~/.ssh/known_hosts
       - name: SSH
         env:
             SSH_AUTH_SOCK: /tmp/ssh_agent.sock          
