@@ -63,25 +63,14 @@ jobs:
           echo "Deploying to ${{ env.DSO_PROJECT }}"
           mkdir -p ~/.ssh
           touch ~/.ssh/known_hosts
-          echo ${{ env.JH_IP }}
+         
           ssh-keyscan -H ${{ env.JH_IP }} >> ~/.ssh/known_hosts          
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${{ secrets.GCP_SSH_PRIVATE_KEY }}"
-
-          JH_IP=34.116.209.201
+         
+          echo "Running commands from inside jumphost at:" ${{ env.JH_IP }}
           #ssh -o StrictHostKeyChecking=no user@$JH_IP "gcloud projects list"
           #ssh -o StrictHostKeyChecking=no user@$JH_IP "kubectl get ns"
-          ssh user@$JH_IP "gcloud projects list"
-          ssh user@$JH_IP "kubectl get ns"          
-
-      - name: Jumphost tests
-        env:
-            SSH_AUTH_SOCK: /tmp/ssh_agent.sock          
-        run: |
-          JH_IP=34.116.209.201
-          #ssh -o StrictHostKeyChecking=no user@$JH_IP "gcloud projects list"
-          #ssh -o StrictHostKeyChecking=no user@$JH_IP "kubectl get ns"
-          ssh user@$JH_IP "gcloud projects list"
-          ssh user@$JH_IP "kubectl get ns"
-
+          ssh user@${{ env.JH_IP }} "gcloud projects list"
+          ssh user@${{ env.JH_IP }} "kubectl get ns"          
  
