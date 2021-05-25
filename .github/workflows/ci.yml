@@ -33,6 +33,7 @@ jobs:
 
       - name: Source project.vars
         run: |
+          source gcp-client/project.vars
           echo "Deploying to $DSO_PROJECT"
           gcloud container clusters describe $DSO_PROJECT --format="value(status)"
           gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
