@@ -33,8 +33,6 @@ jobs:
       #     source deployment.sh
 
       - name: Import environment variables from a file
-        id: import-env
-        shell: bash
         run: |
           while read line; do
             echo "$line" >> $GITHUB_ENV
@@ -46,15 +44,15 @@ jobs:
       - name: Set up GCP Cloud SDK for Client
         uses: google-github-actions/setup-gcloud@master
         with:
-          project_id: $DSO_PROJECT
+          project_id: ${{ env.DSO_PROJECT }}
           service_account_key: ${{ secrets.SA_OWNER_DSO_GKE_CLIENT_1 }}
 
       - name: Grab data from GCP
         run: |
           source gcp-client/project.vars
-          gcloud config set compute/region $DSO_GCP_REGION
-          gcloud config set compute/zone $DSO_GCP_ZONE
-          gcloud container clusters describe $DSO_PROJECT --format="value(status)"
+          gcloud config set compute/region ${{ env.DSO_GCP_REGION }}
+          gcloud config set compute/zone ${{ env.DSO_GCP_ZONE }}
+          gcloud container clusters describe ${{ env.DSO_PROJECT }} --format="value(status)"
           gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
           JH_IP=$(gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
           echo $JH_IP
