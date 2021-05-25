@@ -50,7 +50,8 @@ jobs:
         run: |
           touch ~/.ssh/known_hosts
           ssh-keyscan -H 34.116.209.201 >> ~/.ssh/known_hosts
-
+          cat ~/.ssh/known_hosts
+          cat home/runner/.ssh/known_hosts
           #gcloud container clusters describe $DSO_PROJECT --format="value(status)"
 
           #gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
