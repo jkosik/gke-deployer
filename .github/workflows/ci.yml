@@ -36,19 +36,22 @@ jobs:
           # separate shell. merge steps
           source gcp-client/project.vars
           echo "$SHELL"
-        
-          # normally deployment.yaml generates SA_OWNER key for Client GCP project
-          echo "${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}" > creds-sa-owner-$DSO_PROJECT.json
-          gcloud auth list
-          gcloud auth activate-service-account --key-file=$GITHUB_WORKSPACE/creds-sa-owner-$DSO_PROJECT.json --project=$DSO_PROJECT
 
-      - name: Jumphost tests
-        run: |
-          gcloud container clusters describe $DSO_PROJECT --format="value(status)"
-          echo ${{secrets.GCP_SSH_KEY}} > /tmp/gcp-ssh-key
-          gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
-          JH_IP=$(gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
-          ssh -i /tmp/gcp-ssh-key user@$JH_IP "gcloud projects list"
-          ssh -i /tmp/gcp-ssh-key user@$JH_IP "kubectl get ns"
+          echo "${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}"
+          echo -n "${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}" >aaa
+          cat aaa
+          # normally deployment.yaml generates SA_OWNER key for Client GCP project
+          #echo "${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}" > creds-sa-owner-$DSO_PROJECT.json
+          #gcloud auth list
+          #gcloud auth activate-service-account --key-file=$GITHUB_WORKSPACE/creds-sa-owner-$DSO_PROJECT.json --project=$DSO_PROJECT
+
+      # - name: Jumphost tests
+      #   run: |
+      #     gcloud container clusters describe $DSO_PROJECT --format="value(status)"
+      #     echo ${{secrets.GCP_SSH_KEY}} > /tmp/gcp-ssh-key
+      #     gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
+      #     JH_IP=$(gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
+      #     ssh -i /tmp/gcp-ssh-key user@$JH_IP "gcloud projects list"
+      #     ssh -i /tmp/gcp-ssh-key user@$JH_IP "kubectl get ns"
 
  
