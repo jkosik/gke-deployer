@@ -38,6 +38,8 @@ jobs:
       - name: Grab data from GCP
         run: |
           source gcp-client/project.vars
+          gcloud config set compute/region $DSO_GCP_REGION
+          gcloud config set compute/zone $DSO_GCP_ZONE
           gcloud container clusters describe $DSO_PROJECT --format="value(status)"
           gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
           JH_IP=$(gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
