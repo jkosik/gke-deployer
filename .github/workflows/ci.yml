@@ -39,7 +39,7 @@ jobs:
 
           echo "${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}"
           #echo -n "${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}" > aaa
-          cat aaa
+          #cat aaa
           # normally deployment.yaml generates SA_OWNER key for Client GCP project
           #echo "${{secrets.SA_OWNER_DSO_GKE_CLIENT_1}}" > creds-sa-owner-$DSO_PROJECT.json
           #gcloud auth list
