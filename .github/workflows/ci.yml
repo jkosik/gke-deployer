@@ -32,16 +32,16 @@ jobs:
       #     echo "Deploying to $DSO_PROJECT"
       #     source deployment.sh
 
-      - name: Source Client variables
+      - name: Import environment variables from a file
+        id: import-env
+        shell: bash
         run: |
-          source gcp-client/project.vars
+          while read line; do
+            echo "$line" >> $GITHUB_ENV
+          done < ${{ gcp-client/project.vars }}
 
-      - name: dotenv
-        id: dotenv
-        uses: gcp-client/project.vars
-
-      - name: lala
-        run: cat ${{ steps.dotenv.outputs.DSO_PROJECT }}
+      - name: read var
+        run: echo ${{ env.DSO_PROJECT }}
 
       - name: Set up GCP Cloud SDK for Client
         uses: google-github-actions/setup-gcloud@master
