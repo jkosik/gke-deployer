@@ -32,14 +32,14 @@ jobs:
       #     echo "Deploying to $DSO_PROJECT"
       #     source deployment.sh
 
-      - name: Import environment variables from a file
+      - name: Load environment variables to GITHUB_ENV map
         run: |
           while read line; do
             echo "$line" >> $GITHUB_ENV
           done < gcp-client/project.vars
 
-      - name: read var
-        run: echo ${{ env.DSO_PROJECT }}
+      - name: Read variables
+        run: echo ${{ env }}
 
       - name: Set up GCP Cloud SDK for Client
         uses: google-github-actions/setup-gcloud@master
@@ -49,22 +49,21 @@ jobs:
 
       - name: Grab data from GCP
         run: |
-          source gcp-client/project.vars
           gcloud config set compute/region ${{ env.DSO_GCP_REGION }}
           gcloud config set compute/zone ${{ env.DSO_GCP_ZONE }}
-          gcloud container clusters describe ${{ env.DSO_PROJECT }} --format="value(status)"
-          gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
+          echo "Client GKE in state:" $(gcloud container clusters describe ${{ env.DSO_PROJECT }} --format="value(status)")
           JH_IP=$(gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
-          echo $JH_IP
+          echo "Jumphost listening on:" $JH_IP
 
       - name: Test Jumphost
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
-          echo "Deploying to $DSO_PROJECT"
+          echo "Deploying to ${{ env.DSO_PROJECT }}"
           mkdir -p ~/.ssh
-          touch ~/.ssh/known_hosts          
-          ssh-keyscan -H 34.116.209.201 >> ~/.ssh/known_hosts          
+          touch ~/.ssh/known_hosts
+          echo $JH_IP
+          ssh-keyscan -H $JH_IP >> ~/.ssh/known_hosts          
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${{ secrets.GCP_SSH_PRIVATE_KEY }}"
 
