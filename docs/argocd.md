@@ -18,3 +18,15 @@ https://localhost:1234/
 
 #### Option 2)  
 Update AgroCD Service and deploy appropriate Ingress according to [official howto](https://argoproj.github.io/argo-cd/getting_started/#3-access-the-argo-cd-api-server) and expose GUI outside the cluster.
+
+## ArgoCD credentials
+The initial password is stored in `argocd-initial-admin-secret` Secret. Update password prior production use.
+```
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+
+argocd login <ARGOCD_SERVER>
+argocd account update-password
+```
+
+https://argoproj.github.io/argo-cd/getting_started/#5-register-a-cluster-to-deploy-apps-to-optional
+

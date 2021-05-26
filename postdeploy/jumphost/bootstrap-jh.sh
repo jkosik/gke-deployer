@@ -32,7 +32,7 @@ source project.vars
 mkdir ~/.kube || true
 > ~/.kube/config 
 
-gcloud container clusters get-credentials $DSO_PROJECT --zone $DSO_GCP_ZONE --project $DSO_PROJECT --internal-ip
+gcloud container clusters get-credentials $DSO_GKE_CLUSTER_NAME --zone $DSO_GCP_ZONE --project $DSO_PROJECT --internal-ip
 cp ~/.kube/config /tmp/kubeconfig
-gcloud secrets create kubeconfig-$DSO_PROJECT --data-file=/tmp/kubeconfig --labels=dso_owner=$DSO_OWNER,dso_project=$DSO_PROJECT
+gcloud secrets create kubeconfig-$DSO_GKE_CLUSTER_NAME --data-file=/tmp/kubeconfig --labels=dso_owner=$DSO_OWNER,dso_project=$DSO_PROJECT
 

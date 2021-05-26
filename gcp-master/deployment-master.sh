@@ -38,9 +38,9 @@ echo "--- Creating SA ---"
 
 gcloud iam service-accounts create sa-owner --description="sa-owner" --display-name="sa-owner"
 gcloud projects add-iam-policy-binding $DSO_PROJECT --member=serviceAccount:sa-owner@$DSO_PROJECT.iam.gserviceaccount.com --role=roles/owner
-gcloud iam service-accounts keys create /tmp/creds-sa-owner-$DSO_PROJECT.json --iam-account=sa-owner@$DSO_PROJECT.iam.gserviceaccount.com
+gcloud iam service-accounts keys create creds-sa-owner-$DSO_PROJECT.json --iam-account=sa-owner@$DSO_PROJECT.iam.gserviceaccount.com
 
-gcloud secrets create sa-owner --data-file=/tmp/creds-sa-owner-$DSO_PROJECT.json --labels=dso_owner=$DSO_OWNER,dso_project=$DSO_PROJECT
+gcloud secrets create sa-owner --data-file=creds-sa-owner-$DSO_PROJECT.json --labels=dso_owner=$DSO_OWNER,dso_project=$DSO_PROJECT
 
 # Switch to SA (use full path)
 gcloud auth activate-service-account --key-file=/tmp/creds-sa-owner-$DSO_PROJECT.json --project=$DSO_PROJECT
@@ -91,7 +91,7 @@ gcloud compute networks subnets create $DSO_PROJECT-$DSO_GCP_REGION \
 # Deploy GKE
 # FW rules towards k8s nodes, master-ipv4-cidr and secondary-subnet-pods are automatically created when spawning GKE
 echo "--- Deploying GKE ---"
-gcloud container clusters create $DSO_CLUSTER_NAME \
+gcloud container clusters create $DSO_GKE_CLUSTER_NAME \
     --zone $DSO_GCP_ZONE \
     --network $DSO_PROJECT \
     --subnetwork $DSO_PROJECT-$DSO_GCP_REGION \
