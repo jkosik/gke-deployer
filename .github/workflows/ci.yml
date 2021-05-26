@@ -37,6 +37,13 @@ jobs:
             echo "$line" >> $GITHUB_ENV
           done < gcp-client/project.vars
 
+      - name: Check Client variables
+        run: echo $GITHUB_ENV
+
+      - name: Check Client variables
+        run: echo ${{ env }}
+
+
       - name: Set up GCP Cloud SDK for Client
         uses: google-github-actions/setup-gcloud@master
         with:
@@ -93,3 +100,16 @@ jobs:
           #ssh user@${{ env.JH_IP }} "kubectl get ns"
           ssh -o StrictHostKeyChecking=no user@${{ env.JH_IP }} "kubectl get ns"          
           check_remote_success kubectl
+
+lala:
+    runs-on: ubuntu-latest
+    container: jkosik/cloud-deployer
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check Client variables
+        run: echo $GITHUB_ENV
+
+      - name: Check Client variables
+        run: echo ${{ env }}
