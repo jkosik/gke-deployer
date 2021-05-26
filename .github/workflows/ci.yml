@@ -101,7 +101,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no user@${{ env.JH_IP }} "kubectl get ns"          
           check_remote_success kubectl
 
-lala:
+  lala:
     runs-on: ubuntu-latest
     container: jkosik/cloud-deployer
     defaults:
