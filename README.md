@@ -13,10 +13,10 @@
 
 ## Master GCP project
 [gcp-master/deployment-master.sh](gcp-master/deployment-master.sh) builds Master GCP project and needed components.  
-Master GCP project contains Master GKE cluster with ArgoCD for managing infrastructure related applications, e.g. Prometheus stack, Loki, Goldpinger, Client ArgoCD, optionally service mesh, etc.
+Master GCP project contains Master GKE cluster with [ArgoCD for managing Client infrastructure](docs/argocd.md) related applications, e.g. Prometheus stack, Loki, Goldpinger, Client ArgoCD, optionally service mesh, etc.
 
 ## Client GCP project
-[gcp-client/deployment.yaml](gcp-client/deployment.yaml) builds Client GCP project and needed components.  
+[gcp-client/deployment.sh](gcp-client/deployment.yaml) builds Client GCP project and needed components.  
 Entrypoint to the Client infrastructure is Internet-facing jumphost with pre-installed tools.
 
 ## IP address scheme
