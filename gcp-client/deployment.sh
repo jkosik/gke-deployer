@@ -61,7 +61,7 @@ gcloud compute networks subnets create $DSO_PROJECT-$DSO_GCP_REGION \
 # Deploy GKE
 # Permissive(!) FW rules towards k8s nodes, master-ipv4-cidr and secondary-subnet-pods are automatically created when spawning GKE
 echo "--- Deploying GKE ---"
-gcloud container clusters create $DSO_PROJECT \
+gcloud container clusters create $DSO_CLUSTER_NAME \
     --zone $DSO_GCP_ZONE \
     --network $DSO_PROJECT \
     --subnetwork $DSO_PROJECT-$DSO_GCP_REGION \

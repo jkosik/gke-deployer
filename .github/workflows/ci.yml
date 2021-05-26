@@ -37,6 +37,7 @@ jobs:
           while read line; do
             echo "$line" >> $GITHUB_ENV
           done < gcp-client/project.vars
+          touch ./abcd
 
       - name: Read variables
         run: echo ${{ env }}
@@ -49,11 +50,27 @@ jobs:
 
       - name: Grab data from GCP
         run: |
+          ls
           gcloud config set compute/region ${{ env.DSO_GCP_REGION }}
           gcloud config set compute/zone ${{ env.DSO_GCP_ZONE }}
-          echo "Client GKE in state:" $(gcloud container clusters describe ${{ env.DSO_PROJECT }} --format="value(status)")
+
+          c=0
+          while true; do
+            while [[ $(gcloud container clusters describe ${{ env.DSO_CLUSTER_NAME }} --format="value(status)") != "RUNNING" ]] ; do
+              ((c++)) && ((c>60)) && printf "Timeout to deploy K8S cluster exceeded\n" && exit 1
+              sleep 5
+              echo "Checking K8S cluster build..."
+            done
+            echo "K8S cluster ${{ env.DSO_CLUSTER_NAME }} in RUNNING state"
+            break
+          done;
+
+          CLIENT_GKE_STATE=$(gcloud container clusters describe ${{ env.DSO_CLUSTER_NAME }} --format="value(status)")
+          echo "Client GKE in state:" $(gcloud container clusters describe ${{ env.DSO_CLUSTER_NAME }} --format="value(status)")
+
           JH_IP=$(gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
           echo "Jumphost listening on:" $JH_IP
+
           echo "JH_IP=$JH_IP" >> $GITHUB_ENV
 
       - name: Test Jumphost
@@ -62,15 +79,26 @@ jobs:
         run: |
           echo "Deploying to ${{ env.DSO_PROJECT }}"
           mkdir -p ~/.ssh
-          touch ~/.ssh/known_hosts
-         
+          > ~/.ssh/known_hosts
           ssh-keyscan -H ${{ env.JH_IP }} >> ~/.ssh/known_hosts          
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${{ secrets.GCP_SSH_PRIVATE_KEY }}"
          
           echo "Running commands from inside the jumphost at:" ${{ env.JH_IP }}
-          #ssh -o StrictHostKeyChecking=no user@$JH_IP "gcloud projects list"
-          #ssh -o StrictHostKeyChecking=no user@$JH_IP "kubectl get ns"
-          ssh -o StrictHostKeyChecking=no user@${{ env.JH_IP }} "gcloud projects list"
-          ssh -o StrictHostKeyChecking=no user@${{ env.JH_IP }} "kubectl get ns"          
+          check_remote_success () {
+            if [[ $(echo $?) -eq 0 ]]; then 
+              echo "Remote test for $1 passed."
+            else
+              echo "remote test for $1 failed."
+              exit 1
+            fi
+          }
+          # to remove StrictHostKeyChecking=no and fix ssh-keyscan
+          ssh user@${{ env.JH_IP }} "gcloud projects list"
+          check_remote_success gcloud
+          ssh user@${{ env.JH_IP }} "kubectl get ns"
+          check_remote_success kubectl
+
+#          ssh -o StrictHostKeyChecking=no user@${{ env.JH_IP }} "gcloud projects list"
+#          ssh -o StrictHostKeyChecking=no user@${{ env.JH_IP }} "kubectl get ns"          
  
