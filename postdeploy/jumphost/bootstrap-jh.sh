@@ -2,7 +2,18 @@
 
 # Bootstrap jumphost
 
-# Install kubectl (gcloud installed by default)
+set -x
+set -e
+
+# Install base packages
+sudo apt update -y
+sudo apt install -y \
+    dnsutils \
+    curl \
+    jq \
+    wget
+    
+# Install kubectl (gcloud installed by default for GCP VM)
 echo "--- Installing kubectl ---"
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
@@ -24,3 +35,4 @@ mkdir ~/.kube || true
 gcloud container clusters get-credentials $DSO_PROJECT --zone $DSO_GCP_ZONE --project $DSO_PROJECT --internal-ip
 cp ~/.kube/config /tmp/kubeconfig
 gcloud secrets create kubeconfig-$DSO_PROJECT --data-file=/tmp/kubeconfig --labels=dso_owner=$DSO_OWNER,dso_project=$DSO_PROJECT
+

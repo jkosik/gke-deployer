@@ -2,6 +2,7 @@
 
 # Deploys client GKE cluster based on ENVs from cluster-vars file
 
+set -x
 set -e
 
 # Vars
@@ -46,7 +47,7 @@ gcloud secrets create sa-owner --data-file=creds-sa-owner-$DSO_PROJECT.json --la
 gcloud auth activate-service-account --key-file=creds-sa-owner-$DSO_PROJECT.json --project=$DSO_PROJECT
 rm creds-sa-owner-$DSO_PROJECT.json
 
-# Create GKE network. 
+# Create GKE network
 echo "--- Preparing networking for GKE ---"
 gcloud compute networks create $DSO_PROJECT --subnet-mode custom
 
@@ -59,7 +60,7 @@ gcloud compute networks subnets create $DSO_PROJECT-$DSO_GCP_REGION \
     --enable-private-ip-google-access    
 
 # Deploy GKE
-# Permissive(!) FW rules towards k8s nodes, master-ipv4-cidr and secondary-subnet-pods are automatically created when spawning GKE
+# FW rules towards k8s nodes, master-ipv4-cidr and secondary-subnet-pods are automatically created when spawning GKE
 echo "--- Deploying GKE ---"
 gcloud container clusters create $DSO_CLUSTER_NAME \
     --zone $DSO_GCP_ZONE \
@@ -74,6 +75,18 @@ gcloud container clusters create $DSO_CLUSTER_NAME \
     --master-ipv4-cidr 172.16.0.0/28 \
     --num-nodes $DSO_GKE_NODES \
     --machine-type $DSO_GKE_MACHINE_TYPE
+
+# Create Cloud NAT for egress communication from private GKE
+echo "--- Creating Cloud NAT for private GKE ---"
+gcloud compute routers create $DSO_PROJECT \
+    --network $DSO_PROJECT \
+    --region $DSO_GCP_REGION
+
+gcloud compute routers nats create $DSO_PROJECT \
+    --router-region $DSO_GCP_REGION \
+    --router $DSO_PROJECT \
+    --nat-all-subnet-ip-ranges \
+    --auto-allocate-nat-external-ips
 
 # Deploy jumphost. Reachable at: gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
 # Jumphost has default visibility GKE API at "-master-ipv4-cidr 172.16.0.0/28"
@@ -91,7 +104,7 @@ gcloud compute instances add-metadata jh --metadata-from-file ssh-keys=ssh-keys
 gcloud compute firewall-rules create $DSO_PROJECT-jh --network $DSO_PROJECT --allow tcp:22,udp,icmp --target-tags jh
 
 ## Bootstrap jumphost for GKE
-gcloud compute scp --ssh-key-file=$PRIVATE_SSH_KEY_PATH --recurse jumphost/ user@jh:~/jumphost
+gcloud compute scp --ssh-key-file=$PRIVATE_SSH_KEY_PATH --recurse ../postdeploy/jumphost/ user@jh:~/jumphost
 gcloud compute scp --ssh-key-file=$PRIVATE_SSH_KEY_PATH project.vars user@jh:~/jumphost/project.vars
 gcloud compute ssh --ssh-key-file=$PRIVATE_SSH_KEY_PATH user@jh -- 'cd ~/jumphost && source bootstrap-jh.sh'
 

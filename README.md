@@ -1,39 +1,40 @@
 # gke-deployer
 
 ## Definition of terms
-- DSO - DevSecOps. Used to prefix variables, project names to avoid naming conflicts.
-- Master - refers to the root GCP project. Resources within (e.g. Service Accounts) will manage lifecycle of the Clients.
-- Client - Application team and primarily GKE clusters they request from DSO.
+- `DSO` (DevSecOps) is used to prefix variables, project names and othe robjects to avoid naming conflicts.
+- Master - refers to the root GCP project for managing Client projects in GCP. Master Service Account will manage lifecycle of the Clients.
+- Client - represents GCP projects built for Application team. Includes primarily managed GKE clusters.
 
 ## Process
 1. DSO populates "Master" GCP project in the very beginning. One-time job.
-2. Client passes to DSOGKE cluster and supplies parameters from `project.vars`
-3. DSO deploys Client K8S infrastruture via GitOps
-4. Post-deployment changes are applied on Client infrastucture as a separate layer of GitOps automation ad-hoc, e.g. VPC peerings, VPNs, Anthos registrations...
+2. Client requests GKE and provides [project.vars](gcp-client/project.vars)
+3. DSO builds K8S infrastruture for the Client. Entrypoint to the infrastructure is a per-project Jumphost with preinstalled tools.
+4. Post-deployment changes are applied on the Client infrastucture as a separate process ad-hoc, e.g. VPC peerings, VPNs, Anthos registrations...
 
 ## Master GCP project
-`master-gcp/deployment-master.sh` populates master GCP project.
+[gcp-master/deployment-master.sh](gcp-master/deployment-master.sh) builds Master GCP project and needed components.  
+Master GCP project contains Master GKE cluster with ArgoCD for managing infrastructure related applications, e.g. Prometheus stack, Loki, Goldpinger, Client ArgoCD, optionally service mesh, etc.
 
 ## Client GCP project
-`client/deployment.yaml` creates the following:
-- Client GCP project.
-- Service account with project `owner` permissions. Storing SA credentials to GCP Secret Manager in the Client project.
-- Preparing network and subnetworks for deploying GKE.
-- Private GKE reachable from with machines in the same subnet. Generating kubeconfig and storing it to GCP Secret Manager in the Client project.
-- Internet-facing jumphost for managing GKE from inside the VPC. VMs in the GKE VPC can reach 172.x.x.x (GKE control plane) automatically. 
-- Bootstrapping jumphost to use `gcloud` and `kubectl` out of the box.
+[gcp-client/deployment.yaml](gcp-client/deployment.yaml) builds Client GCP project and needed components.  
+Entrypoint to the Client infrastructure is Internet-facing jumphost with pre-installed tools.
 
 ## IP address scheme
 IP ranges harmonization is needed for efficient peerings and overall maintenance.  
 #### Master project
-- Default subnet in Master project uses 192.168.0.0/20. 
+- Default VPC: 192.168.0.0/20. 
+- GKE VPC: 192.168.16.0/20. 
 
 #### Client projects
-- VPC network for GKE: `192.168.240.0/20`
-- Service and Pod subnets: `--secondary-range secondary-subnet-services=10.0.32.0/20,secondary-subnet-pods=10.4.0.0/14`
-- GKE control plane: `--master-ipv4-cidr 172.16.0.0/28`
+- GKE VPC: `192.168.240.0/20`
+    - Service and Pod subnets: `--secondary-range secondary-subnet-services=10.0.32.0/20,secondary-subnet-pods=10.4.0.0/14`
+    - GKE control plane: `--master-ipv4-cidr 172.16.0.0/28`
+
+## Applications
+Customer facing
 
 ## Open questions
 - `deployment.yaml` to use SA with parent in non-free Tier.
 - GCP Project to GKE mapping, 1:1 vs 1:N?
-- Workload Identities for GKE - introduced complexity & known limitations
+- Workload Identities for GKE - introducing complexity & known limitations
+- exposing GKE API to Internet

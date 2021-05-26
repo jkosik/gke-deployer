@@ -2,7 +2,16 @@
 
 # Bootstrap adminhost
 
+set -x
 set -e
+
+# Install base packages
+sudo apt update -y
+sudo apt install -y \
+    dnsutils \
+    curl \
+    jq \
+    wget
 
 # Install kubectl (gcloud installed by default)
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
