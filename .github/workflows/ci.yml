@@ -92,10 +92,10 @@ jobs:
             fi
           }
           # to remove StrictHostKeyChecking=no and fix ssh-keyscan
-#          ssh user@${{ env.JH_IP }} "gcloud projects list"
+          #ssh user@${{ env.JH_IP }} "gcloud projects list"
           ssh -o StrictHostKeyChecking=no user@${{ env.JH_IP }} "gcloud projects list"
           check_remote_success gcloud
-#          ssh user@${{ env.JH_IP }} "kubectl get ns"
+          #ssh user@${{ env.JH_IP }} "kubectl get ns"
           ssh -o StrictHostKeyChecking=no user@${{ env.JH_IP }} "kubectl get ns"          
           check_remote_success kubectl
 
