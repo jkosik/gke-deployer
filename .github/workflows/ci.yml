@@ -31,15 +31,11 @@ jobs:
       #     echo "Deploying to $DSO_PROJECT"
       #     source deployment.sh
 
-      - name: Load environment variables to GITHUB_ENV map
+      - name: Load Client variables to GITHUB_ENV map
         run: |
           while read line; do
             echo "$line" >> $GITHUB_ENV
           done < gcp-client/project.vars
-          touch ./abcd
-
-      - name: Read variables
-        run: echo ${{ env }}
 
       - name: Set up GCP Cloud SDK for Client
         uses: google-github-actions/setup-gcloud@master
@@ -47,12 +43,13 @@ jobs:
           project_id: ${{ env.DSO_PROJECT }}
           service_account_key: ${{ secrets.SA_OWNER_DSO_GKE_CLIENT_1 }}
 
-      - name: Grab data from GCP
+      - name: Set GCP zone and region
         run: |
-          ls
           gcloud config set compute/region ${{ env.DSO_GCP_REGION }}
           gcloud config set compute/zone ${{ env.DSO_GCP_ZONE }}
 
+      - name: Check GKE readiness
+        run: |
           c=0
           while true; do
             while [[ $(gcloud container clusters describe ${{ env.DSO_CLUSTER_NAME }} --format="value(status)") != "RUNNING" ]] ; do
@@ -64,9 +61,8 @@ jobs:
             break
           done;
 
-          CLIENT_GKE_STATE=$(gcloud container clusters describe ${{ env.DSO_CLUSTER_NAME }} --format="value(status)")
-          echo "Client GKE in state:" $(gcloud container clusters describe ${{ env.DSO_CLUSTER_NAME }} --format="value(status)")
-          echo "-----"
+      - name: Identify Jumphost public IP
+        run: |
           JH_IP=$(gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
           echo "Jumphost listening on:" $JH_IP
           echo "JH_IP=$JH_IP" >> $GITHUB_ENV
@@ -77,7 +73,6 @@ jobs:
         run: |
           echo "Deploying to ${{ env.DSO_PROJECT }}"
           mkdir -p ~/.ssh
-          #> ~/.ssh/known_hosts
           ssh-keyscan -H ${{ env.JH_IP }} >> ~/.ssh/known_hosts          
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${{ secrets.GCP_SSH_PRIVATE_KEY }}"
@@ -98,16 +93,3 @@ jobs:
           #ssh user@${{ env.JH_IP }} "kubectl get ns"
           ssh -o StrictHostKeyChecking=no user@${{ env.JH_IP }} "kubectl get ns"          
           check_remote_success kubectl
-
-  tst:
-    runs-on: ubuntu-latest
-    container: jkosik/cloud-deployer
-    defaults:
-      run:
-        shell: bash
-#        working-directory: .
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Checkout
-        run: ls
