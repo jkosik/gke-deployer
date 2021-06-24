@@ -3,8 +3,9 @@
 # See ls ~/.config/gcloud/configurations/
 gcloud config configurations activate default
 
-# In case of overwritten user in current profile, just pick the right one from ~/.config/gcloud/credentials.db
+# In case of overwritten user in the active gcloud profile, just pick the right one from ~/.config/gcloud/credentials.db
 #gcloud config set account juraj.kosik@gmail.com
+#gcloud config set project dso-main
 
 # source gke.vars, grab auth secret and activate it with active gcloud configuration
 source gke.vars

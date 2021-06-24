@@ -57,7 +57,7 @@ juraj@xps ~ $ gcloud auth activate-service-account --key-file=creds-sa-owner-$DS
 ```
 
 ## GKE Deployment
-Update `gke.vars` and run [gcp-master/deployment.sh](gcp-master/deployment.sh) builds GKE to the existing GCP project and postdeploys [jumphost](docs/jh.md) with supplementary applications as [ArgoCD](docs/argocd.md), Prometheus stack, Loki, Goldpinger, optionally service mesh, etc.
+Update `gke.vars` and run [gcp-master/deployment.sh](gcp-master/deployment.sh) builds GKE to the existing GCP project and postdeploys [Jumphost](docs/jh.md) with supplementary applications as [ArgoCD](docs/argocd.md), Prometheus stack, Loki, Goldpinger, optionally service mesh, etc.
 
 ## IP address scheme
 IP ranges harmonization is needed for efficient peerings and overall maintenance.   
@@ -80,8 +80,14 @@ gcloud container clusters create $DSO_GKE_CLUSTER_NAME \
 ## Applications
 Customer facing
 
-## Open questions
+## Open Issues
 - `deployment.yaml` to use SA with parent in non-free Tier.
 - GCP Project to GKE mapping, 1:1 vs 1:N?
 - Workload Identities for GKE - introducing complexity & known limitations
 - exposing GKE API to Internet
+- Switching to SA account overwrites the active gcloud profile. Introduces confusion in local deployments. No problem in CICD. Fix by:
+```
+gcloud config set account juraj.kosik@gmail.com
+gcloud config set project dso-main
+gcloud config configurations list
+```
