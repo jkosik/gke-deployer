@@ -1,4 +1,4 @@
-name: deploy-gke
+name: gke-deploy
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy-gke:
+  gke-deploy:
     runs-on: ubuntu-latest
     container: jkosik/cloud-deployer
     defaults:
@@ -20,7 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set up GCP Cloud SDK for Master
+      - name: Auth to GCP Cloud 
         uses: google-github-actions/setup-gcloud@master
         with:
           project_id: dso-master
@@ -39,7 +39,7 @@ jobs:
         run: |
           while read line; do
             echo "$line" >> $GITHUB_ENV
-          done < gcp-client/project.vars
+          done < gke-deploy/gke.vars
 
       - name: Set up GCP Cloud SDK for Client
         uses: google-github-actions/setup-gcloud@master

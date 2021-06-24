@@ -28,7 +28,7 @@ echo 'source <(kubectl completion bash)' >>~/.bashrc
 
 # Generate kubeconfig and store to Secret Manager
 echo "--- Generating kubeconfig for GKE ---"
-source project.vars
+source gke.vars
 mkdir ~/.kube || true
 > ~/.kube/config 
 
@@ -36,3 +36,4 @@ gcloud container clusters get-credentials $DSO_GKE_CLUSTER_NAME --zone $DSO_GCP_
 cp ~/.kube/config /tmp/kubeconfig
 gcloud secrets create kubeconfig-$DSO_GKE_CLUSTER_NAME --data-file=/tmp/kubeconfig --labels=dso_owner=$DSO_OWNER,dso_project=$DSO_PROJECT
 
+#gcloud secrets versions access 1 --secret="kubeconfig-$DSO_PROJECT" > ~/.kube/config

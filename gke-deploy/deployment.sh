@@ -1,15 +1,15 @@
 #!/bin/bash
 
-# Deploys client GKE cluster based on ENVs from cluster-vars file
+# Prepares GKE project using initial oauth2 personal credentials
 
-set -x
-set -e
+#set -x
+#set -e
 
 # Vars
-source ./project.vars
+source ./gke.vars
 
-# Switch to Master SA (use full path)
-echo "--- Using master SA to create client project ---"
+# Switch to initial subscription account
+echo "--- Using initial subscription account to create GCP project ---"
 gcloud config set account juraj.kosik@gmail.com # to be used in Free Tier only! Service accounts cannot create projects without a parent.
 
 # Create project
@@ -28,6 +28,8 @@ gcloud services enable \
   cloudresourcemanager.googleapis.com \
   compute.googleapis.com \
   container.googleapis.com \
+  gkeconnect.googleapis.com \
+  gkehub.googleapis.com \
   secretmanager.googleapis.com
 
 # Set defaults
@@ -35,7 +37,7 @@ echo "--- Setting default region/zone ---"
 gcloud config set compute/region $DSO_GCP_REGION
 gcloud config set compute/zone $DSO_GCP_ZONE
 
-# Create privileged SA and store to Secret Manager
+# Create privileged SA and store auth Secret to the Secret Manager
 echo "--- Creating SA ---"
 gcloud iam service-accounts create sa-owner --description="sa-owner" --display-name="sa-owner"
 gcloud projects add-iam-policy-binding $DSO_PROJECT --member=serviceAccount:sa-owner@$DSO_PROJECT.iam.gserviceaccount.com --role=roles/owner
@@ -43,24 +45,25 @@ gcloud iam service-accounts keys create creds-sa-owner-$DSO_PROJECT.json --iam-a
 
 gcloud secrets create sa-owner --data-file=creds-sa-owner-$DSO_PROJECT.json --labels=dso_owner=$DSO_OWNER,dso_project=$DSO_PROJECT
 
-# Switch to SA (use full path)
+# Switch to SA (use full path). Overrides currently used gcloud profile. Ok for CI environment.
 gcloud auth activate-service-account --key-file=creds-sa-owner-$DSO_PROJECT.json --project=$DSO_PROJECT
-rm creds-sa-owner-$DSO_PROJECT.json
 
 # Create GKE network
 echo "--- Preparing networking for GKE ---"
 gcloud compute networks create $DSO_PROJECT --subnet-mode custom
 
-# Create subnetwork
+# Create GKE subnetwork
 gcloud compute networks subnets create $DSO_PROJECT-$DSO_GCP_REGION \
     --network $DSO_PROJECT \
     --region $DSO_GCP_REGION \
-    --range 192.168.240.0/20 \
+    --range 192.168.16.0/20 \
     --secondary-range secondary-subnet-services=10.0.32.0/20,secondary-subnet-pods=10.4.0.0/14 \
     --enable-private-ip-google-access    
 
 # Deploy GKE
-# FW rules towards k8s nodes, master-ipv4-cidr and secondary-subnet-pods are automatically created when spawning GKE
+# step autocreates: 
+#   - FW rules towards k8s control plane(master-ipv4-cidr) and k8s Pods(secondary-subnet-pods)
+#   - appends context to the current kubeconfig
 echo "--- Deploying GKE ---"
 gcloud container clusters create $DSO_GKE_CLUSTER_NAME \
     --zone $DSO_GCP_ZONE \
@@ -69,7 +72,7 @@ gcloud container clusters create $DSO_GKE_CLUSTER_NAME \
     --cluster-secondary-range-name secondary-subnet-pods \
     --services-secondary-range-name secondary-subnet-services \
     --enable-master-authorized-networks \
-    --master-authorized-networks 178.41.36.135/32 \
+    --master-authorized-networks $DSO_GKE_PUBLIC_ACCESS_FROM \
     --enable-ip-alias \
     --enable-private-nodes \
     --master-ipv4-cidr 172.16.0.0/28 \
@@ -89,7 +92,7 @@ gcloud compute routers nats create $DSO_PROJECT \
     --auto-allocate-nat-external-ips
 
 # Deploy jumphost. Reachable at: gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
-# Jumphost has default visibility GKE API at "-master-ipv4-cidr 172.16.0.0/28"
+# Jumphost has default visibility to GKE API at "-master-ipv4-cidr 172.16.0.0/28"
 echo "--- Deploying and configuring jumphost ---"
 gcloud compute instances create jh --hostname=jumphost-$DSO_PROJECT.localhost \
   --subnet=$DSO_PROJECT-$DSO_GCP_REGION \
@@ -100,11 +103,13 @@ gcloud compute instances create jh --hostname=jumphost-$DSO_PROJECT.localhost \
   --machine-type=e2-small \
   --tags=jh
 
-gcloud compute instances add-metadata jh --metadata-from-file ssh-keys=ssh-keys
+gcloud compute instances add-metadata jh --metadata-from-file ssh-pubkeys=ssh-pubkeys
 gcloud compute firewall-rules create $DSO_PROJECT-jh --network $DSO_PROJECT --allow tcp:22,udp,icmp --target-tags jh
 
 ## Bootstrap jumphost for GKE
-gcloud compute scp --ssh-key-file=$PRIVATE_SSH_KEY_PATH --recurse ../postdeploy/jumphost/ user@jh:~/jumphost
-gcloud compute scp --ssh-key-file=$PRIVATE_SSH_KEY_PATH project.vars user@jh:~/jumphost/project.vars
-gcloud compute ssh --ssh-key-file=$PRIVATE_SSH_KEY_PATH user@jh -- 'cd ~/jumphost && source bootstrap-jh.sh'
+gcloud compute scp --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH --recurse ../gke-postdeploy/jumphost/ user@jh:~/jumphost
+gcloud compute scp --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH gke.vars user@jh:~/jumphost/gke.vars
+gcloud compute ssh --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH user@jh -- 'cd ~/jumphost && source bootstrap-jh.sh'
+gcloud compute ssh --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH user@jh -- 'cd ~/jumphost/argocd && source argocd.sh'
 
+#
