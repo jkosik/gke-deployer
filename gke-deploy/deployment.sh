@@ -2,19 +2,21 @@
 
 # Prepares GKE project using initial oauth2 personal credentials
 
-#set -x
-#set -e
+set -x
+set -e
 
 # Vars
 source ./gke.vars
 
 # Switch to initial subscription account
 echo "--- Using initial subscription account to create GCP project ---"
-gcloud config set account juraj.kosik@gmail.com # to be used in Free Tier only! Service accounts cannot create projects without a parent.
+# In Free Tier, Service Accounts cannot create projects without a parent (ERROR: (gcloud.projects.create) PERMISSION_DENIED: Service accounts cannot create projects without a parent.)). 
+# Thus switch to the User account. Normally use Organization or Folder-wide SA from the main/root project to create workload projects and run the following steps.
+gcloud config configurations activate juraj
 
 # Create project
 echo "--- Creating project $DSO_PROJECT ---"
-gcloud projects create $DSO_PROJECT --labels=dso_owner=$DSO_OWNER,dso_project=$DSO_PROJECT
+gcloud projects create $DSO_PROJECT --labels=dso_owner=$DSO_OWNER
 gcloud config set project $DSO_PROJECT
 
 # Enable billing and link to billing account

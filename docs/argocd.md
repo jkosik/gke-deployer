@@ -12,7 +12,8 @@ kubectl -n argocd port-forward svc/argocd-server -n argocd 8080:443
 
 - On desktop:  
 ```
-ssh -L 1234:localhost:8080 user@34.116.135.131 -i /data/access/gcp
+export JH_EXTERNAL_IP=`gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'`
+ssh -L 1234:localhost:8080 user@$JH_EXTERNAL_IP -i PRIVATE_SSH_KEY
 https://localhost:1234/
 ```
 

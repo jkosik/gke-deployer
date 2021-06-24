@@ -3,7 +3,6 @@
 # Bootstrap jumphost
 
 set -x
-set -e
 
 # Install base packages
 sudo apt update -y
@@ -17,7 +16,7 @@ sudo apt install -y \
 echo "--- Installing kubectl ---"
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-mkdir -p ~/.local/bin/kubectl || true
+mkdir -p ~/.local/bin/kubectl
 mv ./kubectl ~/.local/bin/kubectl
 
 # Configure kubectl command completition
@@ -29,7 +28,7 @@ echo 'source <(kubectl completion bash)' >>~/.bashrc
 # Generate kubeconfig and store to Secret Manager
 echo "--- Generating kubeconfig for GKE ---"
 source gke.vars
-mkdir ~/.kube || true
+mkdir ~/.kube
 > ~/.kube/config 
 
 gcloud container clusters get-credentials $DSO_GKE_CLUSTER_NAME --zone $DSO_GCP_ZONE --project $DSO_PROJECT --internal-ip

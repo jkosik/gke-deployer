@@ -24,7 +24,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@master
         with:
           project_id: dso-master
-          service_account_key: ${{ secrets.SA_OWNER_DSO_MASTER }}
+          service_account_key: ${{ secrets.SUBSCRIPTION_KEY }}
 
       # - name: Deploy Client GKE    
       #   run: |

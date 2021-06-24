@@ -1,7 +1,63 @@
 # gke-deployer
 
+## Prerequisites
+- Export ENV vars
+```
+export DSO_PROJECT=dso-main
+export DSO_OWNER=juraj
+export DSO_BILLING_ACCOUNT=YOUR_BILLING_ACCOUNT_ID
+cd ~/
+```
+- Create a root project, e.g. `dso-main`
+```
+gcloud projects create $DSO_PROJECT --labels=dso_owner=$DSO_OWNER
+```
+- Activate newly created project within your user profile
+```
+juraj@xps ~ $ cat ~/.config/gcloud/configurations/config_juraj
+[core]
+project = dso-main
+account = juraj.kosik@gmail.com
+
+[compute]
+zone = europe-central2-a
+region = europe-central2
+
+juraj@xps ~ $ gcloud config configurations activate juraj
+Activated [juraj].
+```
+- Activate billing and enable needed APIs
+```
+gcloud beta billing projects link $DSO_PROJECT --billing-account=$DSO_BILLING_ACCOUNT 
+gcloud services enable \
+  cloudresourcemanager.googleapis.com \
+  secretmanager.googleapis.com
+```
+
+- Create Service Account and generate JSON Key
+```
+gcloud iam service-accounts create sa-owner --description="sa-owner" --display-name="sa-owner"
+gcloud projects add-iam-policy-binding $DSO_PROJECT --member=serviceAccount:sa-owner@$DSO_PROJECT.iam.gserviceaccount.com --role=roles/owner
+gcloud iam service-accounts keys create creds-sa-owner-$DSO_PROJECT.json --iam-account=sa-owner@$DSO_PROJECT.iam.gserviceaccount.com
+gcloud secrets create sa-owner --data-file=creds-sa-owner-$DSO_PROJECT.json --labels=dso_owner=juraj,dso_project=$DSO_PROJECT
+```
+- Activate newly created project within your SA profile
+```
+juraj@xps ~ $ cat ~/.config/gcloud/configurations/config_dso-main
+[core]
+project = dso-main
+account = sa-main@dso-main.iam.gserviceaccount.com
+
+[compute]
+zone = europe-central2-a
+region = europe-central2
+
+juraj@xps ~ $ gcloud config configurations activate dso-main
+juraj@xps ~ $ gcloud auth activate-service-account --key-file=creds-sa-owner-$DSO_PROJECT.json --project=$DSO_PROJECT
+```
+
 ## GKE Deployment
-[gcp-master/deployment.sh](gcp-master/deployment.sh) builds GKE to the existing GCP project and postdeploys [jumphost](docs/jh.md) with supplementary applications as [ArgoCD](docs/argocd.md), Prometheus stack, Loki, Goldpinger, optionally service mesh, etc.
+Update `gke.vars` and run [gcp-master/deployment.sh](gcp-master/deployment.sh) builds GKE to the existing GCP project and postdeploys [jumphost](docs/jh.md) with supplementary applications as [ArgoCD](docs/argocd.md), Prometheus stack, Loki, Goldpinger, optionally service mesh, etc.
 
 ## IP address scheme
 IP ranges harmonization is needed for efficient peerings and overall maintenance.   
