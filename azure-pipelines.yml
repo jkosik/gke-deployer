@@ -7,7 +7,18 @@
     arguments: 'd'
 
 trigger:
-- main
+  batch: boolean # batch changes if true; start a new build for every push if false (default)
+  branches:
+    include: main
+    exclude: docs
+  paths:
+    exclude: 
+      - 'docs/**'
+      - 'README.md'
+pr: 
+  branches:
+    include: main
+    exclude: docs
 
 pool:
   vmImage: ubuntu-latest

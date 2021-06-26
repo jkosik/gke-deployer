@@ -2,7 +2,10 @@ name: gke-deploy
 
 on:
   push:
-    branches: [ main ]
+    branches: 
+      - 'main'
+    branches-ignore:
+      - 'docs'
     paths-ignore:
       - 'docs/**'
       - 'README.md'
