@@ -88,3 +88,12 @@ jobs:
           ssh -o StrictHostKeyChecking=no user@${{ env.JH_IP }} "kubectl get ns"          
           check_remote_success kubectl
 
+  to-slack:
+    runs-on: ubuntu-latest
+    container: jkosik/cloud-deployer
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
