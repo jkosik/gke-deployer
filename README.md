@@ -1,7 +1,7 @@
 # gke-deployer
 Deploys GKE using CICD tools - [GitHub Actions](.github/workflows/gke-deploy.yml) & Azure DevOps
 
-## Prerequisites
+## Create root GCP Project
 - Export ENV vars
 ```
 export DSO_PROJECT=dso-main
@@ -58,7 +58,10 @@ juraj@xps ~ $ gcloud auth activate-service-account --key-file=creds-sa-owner-$DS
 ```
 
 ## GKE Deployment
-Update `gke.vars` and run [gcp-master/deployment.sh](gcp-master/deployment.sh) builds GKE to the existing GCP project and postdeploys [Jumphost](docs/jh.md) with supplementary applications as [ArgoCD](docs/argocd.md), Prometheus stack, Loki, Goldpinger, optionally service mesh, etc.
+Update `gke.vars` and run [gcp-master/deployment-local.sh](gcp-master/deployment-local.sh) to build GKE from the console. Optionally use deployment pipeline scripts for GitHub Actions or Azure Devops.
+  
+Deployment contains GKE provisioning, [Jumphost](docs/jh.md) bootstrapping, generating and storing Secrets, K8S bootstrapping - primarily [ArgoCD](docs/argocd.md) deployment...
+ 
 
 ## IP address scheme
 IP ranges harmonization is needed for efficient peerings and overall maintenance.   
@@ -79,16 +82,11 @@ gcloud container clusters create $DSO_GKE_CLUSTER_NAME \
 ```
 
 ## Applications
-TBD
+Todo
 
 ## Open Issues
 - Several workarounds implemented due to SA in Free Tier without parent not being able to create GCP Projects.
 - GCP Project to GKE mapping, 1:1 vs 1:N?
 - Workload Identities for GKE - introducing complexity & known limitations
 - exposing GKE API to Internet
-- Switching to SA account overwrites the active gcloud profile. Introduces confusion in local deployments. No problem in CICD. Fix by:
-```
-gcloud config set account juraj.kosik@gmail.com
-gcloud config set project dso-main
-gcloud config configurations list
-```
+- Switching to SA account overwrites the active gcloud profile. Introduces confusion in local deployments. No problem in CICD.
