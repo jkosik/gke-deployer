@@ -112,5 +112,3 @@ gcloud compute scp --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH --recurse ../gke-pos
 gcloud compute scp --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH gke.vars user@jh:~/jumphost/gke.vars
 gcloud compute ssh --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH user@jh -- 'cd ~/jumphost && source bootstrap-jh.sh'
 gcloud compute ssh --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH user@jh -- 'cd ~/jumphost/argocd && source argocd.sh'
-
-#

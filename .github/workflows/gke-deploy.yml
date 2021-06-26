@@ -35,6 +35,7 @@ jobs:
       - name: Sourcing vars    
         run: |
           echo "Sourcing vars"
+          echo $GITHUB_WORKSPACE
           source gke-deploy/gke.vars
 
       - name: Deploy Client GKE    
@@ -94,6 +95,7 @@ jobs:
           check_remote_success kubectl
 
   to-slack:
+    needs: run-deployment-script
     runs-on: ubuntu-latest
     container: jkosik/cloud-deployer
     defaults:
