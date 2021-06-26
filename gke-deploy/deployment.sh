@@ -104,7 +104,7 @@ gcloud compute instances create jh --hostname=jumphost-$DSO_PROJECT.localhost \
   --machine-type=e2-small \
   --tags=jh
 
-gcloud compute instances add-metadata jh --metadata-from-file ssh-pubkeys=ssh-pubkeys
+gcloud compute instances add-metadata jh --metadata-from-file ssh-keys=ssh-pubkeys
 gcloud compute firewall-rules create $DSO_PROJECT-jh --network $DSO_PROJECT --allow tcp:22,udp,icmp --target-tags jh
 
 ## Bootstrap jumphost for GKE

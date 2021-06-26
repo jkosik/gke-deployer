@@ -100,13 +100,13 @@ gcloud compute instances create jh --hostname=jumphost-$DSO_PROJECT.localhost \
   --machine-type=e2-small \
   --tags=jh
 
-gcloud compute instances add-metadata jh --metadata-from-file ssh-pubkeys=ssh-pubkeys
+gcloud compute instances add-metadata jh --metadata-from-file ssh-keys=ssh-pubkeys
 #gcloud compute firewall-rules create $DSO_PROJECT-jh --network $DSO_PROJECT --allow tcp:22,udp,icmp --target-tags jh
 
-### Moved to GitHub Action Workflow directly to utilized ENVs
+### Moved to GitHub Action Workflow directly and utilize SA
 ## Bootstrap jumphost for GKE
-# gcloud compute scp --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH --recurse ../gke-postdeploy/jumphost/ user@jh:~/jumphost
-# gcloud compute scp --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH gke.vars user@jh:~/jumphost/gke.vars
-# gcloud compute ssh --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH user@jh -- 'cd ~/jumphost && source bootstrap-jh.sh'
-# gcloud compute ssh --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH user@jh -- 'cd ~/jumphost/argocd && source argocd.sh'
+#gcloud compute scp --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH --recurse ../gke-postdeploy/jumphost/ user@jh:~/jumphost
+#gcloud compute scp --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH gke.vars user@jh:~/jumphost/gke.vars
+#gcloud compute ssh --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH user@jh -- 'cd ~/jumphost && source bootstrap-jh.sh'
+#gcloud compute ssh --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH user@jh -- 'cd ~/jumphost/argocd && source argocd.sh'
 
