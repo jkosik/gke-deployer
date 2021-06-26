@@ -46,10 +46,10 @@ jobs:
       - name: Bootstrap JH
         run: |
           echo "Bootstrapping Jumphost"
-          gcloud compute scp --recurse ../gke-postdeploy/jumphost/ user@jh:~/jumphost
-          gcloud compute scp gke.vars user@jh:~/jumphost/gke.vars
-          gcloud compute ssh user@jh -- 'cd ~/jumphost && source bootstrap-jh.sh'
-          gcloud compute ssh user@jh -- 'cd ~/jumphost/argocd && source argocd.sh'
+          gcloud compute scp --recurse ../gke-postdeploy/jumphost/ jh:~/jumphost
+          gcloud compute scp gke.vars jh:~/jumphost/gke.vars
+          gcloud compute ssh jh -- 'cd ~/jumphost && source bootstrap-jh.sh'
+          gcloud compute ssh jh -- 'cd ~/jumphost/argocd && source argocd.sh'
 
       - name: Set GCP zone and region
         run: |
