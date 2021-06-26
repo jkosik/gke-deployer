@@ -8,41 +8,33 @@ set -e
 # Vars
 source ./gke.vars
 
-echo "--- Using initial subscription account to create GCP project ---"
-# In Free Tier, Service Accounts cannot create projects without a parent (ERROR: (gcloud.projects.create) PERMISSION_DENIED: Service accounts cannot create projects without a parent.)). 
-# Thus switch to the User account. Normally use Organization or Folder-wide SA from the main/root project to create workload projects and run the following steps.
-gcloud config configurations activate juraj
+### Modified steps to cope with need to precreate workload project and SA in workload-318005 project
 
-# Create project
-echo "--- Creating project $DSO_PROJECT ---"
-gcloud projects create $DSO_PROJECT --labels=dso_owner=$DSO_OWNER
-gcloud config set project $DSO_PROJECT
+# gcloud config configurations activate juraj
+# gcloud projects create workload-318005 --labels=dso_owner=$DSO_OWNER
+# gcloud config set project workload-318005
 
-# Enable billing and link to billing account
-echo "--- Enabling billing ---"
-gcloud beta billing projects link $DSO_PROJECT --billing-account=$DSO_BILLING_ACCOUNT 
+# gcloud beta billing projects link $DSO_PROJECT --billing-account=$DSO_BILLING_ACCOUNT 
 
-# Enable needed GCP APIs for a project
-echo "--- Enabling GCP APIs for the project ---"
-gcloud services enable \
-  anthos.googleapis.com \
-  cloudresourcemanager.googleapis.com \
-  compute.googleapis.com \
-  container.googleapis.com \
-  gkeconnect.googleapis.com \
-  gkehub.googleapis.com \
-  secretmanager.googleapis.com
+# gcloud services enable \
+#   anthos.googleapis.com \
+#   cloudresourcemanager.googleapis.com \
+#   compute.googleapis.com \
+#   container.googleapis.com \
+#   gkeconnect.googleapis.com \
+#   gkehub.googleapis.com \
+#   secretmanager.googleapis.com
 
-# Create privileged SA and store auth Secret to the Secret Manager
-echo "--- Creating SA ---"
-gcloud iam service-accounts create sa-owner --description="sa-owner" --display-name="sa-owner"
-gcloud projects add-iam-policy-binding $DSO_PROJECT --member=serviceAccount:sa-owner@$DSO_PROJECT.iam.gserviceaccount.com --role=roles/owner
-gcloud iam service-accounts keys create creds-sa-owner-$DSO_PROJECT.json --iam-account=sa-owner@$DSO_PROJECT.iam.gserviceaccount.com
+# gcloud iam service-accounts create sa-owner --description="sa-owner" --display-name="sa-owner"
+# gcloud projects add-iam-policy-binding $DSO_PROJECT --member=serviceAccount:sa-owner@$DSO_PROJECT.iam.gserviceaccount.com --role=roles/owner
+# gcloud iam service-accounts keys create creds-sa-owner-$DSO_PROJECT.json --iam-account=sa-owner@$DSO_PROJECT.iam.gserviceaccount.com
 
-gcloud secrets create sa-owner --data-file=creds-sa-owner-$DSO_PROJECT.json --labels=dso_owner=$DSO_OWNER,dso_project=$DSO_PROJECT
+# gcloud secrets create sa-owner --data-file=creds-sa-owner-$DSO_PROJECT.json --labels=dso_owner=$DSO_OWNER,dso_project=$DSO_PROJECT
 
 # Switch to SA (use full path). Overrides currently used gcloud profile. Ok for CI environment.
 gcloud auth activate-service-account --key-file=creds-sa-owner-$DSO_PROJECT.json --project=$DSO_PROJECT
+
+### Same steps follow as in deployment.yaml
 
 # Set defaults
 echo "--- Setting default region/zone ---"
