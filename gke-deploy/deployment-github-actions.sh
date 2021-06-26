@@ -6,7 +6,7 @@ set -x
 set -e
 
 # Vars
-# source ./gke.vars
+# source ./gke.vars # sources in GitHub Action workflow directly
 
 ### Modified steps to cope with need to precreate workload project and SA in workload-318005 project
 
@@ -32,7 +32,7 @@ set -e
 # gcloud secrets create sa-owner --data-file=creds-sa-owner-$DSO_PROJECT.json --labels=dso_owner=$DSO_OWNER,dso_project=$DSO_PROJECT
 
 # Switch to SA (use full path). Overrides currently used gcloud profile. Ok for CI environment.
-gcloud auth activate-service-account --key-file=creds-sa-owner-$DSO_PROJECT.json --project=$DSO_PROJECT
+# gcloud auth activate-service-account --key-file=creds-sa-owner-$DSO_PROJECT.json --project=$DSO_PROJECT
 
 ### Same steps follow as in deployment.yaml
 
