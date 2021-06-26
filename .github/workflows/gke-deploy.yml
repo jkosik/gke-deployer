@@ -31,7 +31,12 @@ jobs:
         with:
           project_id: ${{ env.DSO_PROJECT }}
           service_account_key: ${{ secrets.SA_OWNER_WORKLOAD_318005 }}
-          
+
+      - name: Sourcing vars    
+        run: |
+          echo "Sourcing vars"
+          source gke-deploy/gke.vars
+
       - name: Deploy Client GKE    
         run: |
           echo "Deploying to $DSO_PROJECT"
