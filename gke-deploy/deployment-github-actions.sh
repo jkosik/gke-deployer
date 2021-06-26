@@ -9,8 +9,6 @@ set -e
 ### - vars are sourced directly in GitHub Actions workflow
 ### - project and SA is created manually due to limitation of SA in the Free Tier. See deployment.sh comments.
 
-echo $GITHUB_WORKSPACE
-
 # Vars
 # source ./gke.vars 
 
@@ -100,7 +98,7 @@ gcloud config set compute/zone $DSO_GCP_ZONE
 #   --machine-type=e2-small \
 #   --tags=jh
 
-gcloud compute instances add-metadata jh --metadata-from-file ssh-pubkeys=$GITHUB_WORKSPACE/gke-deploy/ssh-pubkeys
+gcloud compute instances add-metadata jh --metadata-from-file ssh-pubkeys=ssh-pubkeys
 gcloud compute firewall-rules create $DSO_PROJECT-jh --network $DSO_PROJECT --allow tcp:22,udp,icmp --target-tags jh
 
 ## Bootstrap jumphost for GKE

@@ -35,8 +35,8 @@ jobs:
       - name: Sourcing vars    
         run: |
           echo "Sourcing vars"
-          echo $GITHUB_WORKSPACE
-          source gke-deploy/gke.vars
+          cd $GITHUB_WORKSPACE/gke-deploy
+          source gke.vars
 
       - name: Deploy Client GKE    
         run: |
@@ -52,12 +52,12 @@ jobs:
         run: |
           c=0
           while true; do
-            while [[ $(gcloud container clusters describe ${{ env.DSO_CLUSTER_NAME }} --format="value(status)") != "RUNNING" ]] ; do
+            while [[ $(gcloud container clusters describe ${{ env.DSO_GKE_CLUSTER_NAME }} --format="value(status)") != "RUNNING" ]] ; do
               ((c++)) && ((c>60)) && printf "Timeout to deploy K8S cluster exceeded\n" && exit 1
               sleep 5
               echo "Checking K8S cluster build..."
             done
-            echo "K8S cluster ${{ env.DSO_CLUSTER_NAME }} in RUNNING state"
+            echo "K8S cluster ${{ env.DSO_GKE_CLUSTER_NAME }} in RUNNING state"
             break
           done;
 
