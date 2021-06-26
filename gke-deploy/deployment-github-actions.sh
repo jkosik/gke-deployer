@@ -6,9 +6,7 @@ set -x
 set -e
 
 # Vars
-ls
-pwd
-source ./gke.vars
+. ./gke.vars
 
 ### Modified steps to cope with need to precreate workload project and SA in workload-318005 project
 
