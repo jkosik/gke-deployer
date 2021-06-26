@@ -104,6 +104,7 @@ gcloud compute instances add-metadata jh --metadata-from-file ssh-keys=ssh-pubke
 #gcloud compute firewall-rules create $DSO_PROJECT-jh --network $DSO_PROJECT --allow tcp:22,udp,icmp --target-tags jh
 
 ### Moved to GitHub Action Workflow directly and utilize SA
+
 ## Bootstrap jumphost for GKE
 #gcloud compute scp --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH --recurse ../gke-postdeploy/jumphost/ user@jh:~/jumphost
 #gcloud compute scp --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH gke.vars user@jh:~/jumphost/gke.vars
