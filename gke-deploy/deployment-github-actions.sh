@@ -9,6 +9,8 @@ set -e
 ### - vars are sourced directly in GitHub Actions workflow
 ### - project and SA is created manually due to limitation of SA in the Free Tier. See deployment.sh comments.
 
+cd $GITHUB_WORKSPACE/gke-deploy
+
 # Vars
 # source ./gke.vars 
 
