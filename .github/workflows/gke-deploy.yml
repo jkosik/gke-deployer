@@ -31,12 +31,11 @@ jobs:
         with:
           project_id: ${{ env.DSO_PROJECT }}
           service_account_key: ${{ secrets.SA_OWNER_WORKLOAD_318005 }}
-          export_default_credentials: true
-
+          
       - name: Deploy Client GKE    
         run: |
           echo "Deploying to $DSO_PROJECT"
-          source deployment-github-actions.sh
+          source gke-deploy/deployment-github-actions.sh
 
       - name: Set GCP zone and region
         run: |
