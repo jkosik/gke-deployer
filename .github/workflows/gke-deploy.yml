@@ -3,6 +3,9 @@ name: gke-deploy
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
   pull_request:
     branches: [ main ]
 

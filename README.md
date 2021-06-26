@@ -1,6 +1,5 @@
 # gke-deployer
-Deploys GKE using CICD tools - GitHub Actions & Azure DevOps
-
+Deploys GKE using CICD tools - [GitHub Actions](.github/workflows/gke-deploy.yml) & Azure DevOps
 
 ## Prerequisites
 - Export ENV vars
@@ -80,10 +79,10 @@ gcloud container clusters create $DSO_GKE_CLUSTER_NAME \
 ```
 
 ## Applications
-Customer facing
+TBD
 
 ## Open Issues
-- `deployment.yaml` to use SA with parent in non-free Tier.
+- Several workarounds implemented due to SA in Free Tier without parent not being able to create GCP Projects.
 - GCP Project to GKE mapping, 1:1 vs 1:N?
 - Workload Identities for GKE - introducing complexity & known limitations
 - exposing GKE API to Internet
