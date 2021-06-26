@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  gke-deploy:
+  run-deployment-script:
     runs-on: ubuntu-latest
     container: jkosik/cloud-deployer
     defaults:
