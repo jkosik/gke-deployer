@@ -1,4 +1,10 @@
 # https://aka.ms/yaml
+- task: AzureCLI@2
+  inputs:
+    scriptType: 'ps'
+    scriptLocation: 'scriptPath'
+    scriptPath: 'ddd'
+    arguments: 'd'
 
 trigger:
 - main
