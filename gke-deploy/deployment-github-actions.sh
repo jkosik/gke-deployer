@@ -88,24 +88,25 @@ gcloud config set compute/zone $DSO_GCP_ZONE
 #     --nat-all-subnet-ip-ranges \
 #     --auto-allocate-nat-external-ips
 
-# # Deploy jumphost. Reachable at: gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
-# # Jumphost has default visibility to GKE API at "-master-ipv4-cidr 172.16.0.0/28"
-# echo "--- Deploying and configuring jumphost ---"
-# gcloud compute instances create jh --hostname=jumphost-$DSO_PROJECT.localhost \
-#   --subnet=$DSO_PROJECT-$DSO_GCP_REGION \
-#   --scopes=https://www.googleapis.com/auth/cloud-platform \
-#   --service-account=sa-owner@$DSO_PROJECT.iam.gserviceaccount.com \
-#   --image-project=debian-cloud \
-#   --image=debian-10-buster-v20210512 \
-#   --machine-type=e2-small \
-#   --tags=jh
+# Deploy jumphost. Reachable at: gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
+# Jumphost has default visibility to GKE API at "-master-ipv4-cidr 172.16.0.0/28"
+echo "--- Deploying and configuring jumphost ---"
+gcloud compute instances create jh --hostname=jumphost-$DSO_PROJECT.localhost \
+  --subnet=$DSO_PROJECT-$DSO_GCP_REGION \
+  --scopes=https://www.googleapis.com/auth/cloud-platform \
+  --service-account=sa-owner@$DSO_PROJECT.iam.gserviceaccount.com \
+  --image-project=debian-cloud \
+  --image=debian-10-buster-v20210512 \
+  --machine-type=e2-small \
+  --tags=jh
 
 gcloud compute instances add-metadata jh --metadata-from-file ssh-pubkeys=ssh-pubkeys
-# gcloud compute firewall-rules create $DSO_PROJECT-jh --network $DSO_PROJECT --allow tcp:22,udp,icmp --target-tags jh
+#gcloud compute firewall-rules create $DSO_PROJECT-jh --network $DSO_PROJECT --allow tcp:22,udp,icmp --target-tags jh
 
+### Moved to GitHub Action Workflow directly to utilized ENVs
 ## Bootstrap jumphost for GKE
-gcloud compute scp --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH --recurse ../gke-postdeploy/jumphost/ user@jh:~/jumphost
-gcloud compute scp --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH gke.vars user@jh:~/jumphost/gke.vars
-gcloud compute ssh --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH user@jh -- 'cd ~/jumphost && source bootstrap-jh.sh'
-gcloud compute ssh --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH user@jh -- 'cd ~/jumphost/argocd && source argocd.sh'
+# gcloud compute scp --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH --recurse ../gke-postdeploy/jumphost/ user@jh:~/jumphost
+# gcloud compute scp --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH gke.vars user@jh:~/jumphost/gke.vars
+# gcloud compute ssh --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH user@jh -- 'cd ~/jumphost && source bootstrap-jh.sh'
+# gcloud compute ssh --ssh-key-file=$DSO_PRIVATE_SSH_KEY_PATH user@jh -- 'cd ~/jumphost/argocd && source argocd.sh'
 
