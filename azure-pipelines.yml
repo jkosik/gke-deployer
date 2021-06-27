@@ -1,11 +1,3 @@
-# https://aka.ms/yaml
-- task: AzureCLI@2
-  inputs:
-    scriptType: 'ps'
-    scriptLocation: 'scriptPath'
-    scriptPath: 'ddd'
-    arguments: 'd'
-
 trigger:
   batch: boolean # batch changes if true; start a new build for every push if false (default)
   branches:
