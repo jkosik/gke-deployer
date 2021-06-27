@@ -10,8 +10,10 @@ trigger:
       - 'README.md'
 pr: 
   branches:
-    include: main
-    exclude: docs
+    include: 
+      - 'main'
+    exclude: 
+      - 'docs'
 
 pool:
   vmImage: ubuntu-latest
