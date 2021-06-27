@@ -1,7 +1,9 @@
 trigger:
   branches:
-    include: 'main'
-    exclude: 'docs'
+    include: 
+      - 'main'
+    exclude: 
+      - 'docs'
   paths:
     exclude: 
       - 'docs/**'
