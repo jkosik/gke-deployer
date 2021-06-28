@@ -1,4 +1,5 @@
 trigger:
+  batch: true
   branches:
     include: 
       - 'main'
@@ -18,11 +19,16 @@ pr:
 pool:
   vmImage: ubuntu-latest
 
+container: ubuntu:18.04  
+
+parameters:
+- name: name
+  displayName: 'Username'
+  type: string
+  default: 'juraj'
+
 steps:
-- script: echo Hello, world!
+- script: echo Hello ${{ parameters.name }}.
   displayName: 'Run a one-line script'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+
