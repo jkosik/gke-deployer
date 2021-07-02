@@ -93,9 +93,9 @@ jobs:
         working-directory: ${{ env.DIR_INFRA }}
 
   configuration:
-    needs: healthcheck
+    needs: infrastructure-healthcheck
     runs-on: ubuntu-latest
-    container: jkosik/gcp-deployer:346.0.0
+    container: jkosik/ansible:4.2.0
     steps:
       - name: Checkout
         uses: actions/checkout@v2
