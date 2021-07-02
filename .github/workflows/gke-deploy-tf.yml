@@ -21,8 +21,8 @@ defaults:
 
 env:
   #TF_LOG: DEBUG
-  DIR_INFRA: ./infrastructure
-  DIR_CONF: ./configuration
+  CONF_DIR: ./configuration
+  INFRA_DIR: ./infrastructure
   INFRA_ENV: ${GITHUB_REF##*/}
   GOOGLE_CREDENTIALS: "${{ secrets.GCP_SA }}"
 
@@ -52,17 +52,17 @@ jobs:
 
       - name: Terraform init
         run: terraform init
-        working-directory: ${{ env.DIR_INFRA }}
+        working-directory: ${{ env.INFRA_DIR }}
 
       - name: Terraform validate
         run: terraform validate -no-color
-        working-directory: ${{ env.DIR_INFRA }}
+        working-directory: ${{ env.INFRA_DIR }}
 
       - name: Terraform plan and apply
         run: |
           terraform plan -var-file=${{ env.INFRA_ENV }}.tfvars
           terraform apply -auto-approve -var-file=${{ env.INFRA_ENV }}.tfvars
-        working-directory: ${{ env.DIR_INFRA }}
+        working-directory: ${{ env.INFRA_DIR }}
 
   infrastructure-healthcheck:
     needs: infrastructure
@@ -77,7 +77,7 @@ jobs:
           echo "PROJECT_ID=$(cat ${{ env.INFRA_ENV }}.tfvars | grep project_id | cut -d\" -f2)" >> $GITHUB_ENV
           echo "ZONE=$(cat ${{ env.INFRA_ENV }}.tfvars | grep zone | cut -d\" -f2)" >> $GITHUB_ENV
           echo "GKE_CLUSTER_NAME=$(cat ${{ env.INFRA_ENV }}.tfvars | grep gke_cluster_name | cut -d\" -f2)" >> $GITHUB_ENV
-        working-directory: ${{ env.DIR_INFRA }}
+        working-directory: ${{ env.INFRA_DIR }}
 
       - name: Set up GCP Cloud SDK for Client
         uses: google-github-actions/setup-gcloud@master
@@ -96,7 +96,7 @@ jobs:
             echo "K8S cluster ${GKE_CLUSTER_NAME} in RUNNING state"
             break
           done;
-        working-directory: ${{ env.DIR_INFRA }}
+        working-directory: ${{ env.INFRA_DIR }}
 
   configuration:
     needs: infrastructure-healthcheck
@@ -110,7 +110,7 @@ jobs:
         run: |
           echo "PROJECT_ID=$(cat ${{ env.INFRA_ENV }}.tfvars | grep project_id | cut -d\" -f2)" >> $GITHUB_ENV
           echo "ZONE=$(cat ${{ env.INFRA_ENV }}.tfvars | grep zone | cut -d\" -f2)" >> $GITHUB_ENV
-        working-directory: ${{ env.DIR_INFRA }}
+        working-directory: ${{ env.INFRA_DIR }}
 
       - name: Ansible lint
         run: |
@@ -132,11 +132,13 @@ jobs:
           JH_IP=$(gcloud compute instances describe jh --zone $ZONE --project $PROJECT_ID --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
           sed s/CHANGEME/$JH_IP/g inventory-template.yml > inventory-ephemeral.yml
           ansible-playbook -u user -i inventory-ephemeral.yml site.yml --extra-vars infra_env="${{ env.INFRA_ENV }}"
-        working-directory: ${{ env.DIR_CONF }}
+        working-directory: ${{ env.CONF_DIR }}
 
-      - name: Import kubeconfig Secret from Secret manager to Terraform
-        run: import-kubeconfig-secret.sh ${{ env.INFRA_ENV }}
-        working-directory: ${{ env.DIR_INFRA }}
+      - name: Import kubeconfig Secret from Secret Manager to Terraform
+        run: |
+          ls
+          ./import-kubeconfig-secret.sh ${{ env.INFRA_ENV }}
+        working-directory: ${{ env.INFRA_DIR }}
 
   configuration-healthcheck:
     needs: configuration
@@ -150,7 +152,7 @@ jobs:
         run: |
           echo "PROJECT_ID=$(cat ${{ env.INFRA_ENV }}.tfvars | grep project_id | cut -d\" -f2)" >> $GITHUB_ENV
           echo "ZONE=$(cat ${{ env.INFRA_ENV }}.tfvars | grep zone | cut -d\" -f2)" >> $GITHUB_ENV
-        working-directory: ${{ env.DIR_INFRA }}
+        working-directory: ${{ env.INFRA_DIR }}
 
       - name: Set up GCP Cloud SDK for Client
         uses: google-github-actions/setup-gcloud@master
