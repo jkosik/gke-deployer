@@ -1,0 +1,30 @@
+Infrastructure (needs GCP access):
+export GOOGLE_APPLICATION_CREDENTIALS=/home/juraj/creds-sa-owner-workload-318005.json
+terraform init
+terraform plan -var-file=dev.tfvars
+terraform apply -auto-approve -var-file=dev.tfvars
+
+Configuration (needs VM access):
+    - ansible-lint */*.yml
+    - cd tests
+    - cat inventory
+    - ansible-playbook test.yml
+
+(get priv. key from CI Secret)
+ssh-agent bash
+ssh-add ~/.ssh/id_rsa
+
+
+JH_IP=$(gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
+sed s/CHANGEME/$JH_IP/g inventory-template.yml > inventory-ephemeral.yml
+ansible-playbook -i inventory-ephemeral.yml site.yml
+
+Alternatively use dynamic inventory:
+ansible-galaxy collection install google.cloud
+ansible-inventory -i inventory-dynamic-gcp.yml --list
+ansible -i inventory-dynamic-gcp.yml all -m ping
+- parse otput and create inventory file
+
+import-kubeconfig-secret.sh ENV
+
+terraform destroy -var-file=dev.tfvars

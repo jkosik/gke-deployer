@@ -1,0 +1,54 @@
+---
+- name: Disable unattended updates
+  hosts: jh
+  become: yes
+  gather_facts: no
+  vars:
+    - apt_unattended_updates_state: "disabled"
+  roles:
+    - ansible-apt
+
+- name: Install packages and copy files
+  hosts: jh
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Install packages
+      apt: 
+        state: present
+        update_cache: yes
+        name:
+          - curl
+          - dnsutils
+          - git
+          - jq
+          - wget
+
+    - name: Create jumphost directory
+      file: 
+        path: /home/user/jumphost
+        state: directory
+
+    - name: Copy Terraform vars to jumphost
+      copy:
+        src: "{{ playbook_dir }}/../infrastructure/{{ env }}.tfvars"
+        dest: "/home/user/jumphost"        
+
+    - name: Create directory for sample k8s manifests
+      file: 
+        path: /home/user/jumphost/manifest
+        state: directory
+
+    - name: Copy sample k8s manifests
+      copy:
+        src: jumphost/manifests
+        dest: "/home/user/jumphost/manifest"
+
+    - name: Set permissions
+      file:
+        path: "/home/user/jumphost"
+        recurse: true
+        owner: "user"
+        group: "user"
+
+

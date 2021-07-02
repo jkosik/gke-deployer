@@ -1,0 +1,7 @@
+# Templated from parsed dynamic inventory (inventory-dynamic-gcp.yml) or gcloud output, 
+# saved as inventory-ephemeral.yml and used by ansible-playbook
+---
+all:
+  hosts:
+    jh: 
+      ansible_host: CHANGEME

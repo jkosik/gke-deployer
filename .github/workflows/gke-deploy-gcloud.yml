@@ -1,4 +1,4 @@
-name: gke-deploy
+name: gke-deploy-gcloud
 
 on:
   push:
@@ -23,7 +23,7 @@ on:
 jobs:
   run-deployment-script:
     runs-on: ubuntu-latest
-    container: jkosik/cloud-deployer
+    container: jkosik/gcp-deployer:346.0.0
     defaults:
       run:
         shell: bash
@@ -35,7 +35,7 @@ jobs:
         run: |
           while read line; do
             echo "$line" >> $GITHUB_ENV
-          done < $GITHUB_WORKSPACE/gke-deploy/gke.vars
+          done < $GITHUB_WORKSPACE/other/gke-deploy-gcloud/gke.vars
 
       - name: Set up GCP Cloud SDK for Client
         uses: google-github-actions/setup-gcloud@master
@@ -46,18 +46,18 @@ jobs:
       - name: Sourcing vars    
         run: |
           echo "Sourcing vars"
-          source $GITHUB_WORKSPACE/gke-deploy/gke.vars
+          source $GITHUB_WORKSPACE/other/gke-deploy-gcloud/gke.vars
 
       - name: Deploy Client GKE    
         run: |
           echo "Deploying to $DSO_PROJECT"
-          source $GITHUB_WORKSPACE/gke-deploy/deployment-github-actions.sh
+          source $GITHUB_WORKSPACE/other/gke-deploy-gcloud/deployment-github-actions.sh
 
       - name: Bootstrap JH
         run: |
           echo "Bootstrapping Jumphost"
-          gcloud compute scp --recurse $GITHUB_WORKSPACE/gke-postdeploy/jumphost/ user@jh:~/jumphost
-          gcloud compute scp $GITHUB_WORKSPACE/gke-deploy/gke.vars user@jh:~/jumphost/gke.vars
+          gcloud compute scp --recurse $GITHUB_WORKSPACE/other/gke-deploy-gcloud/jumphost/ user@jh:~/jumphost
+          gcloud compute scp $GITHUB_WORKSPACE/other/gke-deploy-gcloud/gke.vars user@jh:~/jumphost/gke.vars
           gcloud compute ssh user@jh -- 'cd ~/jumphost && source bootstrap-jh.sh'
           gcloud compute ssh user@jh -- 'cd ~/jumphost/argocd && source argocd.sh'
 
@@ -115,7 +115,7 @@ jobs:
   to-slack:
     needs: run-deployment-script
     runs-on: ubuntu-latest
-    container: jkosik/cloud-deployer
+    container: jkosik/gcp-deployer:346.0.0
     defaults:
       run:
         shell: bash

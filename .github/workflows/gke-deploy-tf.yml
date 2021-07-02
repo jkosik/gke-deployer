@@ -1,0 +1,61 @@
+name: gke-deploy
+
+on:
+  push:
+    branches: 
+      - 'main'
+    branches-ignore:
+      - 'docs'
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+  pull_request:
+    branches: 
+      - 'main'
+    branches-ignore:
+      - 'docs'
+
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  deploy-infrastructure:
+    runs-on: ubuntu-latest
+    container: jkosik/gcp-deployer:346.0.0
+    defaults:
+      run:
+        shell: bash
+    working-directory: ./infrastructure
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up GCP Cloud SDK for Client
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.SA_OWNER_WORKLOAD_318005 }}
+
+      - name: Terraform checks
+        run: |
+          terraform fmt -check
+          terraform init
+          terraform validate -no-color
+
+      - name: Terraform Plan an apply
+        run: |
+          terraform plan -var-file=dev.tfvars
+          terraform apply -auto-approve -var-file=dev.tfvars
+
+      # - name: Check GKE readiness
+      #   run: |
+      #     c=0
+      #     while true; do
+      #       while [[ $(gcloud container clusters describe ${{ env.DSO_GKE_CLUSTER_NAME }} --format="value(status)") != "RUNNING" ]] ; do
+      #         ((c++)) && ((c>60)) && printf "Timeout to deploy K8S cluster exceeded\n" && exit 1
+      #         sleep 5
+      #         echo "Checking K8S cluster build..."
+      #       done
+      #       echo "K8S cluster ${{ env.DSO_GKE_CLUSTER_NAME }} in RUNNING state"
+      #       break
+      #     done;          

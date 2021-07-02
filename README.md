@@ -1,7 +1,24 @@
 # gke-deployer
-Deploys GKE using CICD tools - [GitHub Actions](.github/workflows/gke-deploy.yml) & Azure DevOps
+Deploys GKE to GCP and postdeploys [Jumphost](docs/jh.md) with tooling and bootstraps GKE with primarily [ArgoCD](docs/argocd.md)...
 
-## Create root GCP Project
+## Prerequisites 
+- create Workload GCP project, e.g. `workload-318005`
+- create Workload Service account (SA)
+- create GCP Cloud Storage for tfstate in the Workload project
+```
+gsutil mb -p workload-318005 -c standard -l europe-central2 -b on gs://tfstate_PROJECT_ID_gke-deployer
+```
+- store SA JSON in the CICD tool Secrets (Terraform infrastructure provisioning)
+- store JH private ssh key in the CICD tool Secrets (Ansible configuration)
+  
+In production split Master and Workload GCP projects and manage SAs and `tfstate` files centrally. 
+
+## Additional info
+#### Master-Workload architecture
+In production, build Master GCP Project to manage Workload GCP Projects.
+  
+**Normally Master GCP Project would contain SA for running Terraform provisioning of Workload GCP Projects and GKEs within. Free Tier does not allow to use SA for creating another GCP Projects, thus we need workarounds using personal GCP account to create Workload GCP Projects or we precreate Workload GCP Project and Workload SA in advance manually.**
+
 - Export ENV vars
 ```
 export DSO_PROJECT=dso-main
@@ -9,22 +26,22 @@ export DSO_OWNER=juraj
 export DSO_BILLING_ACCOUNT=YOUR_BILLING_ACCOUNT_ID
 cd ~/
 ```
-- Create a root project, e.g. `dso-main`
+- Create GCP project, e.g. `dso-main`
 ```
 gcloud projects create $DSO_PROJECT --labels=dso_owner=$DSO_OWNER
 ```
 - Activate newly created project within your user profile
 ```
-juraj@xps ~ $ cat ~/.config/gcloud/configurations/config_juraj
+$ cat ~/.config/gcloud/configurations/config_juraj
 [core]
 project = dso-main
-account = juraj.kosik@gmail.com
+account = EMAIL
 
 [compute]
 zone = europe-central2-a
 region = europe-central2
 
-juraj@xps ~ $ gcloud config configurations activate juraj
+$ gcloud config configurations activate juraj
 Activated [juraj].
 ```
 - Activate billing and enable needed APIs
@@ -35,58 +52,7 @@ gcloud services enable \
   secretmanager.googleapis.com
 ```
 
-- Create Service Account and generate JSON Key
-```
-gcloud iam service-accounts create sa-owner --description="sa-owner" --display-name="sa-owner"
-gcloud projects add-iam-policy-binding $DSO_PROJECT --member=serviceAccount:sa-owner@$DSO_PROJECT.iam.gserviceaccount.com --role=roles/owner
-gcloud iam service-accounts keys create creds-sa-owner-$DSO_PROJECT.json --iam-account=sa-owner@$DSO_PROJECT.iam.gserviceaccount.com
-gcloud secrets create sa-owner --data-file=creds-sa-owner-$DSO_PROJECT.json --labels=dso_owner=juraj,dso_project=$DSO_PROJECT
-```
-- Activate newly created project within your SA profile
-```
-juraj@xps ~ $ cat ~/.config/gcloud/configurations/config_dso-main
-[core]
-project = dso-main
-account = sa-main@dso-main.iam.gserviceaccount.com
+#### GKE Deployment using gcloud
+Creates minimalistic zonal GKE (for HA use regional cluster `--region` instead of `--zone`).
+Update `other/gke-deploy-gcloud/gke.vars` and run [gke-deploy-gcloud/deployment-local.sh](other/gke-deploy-gcloud/deployment-local.sh) to build GKE from the console. Optionally use Workflows for [GitHub Actions](.github/workflows/gke-deploy-gcloud.yml).
 
-[compute]
-zone = europe-central2-a
-region = europe-central2
-
-juraj@xps ~ $ gcloud config configurations activate dso-main
-juraj@xps ~ $ gcloud auth activate-service-account --key-file=creds-sa-owner-$DSO_PROJECT.json --project=$DSO_PROJECT
-```
-
-## GKE Deployment
-Update `gke.vars` and run [gcp-master/deployment-local.sh](gcp-master/deployment-local.sh) to build GKE from the console. Optionally use deployment pipeline scripts for GitHub Actions or Azure Devops.
-  
-Deployment contains GKE provisioning, [Jumphost](docs/jh.md) bootstrapping, generating and storing Secrets, K8S bootstrapping - primarily [ArgoCD](docs/argocd.md) deployment...
- 
-
-## IP address scheme
-IP ranges harmonization is needed for efficient peerings and overall maintenance.   
-For K8S Nodes(VMs), SVCs and Pods:  
-```
-gcloud compute networks subnets create $DSO_PROJECT-$DSO_GCP_REGION \
-...snipped..
-    --range 192.168.16.0/20 \ 
-    --secondary-range secondary-subnet-services=10.0.32.0/20,secondary-subnet-pods=10.4.0.0/14 
-...snipped..
-```
-For K8S control plane:  
-```
-gcloud container clusters create $DSO_GKE_CLUSTER_NAME \
-...snipped..
-    --master-ipv4-cidr 172.16.0.0/28 #control plane
-...snipped...
-```
-
-## Applications
-Todo
-
-## Open Issues
-- Several workarounds implemented due to SA in Free Tier without parent not being able to create GCP Projects.
-- GCP Project to GKE mapping, 1:1 vs 1:N?
-- Workload Identities for GKE - introducing complexity & known limitations
-- exposing GKE API to Internet
-- Switching to SA account overwrites the active gcloud profile. Introduces confusion in local deployments. No problem in CICD.

@@ -1,0 +1,46 @@
+# Deploys dummy Prometheus exporter.
+# Access logs by deploying Ingress or port-forward:
+# "kubectl port-forward POD_ID 9090:9090" and "curl localhost:9090/metrics"
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: "monitoring-example"
+  annotations:
+    prometheus.io/scrape: "true"
+spec:
+  selector:
+    app: "monitoring-example"
+  ports:
+    - name: http
+      port: 9090
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "monitoring-example"
+  labels:
+    app: "monitoring-example"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "monitoring-example"
+  template:
+    metadata:
+      labels:
+        app: "monitoring-example"
+    spec:
+      containers:
+      - image: gcr.io/google-samples/prometheus-dummy-exporter:latest
+        name: prometheus-example-exporter
+        imagePullPolicy: Always
+        command:
+        - /bin/sh
+        - -c
+        - ./prometheus-dummy-exporter --metric-name=example_monitoring_up --metric-value=1 --port=9090
+        resources:
+          requests:
+            cpu: 100m

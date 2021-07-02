@@ -1,0 +1,11 @@
+# Dynamic inventory. Parametrize if needed.
+---
+plugin: google.cloud.gcp_compute
+projects:
+  - workload-318005
+regions:
+  - europe-central2        
+filters:
+  - name = jh
+auth_kind: serviceaccount
+service_account_file: PATH-TO-SA-JSON

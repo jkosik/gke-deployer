@@ -1,0 +1,2 @@
+env: dev
+argocd_version: v2.0.4
