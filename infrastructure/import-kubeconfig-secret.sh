@@ -2,7 +2,7 @@
 
 # Importer of the Secret to the Terraform
 # Jumphost downloads GKE kubeconfig and stores it to the GCP Secret Manager. Jumphost needs kubeconfig anyhow.
-# We could manage kubeconfig within TF. TF does not provide resource for getting GKE kubeconfig and TF local-exec is cumbersome.
+# We could manage kubeconfig within TF. TF does not provide resource for getting GKE kubeconfig and workarounds with TF local-exec is cumbersome.
 
 if [ $# -eq 0 ]; then
     echo "Environment not provided."

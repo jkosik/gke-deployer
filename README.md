@@ -1,7 +1,7 @@
 # gke-deployer
 Deploys GKE to GCP and postdeploys [Jumphost](docs/jh.md) with tooling and bootstraps GKE with primarily [ArgoCD](docs/argocd.md)...
 
-## Prerequisites 
+## Prerequisites
 - create GCP project, e.g. `workload-318005`
 - create GCP Service account (SA) and store SA JSON file.
 - create GCP Cloud Storage for tfstate in the Workload project
@@ -17,7 +17,7 @@ jq -c . GCP_SA.json
 ## Additional info
 #### Master-Workload architecture
 In production, optionally build Master GCP Project to manage Workload GCP Projects.
-  
+
 **Normally Master GCP Project would contain SA for running Terraform provisioning of Workload GCP Projects and GKEs within. Free Tier does not allow to use SA for creating another GCP Projects, thus we need workarounds using personal GCP account to create Workload GCP Projects or we precreate Workload GCP Project and Workload SA in advance manually.**
 
 - Export ENV vars
@@ -47,7 +47,7 @@ Activated [juraj].
 ```
 - Activate billing and enable needed APIs
 ```
-gcloud beta billing projects link $DSO_PROJECT --billing-account=$DSO_BILLING_ACCOUNT 
+gcloud beta billing projects link $DSO_PROJECT --billing-account=$DSO_BILLING_ACCOUNT
 gcloud services enable \
   cloudresourcemanager.googleapis.com \
   secretmanager.googleapis.com
@@ -59,3 +59,19 @@ Update `other/gke-deploy-gcloud/gke.vars` and run [gke-deploy-gcloud/deployment-
 
 #### Auth using SA for Terraform
 export GOOGLE_CREDENTIALS=GCP_SA.json
+
+#### Dynamic inventory
+Normally we grab JH IP using gcloud:
+```
+JH_IP=$(gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
+sed s/CHANGEME/$JH_IP/g inventory-template.yml > inventory-ephemeral.yml
+ansible-playbook -i inventory-ephemeral.yml site.yml
+```
+
+For more complex usecases use dynamic inventory for GCP:
+```
+ansible-galaxy collection install google.cloud
+ansible-inventory -i inventory-dynamic-gcp.yml --list
+ansible -i inventory-dynamic-gcp.yml all -m ping
+```
+- parse output and create inventory file on the fly
