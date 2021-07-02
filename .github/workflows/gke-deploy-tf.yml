@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     container: jkosik/terraform:1.0.1
     env:
-      TF_LOG: DEBUG
+      #TF_LOG: DEBUG
       WORKING_DIR_INFRA: ./infrastructure
       WORKING_DIR_CONF: ./configuration
     steps:
@@ -42,6 +42,8 @@ jobs:
         continue-on-error: true
 
       - name: Terraform init
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.SA_OWNER_WORKLOAD_318005 }}
         run: terraform init
         working-directory: ${{ env.WORKING_DIR_INFRA }}          
 
