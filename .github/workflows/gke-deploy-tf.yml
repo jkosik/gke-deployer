@@ -16,13 +16,15 @@ on:
   workflow_dispatch:
 
 defaults:
-  env:
-    GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_PROD }}
-    #TF_LOG: DEBUG
-    WORKING_DIR_INFRA: ./infrastructure
-    WORKING_DIR_CONF: ./configuration
   run:
     shell: bash
+
+env:
+  GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_PROD }}
+  #TF_LOG: DEBUG
+  WORKING_DIR_INFRA: ./infrastructure
+  WORKING_DIR_CONF: ./configuration
+
 
 jobs:
   # prod-check:
