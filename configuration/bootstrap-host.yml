@@ -1,8 +1,8 @@
 ---
 - name: Disable unattended updates
   hosts: jh
-  become: yes
-  gather_facts: no
+  become: true
+  gather_facts: false
   vars:
     - apt_unattended_updates_state: "disabled"
   roles:
@@ -10,13 +10,13 @@
 
 - name: Install packages and copy files
   hosts: jh
-  become: yes
+  become: true
   gather_facts: true
   tasks:
     - name: Install packages
       apt:
         state: present
-        update_cache: yes
+        update_cache: true
         name:
           - curl
           - dnsutils

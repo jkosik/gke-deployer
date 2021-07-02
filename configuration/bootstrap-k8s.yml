@@ -1,8 +1,8 @@
 ---
 - name: Prepare kubectl
   hosts: jh
-  become: yes
-  gather_facts: no
+  become: true
+  gather_facts: false
   tasks:
     - name: Run a shell command and register its output as a variable
       uri:
@@ -52,9 +52,9 @@
 
     - name: Grab and import kubeconfig to user "user" homedir
       shell: |
-        PROJECT_ID=$(cat /home/user/jumphost/dev.tfvars | grep project_id | cut -d\" -f2)
-        ZONE=$(cat /home/user/jumphost/dev.tfvars | grep zone | cut -d\" -f2)
-        GKE_CLUSTER_NAME=$(cat /home/user/jumphost/dev.tfvars | grep gke_cluster_name | cut -d\" -f2)
+        PROJECT_ID=$(cat /home/user/jumphost/{{ infra_env }}.tfvars | grep project_id | cut -d\" -f2)
+        ZONE=$(cat /home/user/jumphost/{{ infra_env }}.tfvars | grep zone | cut -d\" -f2)
+        GKE_CLUSTER_NAME=$(cat /home/user/jumphost/{{ infra_env }}.tfvars | grep gke_cluster_name | cut -d\" -f2)
         gcloud container clusters get-credentials $GKE_CLUSTER_NAME --zone $ZONE --project $PROJECT_ID --internal-ip
         gcloud secrets create kubeconfig-$GKE_CLUSTER_NAME --data-file=/home/user/.kube/config --labels=owner=dso,info=jumphost-generated
         cp ~/.kube/config /home/user/.kube/config
