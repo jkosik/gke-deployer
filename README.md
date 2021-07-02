@@ -2,20 +2,21 @@
 Deploys GKE to GCP and postdeploys [Jumphost](docs/jh.md) with tooling and bootstraps GKE with primarily [ArgoCD](docs/argocd.md)...
 
 ## Prerequisites 
-- create Workload GCP project, e.g. `workload-318005`
-- create Workload Service account (SA)
+- create GCP project, e.g. `workload-318005`
+- create GCP Service account (SA) and store SA JSON file.
 - create GCP Cloud Storage for tfstate in the Workload project
 ```
 gsutil mb -p workload-318005 -c standard -l europe-central2 -b on gs://tfstate_PROJECT_ID_gke-deployer
 ```
-- store SA JSON in the CICD tool Secrets (Terraform infrastructure provisioning)
-- store JH private ssh key in the CICD tool Secrets (Ansible configuration)
-  
-In production split Master and Workload GCP projects and manage SAs and `tfstate` files centrally. 
+- create GitHub Actions Secret for GCP_SA. Remove new lines before importing JSON file to the GitHub UI.
+```
+jq -c . GCP_SA.json
+```
+- create GitHub Actions Secret for GCP_SSH_PRIVATE_KEY used in Jumphost (Ansible and adminstration).
 
 ## Additional info
 #### Master-Workload architecture
-In production, build Master GCP Project to manage Workload GCP Projects.
+In production, optionally build Master GCP Project to manage Workload GCP Projects.
   
 **Normally Master GCP Project would contain SA for running Terraform provisioning of Workload GCP Projects and GKEs within. Free Tier does not allow to use SA for creating another GCP Projects, thus we need workarounds using personal GCP account to create Workload GCP Projects or we precreate Workload GCP Project and Workload SA in advance manually.**
 

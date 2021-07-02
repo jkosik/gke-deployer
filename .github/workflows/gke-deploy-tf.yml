@@ -33,7 +33,7 @@ jobs:
   #   steps:
   #     - run: echo "Deploying from branch $GITHUB_REF"
 
-  deploy-infrastructure:
+  infrastructure:
     runs-on: ubuntu-latest
     container: jkosik/terraform:1.0.1
     steps:
@@ -41,18 +41,6 @@ jobs:
         run: |
           echo $GITHUB_HEAD_REF
           echo Current ENV and source Branch is: ${{ env.INFRA_ENV }}
-
-      # - name: Set global variables.
-      #   run: |
-      #     if [ $GITHUB_REF == 'refs/heads/main' ]; then
-      #       export INFRA_ENV=prod
-      #     fi
-      #     if [ $GITHUB_REF == 'refs/heads/stage' ]; then 
-      #       export INFRA_ENV=stage
-      #     fi
-      #     if [ $GITHUB_REF == 'refs/heads/dev' ]; then 
-      #       export INFRA_ENV=dev
-      #     fi
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -76,18 +64,18 @@ jobs:
           terraform apply -auto-approve -var-file=${{ env.INFRA_ENV }}.tfvars
         working-directory: ${{ env.DIR_INFRA }}
 
-  healthchecks:
-    needs: deploy-infrastructure
+  infrastructure-healthcheck:
+    needs: infrastructure
     runs-on: ubuntu-latest
     container: jkosik/gcp-deployer:346.0.0
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      # - name: Set up GCP Cloud SDK for Client
-      #   uses: google-github-actions/setup-gcloud@master
-      #   with:
-      #     service_account_key: ${{ secrets.GCP_SA_PROD }}
+      - name: Set up GCP Cloud SDK for Client
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.GCP_SA }}
 
       - name: Check GKE readiness
         run: |
@@ -102,4 +90,21 @@ jobs:
             echo "K8S cluster ${GKE_CLUSTER_NAME} in RUNNING state"
             break
           done;
-        working-directory: ${{ env.DIR_INFRA }}      
+        working-directory: ${{ env.DIR_INFRA }}
+
+  configuration:
+    needs: healthcheck
+    runs-on: ubuntu-latest
+    container: jkosik/gcp-deployer:346.0.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+
+  configuration-healthcheck:
+    needs: configuration
+    runs-on: ubuntu-latest
+    container: jkosik/gcp-deployer:346.0.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2        

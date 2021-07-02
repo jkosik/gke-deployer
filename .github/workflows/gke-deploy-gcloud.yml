@@ -34,7 +34,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@master
         with:
           project_id: ${{ env.DSO_PROJECT }}
-          service_account_key: ${{ secrets.GCP_SA_PROD }}
+          service_account_key: ${{ secrets.GCP_SA }}
 
       - name: Sourcing vars    
         run: |
