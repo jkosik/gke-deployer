@@ -1,6 +1,6 @@
 name: gke-deploy-gcloud
 
-# on:
+on:
 #  push:
 #    branches-ignore:
 #      - 'docs'
