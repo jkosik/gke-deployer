@@ -40,9 +40,9 @@ jobs:
       - name: Environment setting
         run: |
           echo $GITHUB_HEAD_REF
-          echo Current ENV source Branch is: ${{ env.INFRA_ENV }}
+          echo Current ENV and source Branch is: ${{ env.INFRA_ENV }}
 
-      # - name: Set global variables
+      # - name: Set global variables.
       #   run: |
       #     if [ $GITHUB_REF == 'refs/heads/main' ]; then
       #       export INFRA_ENV=prod
