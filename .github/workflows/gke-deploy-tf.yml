@@ -44,7 +44,7 @@ jobs:
 
       - name: Terraform checks
         env:
-          TF_LOG=DEBUG
+          TF_LOG: DEBUG
         run: |
           terraform fmt -check
           terraform init
@@ -53,7 +53,7 @@ jobs:
 
       - name: Terraform Plan an apply
         env:
-          TF_LOG=DEBUG
+          TF_LOG: DEBUG
         run: |
           terraform plan -var-file=dev.tfvars
           terraform apply -auto-approve -var-file=dev.tfvars
