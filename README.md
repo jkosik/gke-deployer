@@ -57,3 +57,5 @@ gcloud services enable \
 Creates minimalistic zonal GKE (for HA use regional cluster `--region` instead of `--zone`).
 Update `other/gke-deploy-gcloud/gke.vars` and run [gke-deploy-gcloud/deployment-local.sh](other/gke-deploy-gcloud/deployment-local.sh) to build GKE from the console. Optionally use Workflows for [GitHub Actions](.github/workflows/gke-deploy-gcloud.yml).
 
+#### Auth using SA for Terraform
+export GOOGLE_CREDENTIALS=GCP_SA.json

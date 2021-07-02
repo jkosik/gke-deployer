@@ -5,7 +5,7 @@
   gather_facts: no
   tasks:
     - name: Run a shell command and register its output as a variable
-      uri: 
+      uri:
         url: https://dl.k8s.io/release/stable.txt
         return_content: true
       register: k8s_stable_version
@@ -14,10 +14,10 @@
       debug: msg={{ k8s_stable_version.content }}
 
     - name: Download kubectl binary
-      get_url: 
+      get_url:
         url: "https://dl.k8s.io/release/{{ k8s_stable_version.content }}/bin/linux/amd64/kubectl"
         dest: /opt
-        mode: 0440      
+        mode: 0440
 
     - name: Install kubectl
       shell: |
@@ -26,7 +26,7 @@
         mv /opt/kubectl ~/.local/bin/kubectl
 
     - name: Install bash-completion
-      apt: 
+      apt:
         state: present
         update_cache: yes
         name:
@@ -38,17 +38,17 @@
         echo 'source <(kubectl completion bash)' >>~/.bashrc
 
     - name: Create /home/user/.kube directory
-      file: 
+      file:
         path: /home/user/.kube
         state: directory
         owner: user
-        group: user       
+        group: user
 
     - name: Cleanup default kubeconfig
       shell: |
         > ~/.kube/config
         > /home/user/.kube/config
-        
+
 
     - name: Grab and import kubeconfig to user "user" homedir
       shell: |
@@ -59,4 +59,3 @@
         gcloud secrets create kubeconfig-$GKE_CLUSTER_NAME --data-file=/home/user/.kube/config --labels=owner=dso,info=jumphost-generated
         cp ~/.kube/config /home/user/.kube/config
 
-    

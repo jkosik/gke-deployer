@@ -52,11 +52,11 @@ jobs:
 
       - name: Terraform init
         run: terraform init
-        working-directory: ${{ env.DIR_INFRA }}          
+        working-directory: ${{ env.DIR_INFRA }}
 
       - name: Terraform validate
         run: terraform validate -no-color
-        working-directory: ${{ env.DIR_INFRA }}          
+        working-directory: ${{ env.DIR_INFRA }}
 
       - name: Terraform plan and apply
         run: |
@@ -79,10 +79,12 @@ jobs:
 
       - name: Check GKE readiness
         run: |
+          PROJECT_ID=$(cat ${{ env.INFRA_ENV }}.tfvars | grep project_id | cut -d\" -f2)
+          ZONE=$(cat ${{ env.INFRA_ENV }}.tfvars | grep zone | cut -d\" -f2)
           GKE_CLUSTER_NAME=$(cat ${{ env.INFRA_ENV }}.tfvars | grep gke_cluster_name | cut -d\" -f2)
           c=0
           while true; do
-            while [[ $(gcloud container clusters describe ${GKE_CLUSTER_NAME} --format="value(status)") != "RUNNING" ]] ; do
+            while [[ $(gcloud container clusters describe ${GKE_CLUSTER_NAME} --zone $ZONE --project $PROJECT_ID --format="value(status)") != "RUNNING" ]] ; do
               ((c++)) && ((c>60)) && printf "Timeout to deploy K8S cluster exceeded\n" && exit 1
               sleep 5
               echo "Checking K8S cluster build..."
@@ -100,6 +102,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Ansible lint
+        run: |
+          ansible-lint *.{yml,yaml}
+        continue-on-error: true
 
   configuration-healthcheck:
     needs: configuration
@@ -107,4 +113,4 @@ jobs:
     container: jkosik/gcp-deployer:346.0.0
     steps:
       - name: Checkout
-        uses: actions/checkout@v2        
+        uses: actions/checkout@v2

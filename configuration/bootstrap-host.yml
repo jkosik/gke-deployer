@@ -14,7 +14,7 @@
   gather_facts: true
   tasks:
     - name: Install packages
-      apt: 
+      apt:
         state: present
         update_cache: yes
         name:
@@ -25,17 +25,17 @@
           - wget
 
     - name: Create jumphost directory
-      file: 
+      file:
         path: /home/user/jumphost
         state: directory
 
     - name: Copy Terraform vars to jumphost
       copy:
         src: "{{ playbook_dir }}/../infrastructure/{{ env }}.tfvars"
-        dest: "/home/user/jumphost"        
+        dest: "/home/user/jumphost"
 
     - name: Create directory for sample k8s manifests
-      file: 
+      file:
         path: /home/user/jumphost/manifest
         state: directory
 

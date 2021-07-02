@@ -9,14 +9,14 @@
       environment:
         KUBECONFIG: /home/user/.kube/config
       ignore_errors: yes
-      
+
     - name: Install HA ArgoCD
       shell: kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_version }}/manifests/ha/install.yaml
       environment:
         KUBECONFIG: /home/user/.kube/config
 
     # - name: Run a shell command and register its output as a variable
-    #   uri: 
+    #   uri:
     #     url: https://api.github.com/repos/argoproj/argo-cd/releases/latest
     #     return_content: true
     #   register: argocd_latest_version
@@ -29,8 +29,8 @@
       debug: msg={{ argocd_latest_version.stdout }}
 
     - name: Download ArgoCD binary
-      get_url: 
+      get_url:
         url: "https://github.com/argoproj/argo-cd/releases/download/{{ argocd_version }}/argocd-linux-amd64"
         dest: /usr/local/bin/argocd
-        mode: 0755      
+        mode: 0755
 

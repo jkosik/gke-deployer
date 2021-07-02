@@ -4,7 +4,7 @@ plugin: google.cloud.gcp_compute
 projects:
   - workload-318005
 regions:
-  - europe-central2        
+  - europe-central2
 filters:
   - name = jh
 auth_kind: serviceaccount
