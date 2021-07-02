@@ -40,6 +40,7 @@ jobs:
         env:
           TF_LOG: DEBUG
         run: |
+          export GOOGLE_APPLICATION_CREDENTIALS=gcp-auth-json
           #terraform fmt -check
           terraform init
           #terraform validate -no-color
