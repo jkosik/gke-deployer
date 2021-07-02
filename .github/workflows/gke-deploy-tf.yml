@@ -134,6 +134,17 @@ jobs:
           ansible-playbook -u user -i inventory-ephemeral.yml site.yml --extra-vars infra_env="${{ env.INFRA_ENV }}"
         working-directory: ${{ env.CONF_DIR }}
 
+  terraform-import:
+    needs: configuration
+    runs-on: ubuntu-latest
+    container: jkosik/terraform:1.0.1
+    steps:
+
+      - name: Set up GCP Cloud SDK for Client
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.GCP_SA }}
+
       - name: Import kubeconfig Secret from Secret Manager to Terraform
         run: |
           chmod a+x import-kubeconfig-secret.sh
