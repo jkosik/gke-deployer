@@ -43,6 +43,8 @@ jobs:
         working-directory: ${{ env.WORKING_DIR_INFRA }}
 
       - name: Terraform checks
+        environment:
+          TF_LOG=DEBUG
         run: |
           terraform fmt -check
           terraform init
@@ -50,6 +52,8 @@ jobs:
         working-directory: ${{ env.WORKING_DIR_INFRA }}
 
       - name: Terraform Plan an apply
+        environment:
+          TF_LOG=DEBUG
         run: |
           terraform plan -var-file=dev.tfvars
           terraform apply -auto-approve -var-file=dev.tfvars
