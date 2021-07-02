@@ -72,6 +72,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Populate variables
+        run: |
+          echo "PROJECT_ID=$(cat ${{ env.INFRA_ENV }}.tfvars | grep project_id | cut -d\" -f2)" >> $GITHUB_ENV
+          echo "ZONE=$(cat ${{ env.INFRA_ENV }}.tfvars | grep zone | cut -d\" -f2)" >> $GITHUB_ENV
+          echo "GKE_CLUSTER_NAME=$(cat ${{ env.INFRA_ENV }}.tfvars | grep gke_cluster_name | cut -d\" -f2)" >> $GITHUB_ENV
+        working-directory: ${{ env.DIR_INFRA }}
+
       - name: Set up GCP Cloud SDK for Client
         uses: google-github-actions/setup-gcloud@master
         with:
@@ -79,9 +86,6 @@ jobs:
 
       - name: Check GKE readiness
         run: |
-          PROJECT_ID=$(cat ${{ env.INFRA_ENV }}.tfvars | grep project_id | cut -d\" -f2)
-          ZONE=$(cat ${{ env.INFRA_ENV }}.tfvars | grep zone | cut -d\" -f2)
-          GKE_CLUSTER_NAME=$(cat ${{ env.INFRA_ENV }}.tfvars | grep gke_cluster_name | cut -d\" -f2)
           c=0
           while true; do
             while [[ $(gcloud container clusters describe ${GKE_CLUSTER_NAME} --zone $ZONE --project $PROJECT_ID --format="value(status)") != "RUNNING" ]] ; do
@@ -112,7 +116,6 @@ jobs:
         with:
           service_account_key: ${{ secrets.GCP_SA }}
 
-
       - name: Configure SSH Agent
         uses: webfactory/ssh-agent@v0.5.2
         with:
@@ -120,7 +123,9 @@ jobs:
 
       - name: Configure components
         run: |
-          JH_IP=$(gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
+          PROJECT_ID=$(cat ${{ env.INFRA_ENV }}.tfvars | grep project_id | cut -d\" -f2)
+          ZONE=$(cat ${{ env.INFRA_ENV }}.tfvars | grep zone | cut -d\" -f2)
+          JH_IP=$(gcloud compute instances describe jh --zone $ZONE --project $PROJECT_ID --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
           sed s/CHANGEME/$JH_IP/g inventory-template.yml > inventory-ephemeral.yml
           ansible-playbook -i inventory-ephemeral.yml site.yml
         working-directory: ${{ env.DIR_CONF }}
@@ -136,3 +141,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Set up GCP Cloud SDK for Client
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.GCP_SA }}
+
+      - name: Configure SSH Agent
+        uses: webfactory/ssh-agent@v0.5.2
+        with:
+          ssh-private-key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
+
+      - name: Run gcloud and kubectl
+        run: |
+          JH_IP=$(gcloud compute instances describe jh --zone $ZONE --project $PROJECT_ID --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
+          ssh user@$JH_IP 'gcloud compute instances list'
+          ssh user@$JH_IP 'kubectl get ns'
