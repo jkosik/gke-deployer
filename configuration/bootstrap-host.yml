@@ -31,7 +31,7 @@
 
     - name: Copy Terraform vars to jumphost
       copy:
-        src: "{{ playbook_dir }}/../infrastructure/{{ env }}.tfvars"
+        src: "{{ playbook_dir }}/../infrastructure/{{ infra_env }}.tfvars"
         dest: "/home/user/jumphost"
 
     - name: Create directory for sample k8s manifests

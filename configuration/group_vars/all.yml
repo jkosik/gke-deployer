@@ -1,2 +1,2 @@
-env: none # set me dynamically as --extra-vars in ansible-playbook command to know, which Terraform *.tfvars file to use.
+infra_env: none # set me dynamically as --extra-vars in ansible-playbook command to know, which Terraform *.tfvars file to use.
 argocd_version: v2.0.4
