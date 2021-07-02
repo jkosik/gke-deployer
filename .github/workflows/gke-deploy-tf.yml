@@ -136,7 +136,7 @@ jobs:
 
       - name: Import kubeconfig Secret from Secret Manager to Terraform
         run: |
-          ls
+          chmod a+x import-kubeconfig-secret.sh
           ./import-kubeconfig-secret.sh ${{ env.INFRA_ENV }}
         working-directory: ${{ env.INFRA_DIR }}
 
