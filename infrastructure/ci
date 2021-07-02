@@ -1,5 +1,5 @@
 Infrastructure (needs GCP access):
-export GOOGLE_APPLICATION_CREDENTIALS=/home/juraj/creds-sa-owner-workload-318005.json
+export GOOGLE_CREDENTIALS=/home/juraj/creds-sa-owner-workload-318005.json
 
 
 jq -c . /home/juraj/creds-sa-owner-workload-318005.json

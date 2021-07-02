@@ -36,9 +36,9 @@ jobs:
           TF_LOG: DEBUG
           GOOGLE_CREDENTIALS: ${{ secrets.SA_OWNER_WORKLOAD_318005 }}
         run: |
-          #terraform fmt -check
+          terraform fmt -check
           terraform init
-          #terraform validate -no-color
+          terraform validate -no-color
         working-directory: ${{ env.WORKING_DIR_INFRA }}          
 
       - name: Terraform Plan and Apply
@@ -47,7 +47,7 @@ jobs:
           GOOGLE_CREDENTIALS: ${{ secrets.SA_OWNER_WORKLOAD_318005 }}
         run: |
           terraform plan -var-file=dev.tfvars
-          #terraform apply -auto-approve -var-file=dev.tfvars
+          terraform apply -auto-approve -var-file=dev.tfvars
         working-directory: ${{ env.WORKING_DIR_INFRA }}
 
       # - name: Check GKE readiness
