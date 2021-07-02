@@ -31,13 +31,12 @@ jobs:
       #   uses: google-github-actions/setup-gcloud@master
       #   with:
       #     service_account_key: ${{ secrets.SA_OWNER_WORKLOAD_318005 }}
+
       - name: GCP authentication
         run: |
           echo "${{ secrets.SA_OWNER_WORKLOAD_318005 }}" > gcp-auth-json
           #export GOOGLE_APPLICATION_CREDENTIALS=gcp-auth-json
-          ls
-          head -2 gcp-auth-json
-
+        working-directory: ${{ env.WORKING_DIR_INFRA }}
 
       - name: Terraform checks
         env:
