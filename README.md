@@ -14,6 +14,10 @@ jq -c . GCP_SA.json
 ```
 - create GitHub Actions Secret for GCP_SSH_PRIVATE_KEY used in Jumphost (Ansible and adminstration).
 
+## Running CICD and git branch management
+Branches are organized as `dev/stage/prod`. Branch name is passed to `INFRA_ENV` varaible within CICD workflow. Based on that Terraform decides which *.tfvars file to use. Also Ansible
+and decides variable used within Terraform as well as Ansible for parametrization.
+
 ## Additional info
 #### Master-Workload architecture
 In production, optionally build Master GCP Project to manage Workload GCP Projects.
@@ -75,3 +79,6 @@ ansible-inventory -i inventory-dynamic-gcp.yml --list
 ansible -i inventory-dynamic-gcp.yml all -m ping
 ```
 - parse output and create inventory file on the fly
+
+## TBD
+- decouple infra (GKE) and configuration (k8s bootstrapping, k8s apps...) - separate workflows? Dissect k8s app deployment (argo, prometheus and so on...)

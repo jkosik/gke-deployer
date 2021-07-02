@@ -131,7 +131,7 @@ jobs:
         run: |
           JH_IP=$(gcloud compute instances describe jh --zone $ZONE --project $PROJECT_ID --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
           sed s/CHANGEME/$JH_IP/g inventory-template.yml > inventory-ephemeral.yml
-          ansible-playbook -u user -i inventory-ephemeral.yml site.yml
+          ansible-playbook -u user -i inventory-ephemeral.yml site.yml --extra-vars infra_env="${{ env.INFRA_ENV }}"
         working-directory: ${{ env.DIR_CONF }}
 
       - name: Import kubeconfig Secret from Secret manager to Terraform
