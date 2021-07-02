@@ -20,11 +20,11 @@ defaults:
     shell: bash
 
 env:
-  GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_PROD }}
   #TF_LOG: DEBUG
-  WORKING_DIR_INFRA: ./infrastructure
-  WORKING_DIR_CONF: ./configuration
-
+  DIR_INFRA: ./infrastructure
+  DIR_CONF: ./configuration
+  INFRA_ENV: ${GITHUB_REF##*/}
+  GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_${{ INFRA_ENV }} }}
 
 jobs:
   # prod-check:
@@ -33,15 +33,21 @@ jobs:
   #   steps:
   #     - run: echo "Deploying from branch $GITHUB_REF"
 
-  deploy-infrastructure-from-$GITHUB_REF:
+  deploy-infrastructure:
     runs-on: ubuntu-latest
     container: jkosik/terraform:1.0.1
     steps:
-      - name: Set gloval variables
-        run: |
-          if [ $GITHUB_REF == 'refs/heads/main' ]; then export INFRA_ENV=prod; fi
-          if [ $GITHUB_REF == 'refs/heads/stage' ]; then export INFRA_ENV=stage; fi
-          if [ $GITHUB_REF == 'refs/heads/dev' ]; then export INFRA_ENV=dev; fi
+      # - name: Set global variables
+      #   run: |
+      #     if [ $GITHUB_REF == 'refs/heads/main' ]; then
+      #       export INFRA_ENV=prod
+      #     fi
+      #     if [ $GITHUB_REF == 'refs/heads/stage' ]; then 
+      #       export INFRA_ENV=stage
+      #     fi
+      #     if [ $GITHUB_REF == 'refs/heads/dev' ]; then 
+      #       export INFRA_ENV=dev
+      #     fi
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -53,17 +59,17 @@ jobs:
 
       - name: Terraform init
         run: terraform init
-        working-directory: ${{ env.WORKING_DIR_INFRA }}          
+        working-directory: ${{ env.DIR_INFRA }}          
 
       - name: Terraform validate
         run: terraform validate -no-color
-        working-directory: ${{ env.WORKING_DIR_INFRA }}          
+        working-directory: ${{ env.DIR_INFRA }}          
 
       - name: Terraform plan and apply
         run: |
           terraform plan -var-file=$INFRA_ENV.tfvars
           terraform apply -auto-approve -var-file=$INFRA_ENV.tfvars
-        working-directory: ${{ env.WORKING_DIR_INFRA }}
+        working-directory: ${{ env.DIR_INFRA }}
 
   healthchecks:
     needs: deploy-infrastructure
@@ -73,10 +79,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set up GCP Cloud SDK for Client
-        uses: google-github-actions/setup-gcloud@master
-        with:
-          service_account_key: ${{ secrets.GCP_SA_PROD }}
+      # - name: Set up GCP Cloud SDK for Client
+      #   uses: google-github-actions/setup-gcloud@master
+      #   with:
+      #     service_account_key: ${{ secrets.GCP_SA_PROD }}
 
       - name: Check GKE readiness
         run: |
@@ -91,4 +97,4 @@ jobs:
             echo "K8S cluster ${{ env.GKE_CLUSTER_NAME }} in RUNNING state"
             break
           done;
-        working-directory: ${{ env.WORKING_DIR_INFRA }}      
+        working-directory: ${{ env.DIR_INFRA }}      
