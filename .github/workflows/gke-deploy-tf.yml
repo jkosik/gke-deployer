@@ -23,7 +23,7 @@ env:
   #TF_LOG: DEBUG
   DIR_INFRA: ./infrastructure
   DIR_CONF: ./configuration
-  INFRA_ENV: ${GITHUB_HEAD_REF##*/}
+  INFRA_ENV: ${GITHUB_REF##*/}
   GOOGLE_CREDENTIALS: "${{ secrets.GCP_SA }}"
 
 jobs:
