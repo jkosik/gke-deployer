@@ -24,7 +24,7 @@ env:
   DIR_INFRA: ./infrastructure
   DIR_CONF: ./configuration
   INFRA_ENV: ${GITHUB_REF##*/}
-  GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_${INFRA_ENV}}}
+  GOOGLE_CREDENTIALS: "${{ secrets.GCP_SA_${INFRA_ENV}}}"
 
 jobs:
   # prod-check:
