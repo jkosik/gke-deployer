@@ -44,9 +44,10 @@ jobs:
       - name: Terraform Plan and Apply
         env:
           TF_LOG: DEBUG
+          GOOGLE_APLICATION_CREDENTIALS: ${{ secrets.SA_OWNER_WORKLOAD_318005 }}
         run: |
           terraform plan -var-file=dev.tfvars
-          terraform apply -auto-approve -var-file=dev.tfvars
+          #terraform apply -auto-approve -var-file=dev.tfvars
         working-directory: ${{ env.WORKING_DIR_INFRA }}
 
       # - name: Check GKE readiness
