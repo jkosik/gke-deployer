@@ -20,8 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     container: jkosik/terraform:1.0.1
     env:
-      working-directory-infra: ./infrastructure
-      working-directory-conf: ./configuration
+      WORKING_DIR_INFRA: ./infrastructure
+      WORKING_DIR_CONF: ./configuration
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -40,20 +40,20 @@ jobs:
           terraform fmt -check
           terraform init
           terraform validate -no-color
-        working-directory: ${{ env.working.directory-infra }}
+        working-directory: ${{ env.WORKING_DIR_INFRA }}
 
       - name: Terraform checks
         run: |
           terraform fmt -check
           terraform init
           terraform validate -no-color
-        working-directory: ${{ env.working.directory-infra }}
+        working-directory: ${{ env.WORKING_DIR_INFRA }}
 
       - name: Terraform Plan an apply
         run: |
           terraform plan -var-file=dev.tfvars
           terraform apply -auto-approve -var-file=dev.tfvars
-        working-directory: ${{ env.working.directory-infra }}
+        working-directory: ${{ env.WORKING_DIR_INFRA }}
 
       # - name: Check GKE readiness
       #   run: |
