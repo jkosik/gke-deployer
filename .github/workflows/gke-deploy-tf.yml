@@ -35,6 +35,9 @@ jobs:
         run: |
           echo "${{ secrets.SA_OWNER_WORKLOAD_318005 }}" > gcp-auth-json
           #export GOOGLE_APPLICATION_CREDENTIALS=gcp-auth-json
+          ls
+          head -2 gcp-auth-json
+
 
       - name: Terraform checks
         env:
