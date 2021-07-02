@@ -40,7 +40,7 @@ jobs:
           #terraform validate -no-color
         working-directory: ${{ env.WORKING_DIR_INFRA }}
 
-      - name: Terraform Plan an Apply
+      - name: Terraform Plan and Apply
         env:
           TF_LOG: DEBUG
         run: |
