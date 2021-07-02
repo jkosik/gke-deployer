@@ -40,6 +40,8 @@ jobs:
         env:
           TF_LOG: DEBUG
         run: |
+          ls
+          head -2 gcp-auth-json
           export GOOGLE_APPLICATION_CREDENTIALS=gcp-auth-json
           #terraform fmt -check
           terraform init
