@@ -106,6 +106,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Populate variables
+        run: |
+          echo "PROJECT_ID=$(cat ${{ env.INFRA_ENV }}.tfvars | grep project_id | cut -d\" -f2)" >> $GITHUB_ENV
+          echo "ZONE=$(cat ${{ env.INFRA_ENV }}.tfvars | grep zone | cut -d\" -f2)" >> $GITHUB_ENV
+        working-directory: ${{ env.DIR_INFRA }}
+
       - name: Ansible lint
         run: |
           ansible-lint *.{yml,yaml}
@@ -123,8 +129,6 @@ jobs:
 
       - name: Configure components
         run: |
-          PROJECT_ID=$(cat ${{ env.INFRA_ENV }}.tfvars | grep project_id | cut -d\" -f2)
-          ZONE=$(cat ${{ env.INFRA_ENV }}.tfvars | grep zone | cut -d\" -f2)
           JH_IP=$(gcloud compute instances describe jh --zone $ZONE --project $PROJECT_ID --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
           sed s/CHANGEME/$JH_IP/g inventory-template.yml > inventory-ephemeral.yml
           ansible-playbook -i inventory-ephemeral.yml site.yml
@@ -141,6 +145,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Populate variables
+        run: |
+          echo "PROJECT_ID=$(cat ${{ env.INFRA_ENV }}.tfvars | grep project_id | cut -d\" -f2)" >> $GITHUB_ENV
+          echo "ZONE=$(cat ${{ env.INFRA_ENV }}.tfvars | grep zone | cut -d\" -f2)" >> $GITHUB_ENV
+        working-directory: ${{ env.DIR_INFRA }}
 
       - name: Set up GCP Cloud SDK for Client
         uses: google-github-actions/setup-gcloud@master
