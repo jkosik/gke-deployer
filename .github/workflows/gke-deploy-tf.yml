@@ -38,7 +38,7 @@ jobs:
 
       - name: Terraform init
         env:
-          GOOGLE_CREDENTIALS: ${{ secrets.SA }}
+          GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA }}
         run: terraform init
         working-directory: ${{ env.WORKING_DIR_INFRA }}          
 
@@ -46,7 +46,7 @@ jobs:
         run: terraform validate -no-color
         working-directory: ${{ env.WORKING_DIR_INFRA }}          
 
-      - name: Terraform Plan and Apply
+      - name: Terraform plan and apply
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.SA_OWNER_WORKLOAD_318005 }}
         run: |
