@@ -34,13 +34,12 @@ jobs:
       - name: Terraform checks
         env:
           TF_LOG: DEBUG
+          GOOGLE_CREDENTIALS: ${{ secrets.SA_OWNER_WORKLOAD_318005 }}
         run: |
           #terraform fmt -check
           terraform init
           #terraform validate -no-color
-        working-directory: ${{ env.WORKING_DIR_INFRA }}
-        env:
-          GOOGLE_CREDENTIALS: ${{ secrets.SA_OWNER_WORKLOAD_318005 }}
+        working-directory: ${{ env.WORKING_DIR_INFRA }}          
 
       - name: Terraform Plan and Apply
         env:
