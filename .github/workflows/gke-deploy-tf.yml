@@ -44,7 +44,7 @@ jobs:
       - name: Terraform Plan and Apply
         env:
           TF_LOG: DEBUG
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.SA_OWNER_WORKLOAD_318005 }}
+          GOOGLE_CREDENTIALS: ${{ secrets.SA_OWNER_WORKLOAD_318005 }}
         run: |
           terraform plan -var-file=dev.tfvars
           #terraform apply -auto-approve -var-file=dev.tfvars
