@@ -1,20 +1,15 @@
 name: gke-deploy-gcloud
 
-on:
-  push:
-#    branches: 
-#      - 'main'
-    branches-ignore:
-      - 'main'
-      - 'docs'
-    paths-ignore:
-      - 'docs/**'
-      - 'README.md'
-  pull_request:
-    branches: 
-      - 'main'
-    branches-ignore:
-      - 'docs'
+# on:
+#  push:
+#    branches-ignore:
+#      - 'docs'
+#    paths-ignore:
+#      - 'docs/**'
+#      - 'README.md'
+#  pull_request:
+#    branches-ignore:
+#      - 'docs'
 
 
   # Allows you to run this workflow manually from the Actions tab
