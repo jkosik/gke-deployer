@@ -39,9 +39,9 @@ jobs:
         env:
           TF_LOG: DEBUG
         run: |
-          terraform fmt -check
+#          terraform fmt -check
           terraform init
-          terraform validate -no-color
+#          terraform validate -no-color
         working-directory: ${{ env.WORKING_DIR_INFRA }}
 
       - name: Terraform Plan an apply
