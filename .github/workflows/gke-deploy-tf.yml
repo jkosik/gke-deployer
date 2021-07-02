@@ -19,9 +19,6 @@ jobs:
   deploy-infrastructure:
     runs-on: ubuntu-latest
     container: jkosik/terraform:1.0.1
-    defaults:
-      run:
-        shell: bash
     env:
       working-directory-infra: ./infrastructure
       working-directory-conf: ./configuration
