@@ -18,20 +18,20 @@ resource "google_compute_instance" "jumphost" {
     }
 
   }
- 
+
   metadata = {
-    owner = var.owner
+    owner    = var.owner
     ssh-keys = <<EOF
       ${var.user1}:${var.user1_ssh_pubkey}
       ${var.user2}:${var.user2_ssh_pubkey}
     EOF
   }
-  
+
   service_account {
     email  = data.google_service_account.sa.email
     scopes = ["cloud-platform"]
-  }    
- 
+  }
+
 }
 
 resource "google_compute_firewall" "fwjh" {

@@ -1,5 +1,5 @@
 resource "google_compute_network" "network" {
-  name                    = "${var.project_id}"
+  name                    = var.project_id
   auto_create_subnetworks = "false"
 }
 

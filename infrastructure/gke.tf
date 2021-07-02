@@ -4,19 +4,19 @@ resource "google_container_cluster" "gke_cluster" {
   network    = google_compute_network.network.name
   subnetwork = google_compute_subnetwork.subnet.name
   ip_allocation_policy {
-      cluster_ipv4_cidr_block = var.gke_secondary_subnet_pods
-      services_ipv4_cidr_block = var.gke_secondary_subnet_services
+    cluster_ipv4_cidr_block  = var.gke_secondary_subnet_pods
+    services_ipv4_cidr_block = var.gke_secondary_subnet_services
   }
   master_authorized_networks_config {
-      cidr_blocks {
-        display_name = "GKE Public access from"
-        cidr_block = var.gke_public_access_from
-      }
+    cidr_blocks {
+      display_name = "GKE Public access from"
+      cidr_block   = var.gke_public_access_from
+    }
   }
   private_cluster_config {
-      enable_private_nodes = true
-      enable_private_endpoint = false
-      master_ipv4_cidr_block = var.gke_master_ipv4_cidr
+    enable_private_nodes    = true
+    enable_private_endpoint = false
+    master_ipv4_cidr_block  = var.gke_master_ipv4_cidr
   }
 
   remove_default_node_pool = true
@@ -35,7 +35,7 @@ resource "google_container_node_pool" "nodepool" {
 
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
     service_account = data.google_service_account.sa.email
-    oauth_scopes    = [
+    oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
     ]
   }

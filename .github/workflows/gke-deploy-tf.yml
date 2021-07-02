@@ -15,11 +15,16 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   deploy-infrastructure:
     runs-on: ubuntu-latest
     container: jkosik/terraform:1.0.1
     env:
+      TF_LOG: DEBUG
       WORKING_DIR_INFRA: ./infrastructure
       WORKING_DIR_CONF: ./configuration
     steps:
@@ -31,23 +36,25 @@ jobs:
       #   with:
       #     service_account_key: ${{ secrets.SA_OWNER_WORKLOAD_318005 }}
 
-      - name: Terraform checks
-        env:
-          TF_LOG: DEBUG
-          GOOGLE_CREDENTIALS: ${{ secrets.SA_OWNER_WORKLOAD_318005 }}
+      - name: Terraform fmt
         run: |
           terraform fmt -check
-          terraform init
-          terraform validate -no-color
+        continue-on-error: true
+
+      - name: Terraform init
+        run: terraform init
+        working-directory: ${{ env.WORKING_DIR_INFRA }}          
+
+      - name: Terraform validate
+        run: terraform validate -no-color
         working-directory: ${{ env.WORKING_DIR_INFRA }}          
 
       - name: Terraform Plan and Apply
         env:
-          TF_LOG: DEBUG
           GOOGLE_CREDENTIALS: ${{ secrets.SA_OWNER_WORKLOAD_318005 }}
         run: |
           terraform plan -var-file=dev.tfvars
-          terraform apply -auto-approve -var-file=dev.tfvars
+#          terraform apply -auto-approve -var-file=dev.tfvars
         working-directory: ${{ env.WORKING_DIR_INFRA }}
 
       # - name: Check GKE readiness
