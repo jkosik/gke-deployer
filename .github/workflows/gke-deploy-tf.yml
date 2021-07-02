@@ -40,7 +40,7 @@ jobs:
       - name: Environment setting
         run: |
           echo $GITHUB_HEAD_REF
-          echo Current ENV (source Branch) is: ${{ env.INFRA_ENV }}
+          echo Current ENV source Branch is: ${{ env.INFRA_ENV }}
 
       # - name: Set global variables
       #   run: |
