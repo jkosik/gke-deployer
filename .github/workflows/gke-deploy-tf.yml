@@ -22,27 +22,19 @@ jobs:
     env:
       WORKING_DIR_INFRA: ./infrastructure
       WORKING_DIR_CONF: ./configuration
-      GOOGLE_APPLICATION_CREDENTIALS: gcp-auth-json
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      # - name: Set up GCP Cloud SDK for Client
-      #   uses: google-github-actions/setup-gcloud@master
-      #   with:
-      #     service_account_key: ${{ secrets.SA_OWNER_WORKLOAD_318005 }}
-
-      - name: GCP authentication
-        run: |
-          echo "${{ secrets.SA_OWNER_WORKLOAD_318005 }}" > gcp-auth-json
-          #export GOOGLE_APPLICATION_CREDENTIALS=gcp-auth-json
-        working-directory: ${{ env.WORKING_DIR_INFRA }}
+      - name: Set up GCP Cloud SDK for Client
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.SA_OWNER_WORKLOAD_318005 }}
 
       - name: Terraform checks
         env:
           TF_LOG: DEBUG
         run: |
-          ##export GOOGLE_APPLICATION_CREDENTIALS=gcp-auth-json
           #terraform fmt -check
           terraform init
           #terraform validate -no-color
