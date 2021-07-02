@@ -39,6 +39,8 @@ jobs:
           terraform init
           #terraform validate -no-color
         working-directory: ${{ env.WORKING_DIR_INFRA }}
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.SA_OWNER_WORKLOAD_318005 }}
 
       - name: Terraform Plan and Apply
         env:
