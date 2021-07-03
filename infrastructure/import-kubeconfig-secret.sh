@@ -14,7 +14,7 @@ PROJECT_ID=$(cat $INFRA_ENV.tfvars | grep project_id | cut -d\" -f2)
 PROJECT_NUMBER=$(gcloud projects list --filter="$PROJECT_ID" --format="value(PROJECT_NUMBER)")
 GKE_CLUSTER_NAME=$(cat $INFRA_ENV.tfvars | grep gke_cluster_name | cut -d\" -f2)
 
-#terraform import -var-file=$INFRA_ENV.tfvars -allow-missing-config google_secret_manager_secret.kubeconfig projects/$PROJECT_NUMBER/secrets/kubeconfig-$GKE_CLUSTER_NAME
+terraform import -var-file=$INFRA_ENV.tfvars -allow-missing-config google_secret_manager_secret.kubeconfig projects/$PROJECT_NUMBER/secrets/kubeconfig-$GKE_CLUSTER_NAME
 
 # check resource addition to Terraform
-#terraform show -json | jq '.values.root_module.resources[] | .type,.name '
+terraform show -json | jq '.values.root_module.resources[] | .type,.name '
