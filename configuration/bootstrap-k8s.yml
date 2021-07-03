@@ -44,13 +44,16 @@
         owner: user
         group: user
 
-    - name: Cleanup default kubeconfig
-      shell: |
-        > ~/.kube/config
-        > /home/user/.kube/config
-
+    - name: Remove file (delete file)
+      file:
+        path: {{ item }}
+        state: absent
+      with_items:
+        - /home/user/.kube/config
+        - /root/.kube/config
 
     - name: Grab and import kubeconfig to user "user" homedir
+      become_user: user
       shell: |
         PROJECT_ID=$(cat /home/user/jumphost/{{ infra_env }}.tfvars | grep project_id | cut -d\" -f2)
         ZONE=$(cat /home/user/jumphost/{{ infra_env }}.tfvars | grep zone | cut -d\" -f2)

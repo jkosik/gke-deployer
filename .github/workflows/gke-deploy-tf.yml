@@ -21,8 +21,8 @@ defaults:
 
 env:
   #TF_LOG: DEBUG
-  CONF_DIR: ./configuration
-  INFRA_DIR: ./infrastructure
+  CONF_DIR: configuration
+  INFRA_DIR: infrastructure
   INFRA_ENV: ${GITHUB_REF##*/}
   GOOGLE_CREDENTIALS: "${{ secrets.GCP_SA }}"
 
@@ -139,7 +139,6 @@ jobs:
     runs-on: ubuntu-latest
     container: jkosik/terraform:1.0.1
     steps:
-
       - name: Set up GCP Cloud SDK for Client
         uses: google-github-actions/setup-gcloud@master
         with:
