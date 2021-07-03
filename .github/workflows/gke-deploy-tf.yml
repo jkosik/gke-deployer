@@ -136,6 +136,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Set up GCP Cloud SDK for Client
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.GCP_SA }}
+
+
       - name: Populate variables
         run: |
           echo "PROJECT_ID=$(cat ${{ env.INFRA_ENV }}.tfvars | grep project_id | cut -d\" -f2)" >> $GITHUB_ENV
@@ -143,16 +149,11 @@ jobs:
           echo "GKE_CLUSTER_NAME=$(cat ${{ env.INFRA_ENV }}.tfvars | grep gke_cluster_name | cut -d\" -f2)" >> $GITHUB_ENV
         working-directory: ${{ env.INFRA_DIR }}
 
-      # - name: Set up GCP Cloud SDK for Client
-      #   uses: google-github-actions/setup-gcloud@master
-      #   with:
-      #     service_account_key: ${{ secrets.GCP_SA }}
-
       - name: Import kubeconfig Secret from Secret Manager to Terraform
         run: |
           # JH created Secret in the Secret Manager holding kubeconfig. Import resource to Terraform.
           terraform init
-          terraform import -var-file=$INFRA_ENV.tfvars -allow-missing-config google_secret_manager_secret.kubeconfig projects/$PROJECT_NUMBER/secrets/kubeconfig-$GKE_CLUSTER_NAME
+          terraform import -var-file=${{ env.INFRA_ENV }}.tfvars -allow-missing-config google_secret_manager_secret.kubeconfig projects/$PROJECT_NUMBER/secrets/kubeconfig-$GKE_CLUSTER_NAME
           # check resource addition to Terraform
           terraform show -json | jq '.values.root_module.resources[] | .type,.name '
         working-directory: ${{ env.INFRA_DIR }}
