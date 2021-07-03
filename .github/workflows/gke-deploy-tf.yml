@@ -139,6 +139,9 @@ jobs:
     runs-on: ubuntu-latest
     container: jkosik/terraform:1.0.1
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
       # - name: Set up GCP Cloud SDK for Client
       #   uses: google-github-actions/setup-gcloud@master
       #   with:
@@ -148,8 +151,8 @@ jobs:
         run: |
           pwd
           ls
-          #chmod a+x ./import-kubeconfig-secret.sh
-          #./import-kubeconfig-secret.sh ${{ env.INFRA_ENV }}
+          chmod a+x ./import-kubeconfig-secret.sh
+          ./import-kubeconfig-secret.sh ${{ env.INFRA_ENV }}
         #working-directory: ${{ env.INFRA_DIR }}
 
   configuration-healthcheck:
