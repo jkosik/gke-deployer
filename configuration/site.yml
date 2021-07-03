@@ -1,4 +1,3 @@
 ---
-- import_playbook: bootstrap-host.yml
-- import_playbook: bootstrap-k8s.yml
+- import_playbook: bootstrap-jh.yml
 - import_playbook: bootstrap-argo.yml
