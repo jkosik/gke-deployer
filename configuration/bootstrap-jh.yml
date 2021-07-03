@@ -52,7 +52,7 @@
         group: "user"
 
 
-- name: Install kubectl and get kubeconfig
+- name: Install kubectl and get and store kubeconfig
   hosts: jh
   become: true
   gather_facts: false
