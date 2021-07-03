@@ -46,7 +46,7 @@
 
     - name: Remove file (delete file)
       file:
-        path: {{ item }}
+        path: "{{ item }}"
         state: absent
       with_items:
         - /home/user/.kube/config
