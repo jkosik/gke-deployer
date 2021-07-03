@@ -149,7 +149,7 @@ jobs:
         run: |
           chmod a+x import-kubeconfig-secret.sh
           ./import-kubeconfig-secret.sh ${{ env.INFRA_ENV }}
-        working-directory: ${{ env.INFRA_DIR }}
+        working-directory: infrastructure
 
   configuration-healthcheck:
     needs: configuration
@@ -178,5 +178,5 @@ jobs:
       - name: Run gcloud and kubectl
         run: |
           JH_IP=$(gcloud compute instances describe jh --zone $ZONE --project $PROJECT_ID --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
-          ssh user@$JH_IP 'gcloud compute instances list'
-          ssh user@$JH_IP 'kubectl get ns'
+          ssh -o StrictHostKeyChecking=no user@$JH_IP 'gcloud compute instances list'
+          ssh -o StrictHostKeyChecking=no user@$JH_IP 'kubectl get ns'
