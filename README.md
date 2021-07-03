@@ -1,5 +1,5 @@
 # gke-deployer
-Deploys GKE to GCP and postdeploys [Jumphost](docs/jh.md) with tooling and bootstraps GKE with primarily [ArgoCD](docs/argocd.md)...
+Deploys GKE to GCP and postdeploys [Jumphost](docs/jh.md) with tooling.
 
 ## Prerequisites
 - create GCP project, e.g. `workload-318005`
@@ -80,5 +80,3 @@ ansible -i inventory-dynamic-gcp.yml all -m ping
 ```
 - parse output and create inventory file on the fly
 
-## TBD
-- decouple infra (GKE) and configuration (k8s bootstrapping, k8s apps...) - separate workflows? Dissect k8s app deployment (argo, prometheus and so on...)
