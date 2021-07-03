@@ -12,7 +12,7 @@ gsutil mb -p workload-318005 -c standard -l europe-central2 -b on gs://tfstate_P
 ```
 jq -c . GCP_SA.json
 ```
-- create GitHub Actions Secret for GCP_SSH_PRIVATE_KEY used in Jumphost (Ansible and adminstration).
+- create GitHub Actions Secret for GCP_SSH_PRIVATE_KEY used in Jumphost (Ansible and administration).
 
 ## Running CICD and git branch management
 Branches are organized as `dev/stage/prod`. Branch name is passed to `INFRA_ENV` varaible within CICD workflow. Based on that Terraform decides which *.tfvars file to use. Also Ansible

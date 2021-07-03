@@ -1,3 +1,2 @@
 ---
 - import_playbook: bootstrap-jh.yml
-- import_playbook: bootstrap-argo.yml
