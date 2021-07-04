@@ -1,5 +1,5 @@
 # gke-deployer
-Deploys GKE to GCP and postdeploys [Jumphost](docs/jh.md) with tooling.
+Deploys GKE to GCP and postdeploys [Jumphost](docs/jh.md) with tooling and ArgoCD.
 
 ## Prerequisites
 - create GCP project, e.g. `workload-318005`
@@ -17,6 +17,14 @@ jq -c . GCP_SA.json
 ## Running CICD and git branch management
 Branches are organized as `dev/stage/prod`. Branch name is passed to `INFRA_ENV` varaible within CICD workflow. Based on that Terraform decides which *.tfvars file to use. Also Ansible
 and decides variable used within Terraform as well as Ansible for parametrization.
+
+## Deploying applications to K8S cluster
+Applications can be deployed in multiple ways:
+- using Jumphost with preinstalled kubectl (user can install additional tools as Helm)
+- using [ArgoCD](docs/argocd.yaml)
+
+
+
 
 ## Additional info
 #### Master-Workload architecture

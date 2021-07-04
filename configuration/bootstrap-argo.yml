@@ -2,16 +2,17 @@
 - name: Install Argo
   hosts: jh
   become: true
-  become_user: user
   gather_facts: false
   tasks:
     - name: Create ArgoCD namespace
+      become_user: user
       shell: kubectl create namespace argocd
       # environment:
       #   KUBECONFIG: /home/user/.kube/config
       ignore_errors: true
 
     - name: Install HA ArgoCD
+      become_user: user
       shell: kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_version }}/manifests/ha/install.yaml
       #environment:
       #  KUBECONFIG: /home/user/.kube/config
