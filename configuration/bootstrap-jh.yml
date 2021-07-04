@@ -45,7 +45,7 @@
         src: jumphost/manifests/
         dest: /home/user/jumphost/manifests
 
-    - name: Set permissions
+    - name: Set permissions on /home/user/jumphost
       file:
         path: "/home/user/jumphost"
         recurse: true
