@@ -35,11 +35,6 @@
         src: "{{ playbook_dir }}/../infrastructure/{{ infra_env }}.tfvars"
         dest: "/home/user/jumphost"
 
-    - name: Create directory for sample k8s manifests
-      file:
-        path: /home/user/jumphost/manifest
-        state: directory
-
     - name: Copy sample k8s manifests
       copy:
         src: jumphost/manifests/
