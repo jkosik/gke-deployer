@@ -116,3 +116,24 @@
         else
           gcloud secrets create kubeconfig-$GKE_CLUSTER_NAME --data-file=/home/user/.kube/config --labels=owner=dso,info=jumphost-generated
         fi
+
+- name: Install Helm
+  hosts: jh
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Download Helm installer
+      get_url:
+        url: "https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3"
+        dest: /opt/get_helm.sh
+        mode: 0700
+
+    - name: Check installed Helm version
+      shell: /opt/get_helm.sh
+
+    - name: Check installed Helm version
+      shell: helm version
+      register: helm_version
+
+    - name: Currently installed kubectl version
+      debug: msg={{ helm_version.stdout }}
