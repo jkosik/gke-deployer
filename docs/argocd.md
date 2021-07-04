@@ -10,30 +10,31 @@ argocd account update-password
 ```
 
 ## Manage ArgoCD:
-#### 1. using ArgoCD binary preinstalled on Jumphost
+#### 1. Use GitOps to manage Application in ArgoCD - RECOMMENDED
+
+
+#### 2. using ArgoCD binary preinstalled on Jumphost
 ```
 argocd --help
 ```
 
+#### 3. using ArgoCD GUI tunnelled over SSH
 
-
-- On Jumphost:
+- On Jumphost run:
 ```
 kubectl -n argocd port-forward svc/argocd-server -n argocd 8080:443
 ```
 
-- On desktop:
+- On your machine run:
 ```
 export JH_EXTERNAL_IP=`gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'`
 ssh -L 1234:localhost:8080 user@$JH_EXTERNAL_IP -i PRIVATE_SSH_KEY
-https://localhost:1234/
 ```
+- Open browser on your machine: https://localhost:1234/
 
-#### Option 2)
+#### 4. Expose ArgoCD to directly reachable network
 Update AgroCD Service and deploy appropriate Ingress according to [official howto](https://argoproj.github.io/argo-cd/getting_started/#3-access-the-argo-cd-api-server) and expose GUI outside the cluster.
 
-## ArgoCD credentials
-
-
+#### How to use ArgoCD to manage apps in remote clusters
 https://argoproj.github.io/argo-cd/getting_started/#5-register-a-cluster-to-deploy-apps-to-optional
 
