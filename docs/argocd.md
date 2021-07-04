@@ -9,16 +9,18 @@ argocd login <ARGOCD_SERVER>
 argocd account update-password
 ```
 
+Note: Default login name is `admin`. When `<ARGOCD_SERVER>` is not exposed outside K8S Service, first use `kubectl port-forward` or other options described below.
+
 ## Manage ArgoCD:
-#### 1. Use GitOps to manage Application in ArgoCD - RECOMMENDED
+#### 1. Using GitOps to manage Application in ArgoCD - RECOMMENDED
 
 
-#### 2. using ArgoCD binary preinstalled on Jumphost
+#### 2. Using ArgoCD binary preinstalled on Jumphost
 ```
 argocd --help
 ```
 
-#### 3. using ArgoCD GUI tunnelled over SSH
+#### 3. Using ArgoCD GUI tunnelled over SSH
 
 - On Jumphost run:
 ```
@@ -30,9 +32,9 @@ kubectl -n argocd port-forward svc/argocd-server -n argocd 8080:443
 export JH_EXTERNAL_IP=`gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'`
 ssh -L 1234:localhost:8080 user@$JH_EXTERNAL_IP -i PRIVATE_SSH_KEY
 ```
-- Open browser on your machine: https://localhost:1234/
+- Open browser on your machine: https://localhost:1234/.
 
-#### 4. Expose ArgoCD to directly reachable network
+#### 4. Exposing ArgoCD to directly reachable network
 Update AgroCD Service and deploy appropriate Ingress according to [official howto](https://argoproj.github.io/argo-cd/getting_started/#3-access-the-argo-cd-api-server) and expose GUI outside the cluster.
 
 #### How to use ArgoCD to manage apps in remote clusters
