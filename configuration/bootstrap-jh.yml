@@ -42,8 +42,8 @@
 
     - name: Copy sample k8s manifests
       copy:
-        src: jumphost/manifests/*
-        dest: "/home/user/jumphost/manifests"
+        src: jumphost/manifests/
+        dest: /home/user/jumphost/manifests
 
     - name: Set permissions
       file:
