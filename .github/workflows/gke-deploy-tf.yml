@@ -121,7 +121,7 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
 
-      - name: Configure components
+      - name: Configure components using site.yaml
         run: |
           JH_IP=$(gcloud compute instances describe jh --zone $ZONE --project $PROJECT_ID --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
           sed s/CHANGEME/$JH_IP/g inventory-template.yml > inventory-ephemeral.yml
@@ -140,7 +140,6 @@ jobs:
         uses: google-github-actions/setup-gcloud@master
         with:
           service_account_key: ${{ secrets.GCP_SA }}
-
 
       - name: Populate variables
         run: |

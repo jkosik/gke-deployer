@@ -1,13 +1,14 @@
 ---
-- name: Argo
+- name: Install Argo
   hosts: jh
   become: true
+  become_user: user
   gather_facts: false
   tasks:
     - name: Create ArgoCD namespace
       shell: kubectl create namespace argocd
-      environment:
-        KUBECONFIG: /home/user/.kube/config
+      # environment:
+      #   KUBECONFIG: /home/user/.kube/config
       ignore_errors: true
 
     - name: Install HA ArgoCD
@@ -22,12 +23,15 @@
         body_format: json
       register: argocd_latest_version
 
-#    - name: Detect current latest ArgoCD version
-#      shell: curl --silent "https://api.github.com/repos/argoproj/argo-cd/releases/latest" | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/'
-#      register: argocd_latest_version
+    - name: Run a shell command and register its output as a variable
+      uri:
+        url: https://api.github.com/repos/argoproj/argo-cd/releases/latest
+        return_content: true
+        body_format: json
+      register: argocd_latest_version
 
     - name: Current latest ArgoCD version
-      debug: msg={{ argocd_latest_version.stdout.tag_name }}
+      debug: msg={{ argocd_latest_version.json.tag_name }}
 
     - name: Download ArgoCD binary
       get_url:
