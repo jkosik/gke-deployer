@@ -13,8 +13,8 @@
 
     - name: Install HA ArgoCD
       shell: kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_version }}/manifests/ha/install.yaml
-      environment:
-        KUBECONFIG: /home/user/.kube/config
+      #environment:
+      #  KUBECONFIG: /home/user/.kube/config
 
     - name: Run a shell command and register its output as a variable
       uri:
