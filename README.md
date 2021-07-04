@@ -1,5 +1,5 @@
 # gke-deployer
-Deploys GKE to GCP and postdeploys [Jumphost](docs/jh.md) with tooling and ArgoCD.
+Deploys GKE to GCP and postdeploys [Jumphost](docs/jh.md) with tooling as kubectl, Helm, [ArgoCD](docs/argocd.md).
 
 ## Prerequisites
 - create GCP project, e.g. `workload-318005`
@@ -21,7 +21,7 @@ and decides variable used within Terraform as well as Ansible for parametrizatio
 ## Deploying applications to K8S cluster
 Applications can be deployed in multiple ways:
 - using Jumphost with preinstalled kubectl (user can install additional tools as Helm)
-- using [ArgoCD](docs/argocd.yaml)
+- using [ArgoCD](docs/argocd.md)
 
 
 

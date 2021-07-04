@@ -128,12 +128,12 @@
         dest: /opt/get_helm.sh
         mode: 0700
 
-    - name: Check installed Helm version
+    - name: Install Helm version
       shell: /opt/get_helm.sh
 
     - name: Check installed Helm version
       shell: helm version
       register: helm_version
 
-    - name: Currently installed kubectl version
+    - name: Currently installed Helm version
       debug: msg={{ helm_version.stdout }}
