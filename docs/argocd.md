@@ -13,6 +13,7 @@ Note: Default login name is `admin`. When `<ARGOCD_SERVER>` is not exposed outsi
 
 ## Manage ArgoCD:
 #### 1. Using GitOps to manage Application in ArgoCD - RECOMMENDED
+TBD - using Application manifests
 
 #### 2. Using ArgoCD GUI tunneled over SSH form your workstation
 
@@ -31,12 +32,9 @@ export ARGOCD_IP=`ssh user@$JH_EXTERNAL_IP -i $1 'kubectl -n argocd get svc argo
 ssh -L 1234:$ARGOCD_IP:443 user@$JH_EXTERNAL_IP -i $1
 ```
 
-
-
-- Command will keep terminal window busy and local tcp socket will emerge (1234/tcp).
 - Open browser on your machine: https://localhost:1234/.
 
-Note: In case Jumphost already has port-forwarded argo-server session open, ignore warning produced by the script - all will work. If you insist to terminanate obsolete port-forward on the Jumphost, connect to Jumphost and run `pkill kubectl -9`.
+Note: LB for ArgoCD might not be ready immediately after infrastructure deployment. Check from JH using `kubectl -n argocd get svc argocd-server-internal-lb-l4`.
 
 #### 3. Exposing ArgoCD to directly reachable network
 Update AgroCD Service and deploy appropriate Ingress according to [official howto](https://argoproj.github.io/argo-cd/getting_started/#3-access-the-argo-cd-api-server) and expose GUI outside the cluster.
