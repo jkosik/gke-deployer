@@ -3,7 +3,7 @@ resource "google_container_cluster" "gke_cluster" {
   location   = var.zone # var.region for HA, var.zone to save resources
   network    = google_compute_network.network.name
   subnetwork = google_compute_subnetwork.subnet.name
-  ip_allocation_policy {
+  ip_allocation_policy { # enables IP aliasing needed for VPC-native clusters to use http(s) internal LB
     cluster_ipv4_cidr_block  = var.gke_secondary_subnet_pods
     services_ipv4_cidr_block = var.gke_secondary_subnet_services
   }

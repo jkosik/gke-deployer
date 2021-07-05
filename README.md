@@ -67,7 +67,7 @@ gcloud services enable \
 
 #### GKE Deployment using gcloud
 Creates minimalistic zonal GKE (for HA use regional cluster `--region` instead of `--zone`).
-Update `other/gke-deploy-gcloud/gke.vars` and run [gke-deploy-gcloud/deployment-local.sh](other/gke-deploy-gcloud/deployment-local.sh) to build GKE from the console. Optionally use Workflows for [GitHub Actions](.github/workflows/gke-deploy-gcloud.yml).
+Update `other/gke-deploy-gcloud/gke.vars` and run [gke-deploy-gcloud/deployment-local.sh](other/gke-deploy-gcloud/deployment-local.sh) to build GKE from the console. Optionally use Workflows for [GitHub Actions](.github/workflows/gke-deploy-gcloud.yaml).
 
 #### Auth using SA for Terraform
 export GOOGLE_CREDENTIALS=GCP_SA.json
@@ -76,15 +76,15 @@ export GOOGLE_CREDENTIALS=GCP_SA.json
 Normally we grab JH IP using gcloud:
 ```
 JH_IP=$(gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
-sed s/CHANGEME/$JH_IP/g inventory-template.yml > inventory-ephemeral.yml
-ansible-playbook -i inventory-ephemeral.yml site.yml
+sed s/CHANGEME/$JH_IP/g inventory-template.yaml > inventory-ephemeral.yaml
+ansible-playbook -i inventory-ephemeral.yaml site.yaml
 ```
 
 For more complex usecases use dynamic inventory for GCP:
 ```
 ansible-galaxy collection install google.cloud
-ansible-inventory -i inventory-dynamic-gcp.yml --list
-ansible -i inventory-dynamic-gcp.yml all -m ping
+ansible-inventory -i inventory-dynamic-gcp.yaml --list
+ansible -i inventory-dynamic-gcp.yaml all -m ping
 ```
 - parse output and create inventory file on the fly
 

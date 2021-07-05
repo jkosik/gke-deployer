@@ -122,11 +122,11 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
 
-      - name: Configure components using site.yml
+      - name: Configure components using site.yaml
         run: |
           JH_IP=$(gcloud compute instances describe jh --zone $ZONE --project $PROJECT_ID --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
-          sed s/CHANGEME/$JH_IP/g inventory-template.yml > inventory-ephemeral.yml
-          ansible-playbook -u user -i inventory-ephemeral.yml site.yml --extra-vars infra_env="${{ env.INFRA_ENV }}"
+          sed s/CHANGEME/$JH_IP/g inventory-template.yaml > inventory-ephemeral.yaml
+          ansible-playbook -u user -i inventory-ephemeral.yaml site.yaml --extra-vars infra_env="${{ env.INFRA_ENV }}"
         working-directory: ${{ env.CONF_DIR }}
 
   terraform-import:

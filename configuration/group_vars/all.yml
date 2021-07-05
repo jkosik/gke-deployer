@@ -1,3 +1,0 @@
----
-infra_env: none #overwritten by branch name using --extra-vars for site.yml.
-argocd_version: v2.0.4

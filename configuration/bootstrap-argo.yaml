@@ -36,3 +36,6 @@
         dest: /usr/local/bin/argocd
         mode: 0755
 
+    - name: Deploy internal GCP LB for argocd-server
+      become_user: user
+      shell: kubectl apply -t jumphost/manifests/argocd-server-internal-lb.yaml

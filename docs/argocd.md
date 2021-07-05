@@ -26,10 +26,13 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-export JH_EXTERNAL_IP=`gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'`
-ssh user@$JH_EXTERNAL_IP -i $1 'kubectl -n argocd port-forward svc/argocd-server -n argocd 8080:443' &
-ssh -L 1234:localhost:8080 user@$JH_EXTERNAL_IP -i $1
+export JH_IP=`gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'`
+export ARGO_IP=`ssh user@$JH_EXTERNAL_IP -i $1 'kubectl -n argocd get svc argocd-server-internal-lb-l4 -o=jsonpath='{.status.loadBalancer.ingress[0].ip}'`
+ssh -L 1234:$ARGOCD_IP:443 user@$JH_EXTERNAL_IP -i $1
 ```
+
+
+
 - Command will keep terminal window busy and local tcp socket will emerge (1234/tcp).
 - Open browser on your machine: https://localhost:1234/.
 

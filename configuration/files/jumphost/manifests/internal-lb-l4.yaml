@@ -1,0 +1,52 @@
+# Internal L4 LB using SVC
+
+# https://cloud.google.com/kubernetes-engine/docs/how-to/exposing-apps
+# https://cloud.google.com/kubernetes-engine/docs/how-to/exposing-apps#creating_a_service_of_type_loadbalancer
+# more complex scenarios: https://cloud.google.com/kubernetes-engine/docs/how-to/internal-load-balancing
+
+# An internal TCP/UDP load balancer is not assigned a fully-qualified domain name (FQDN), and it is not possible to configure one using GKE.
+# You can assign a static IP address to your internal TCP/UDP load balancer and assign that IP to a record in Cloud DNS,
+# but Cloud DNS is not tightly integrated with GKE.
+# Get SVC's status.loadBalancer.ingress.ip to connect.
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: internal-lb-l4
+  annotations:
+    networking.gke.io/load-balancer-type: "Internal"
+  labels:
+    app: internal-lb-l4
+spec:
+  type: LoadBalancer
+  selector:
+    app: internal-lb-l4
+  ports:
+  - port: 80
+    targetPort: 9376
+    protocol: TCP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: internal-lb-l4
+  labels:
+    app: internal-lb-l4
+spec:
+  selector:
+    matchLabels:
+      app: internal-lb-l4
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: internal-lb-l4
+    spec:
+      containers:
+      - image: k8s.gcr.io/serve_hostname:v1.4
+        name: internal-lb-l4
+        ports:
+        - containerPort: 9376
+          protocol: TCP

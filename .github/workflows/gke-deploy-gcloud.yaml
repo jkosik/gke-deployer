@@ -36,12 +36,12 @@ jobs:
           project_id: ${{ env.DSO_PROJECT }}
           service_account_key: ${{ secrets.GCP_SA }}
 
-      - name: Sourcing vars    
+      - name: Sourcing vars
         run: |
           echo "Sourcing vars"
           source $GITHUB_WORKSPACE/other/gke-deploy-gcloud/gke.vars
 
-      - name: Deploy Client GKE    
+      - name: Deploy Client GKE
         run: |
           echo "Deploying to $DSO_PROJECT"
           source $GITHUB_WORKSPACE/other/gke-deploy-gcloud/deployment-github-actions.sh
@@ -84,13 +84,13 @@ jobs:
         run: |
           echo "Deploying to ${{ env.DSO_PROJECT }}"
           mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ env.JH_IP }} >> ~/.ssh/known_hosts          
+          ssh-keyscan -H ${{ env.JH_IP }} >> ~/.ssh/known_hosts
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${{ secrets.GCP_SSH_PRIVATE_KEY }}"
-         
+
           echo "Running commands from inside the jumphost at:" ${{ env.JH_IP }}
           check_remote_success () {
-            if [[ $(echo $?) -eq 0 ]]; then 
+            if [[ $(echo $?) -eq 0 ]]; then
               echo "Remote test for $1 passed."
             else
               echo "remote test for $1 failed."
@@ -102,7 +102,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no user@${{ env.JH_IP }} "gcloud projects list"
           check_remote_success gcloud
           #ssh user@${{ env.JH_IP }} "kubectl get ns"
-          ssh -o StrictHostKeyChecking=no user@${{ env.JH_IP }} "kubectl get ns"          
+          ssh -o StrictHostKeyChecking=no user@${{ env.JH_IP }} "kubectl get ns"
           check_remote_success kubectl
 
   to-slack:
