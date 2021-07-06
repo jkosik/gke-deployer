@@ -7,13 +7,13 @@ resource "google_compute_subnetwork" "subnet" {
   name          = "${var.project_id}-${var.region}"
   network       = google_compute_network.network.name
   region        = var.region
-  ip_cidr_range = "192.168.16.0/20"
+  ip_cidr_range = var.subnet_cidr_range
   # defining secondary Pods/SVC IP ranges in GKE resource to avoid complex references
   # secondary_ip_range {
   #     range_name = "secondary-subnet-pods"
   #     ip_cidr_range = var.gke_secondary_subnet_pods
-  # } 
-  # secondary_ip_range { 
+  # }
+  # secondary_ip_range {
   #     range_name = "secondary-subnet-services"
   #     ip_cidr_range = var.gke_secondary_subnet_services
   # }

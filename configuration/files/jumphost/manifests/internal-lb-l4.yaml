@@ -5,9 +5,9 @@
 # more complex scenarios: https://cloud.google.com/kubernetes-engine/docs/how-to/internal-load-balancing
 
 # An internal TCP/UDP load balancer is not assigned a fully-qualified domain name (FQDN), and it is not possible to configure one using GKE.
-# You can assign a static IP address to your internal TCP/UDP load balancer and assign that IP to a record in Cloud DNS,
-# but Cloud DNS is not tightly integrated with GKE.
-# Get SVC's status.loadBalancer.ingress.ip to connect.
+# You can assign a static IP address to your internal TCP/UDP load balancer and assign that IP to a record in Cloud DNS.
+
+# Get SVC's status.loadBalancer.ingress.ip to connect - equals to EXTERNAL-IP column from "kubectl get svc" command.
 
 ---
 apiVersion: v1

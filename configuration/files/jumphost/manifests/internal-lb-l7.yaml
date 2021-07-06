@@ -2,8 +2,20 @@
 
 # https://cloud.google.com/kubernetes-engine/docs/how-to/internal-load-balance-ingress
 # When NEGs are used with GKE Ingress, the Ingress controller facilitates the creation of all aspects of the L7 load balancer.
-# This includes creating the virtual IP address, forwarding rules, health checks, firewall rules, and more. For VMs those have to be createad manually.
+# This includes creating the virtual IP address, forwarding rules, health checks, firewall rules, and more.
 # Creating stanalone NEGs is also possible, but is overly complex: https://cloud.google.com/kubernetes-engine/docs/how-to/standalone-neg#attaching-int-https-lb
+
+# Mandatory prerequisite is to create proxy-only subnet:
+# https://cloud.google.com/load-balancing/docs/l7-internal/setting-up-l7-internal#configuring_the_proxy-only_subnet
+
+# gcloud compute networks subnets create proxy-only-subnet \
+#   --purpose=INTERNAL_HTTPS_LOAD_BALANCER \
+#   --role=ACTIVE \
+#   --region=europe-central2 \
+#   --network=workload-318005 \
+#   --range=192.168.224.0/20
+
+# Check "kubectl get ingress" to find the IP to connect.
 
 ---
 apiVersion: networking.k8s.io/v1

@@ -1,17 +1,16 @@
 # Deploys dummy Prometheus exporter.
-# Access logs by deploying Ingress or port-forward:
-# "kubectl port-forward POD_ID 9090:9090" and "curl localhost:9090/metrics"
+# To access the metrics from Jumphost: "kubectl port-forward svc/dummy-exporter 9090:9090" and "curl localhost:9090/metrics"
 
 ---
 kind: Service
 apiVersion: v1
 metadata:
-  name: "monitoring-example"
+  name: "dummy-exporter"
   annotations:
     prometheus.io/scrape: "true"
 spec:
   selector:
-    app: "monitoring-example"
+    app: "dummy-exporter"
   ports:
     - name: http
       port: 9090
@@ -20,18 +19,18 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "monitoring-example"
+  name: "dummy-exporter"
   labels:
-    app: "monitoring-example"
+    app: "dummy-exporter"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: "monitoring-example"
+      app: "dummy-exporter"
   template:
     metadata:
       labels:
-        app: "monitoring-example"
+        app: "dummy-exporter"
     spec:
       containers:
       - image: gcr.io/google-samples/prometheus-dummy-exporter:latest

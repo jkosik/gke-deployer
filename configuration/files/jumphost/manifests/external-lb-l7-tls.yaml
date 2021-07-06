@@ -1,5 +1,7 @@
 # External L7 LB +TLS using Ingress
 
+# https://cloud.google.com/kubernetes-engine/docs/how-to/managed-certs
+
 # Use static IP (to ensure stable validation process):
   # Create static IP:
   # gcloud compute addresses create external-lb-l7-tls --global
@@ -7,10 +9,9 @@
   # Release static IP:
   # gcloud compute addresses delete external-lb-l7-tls --global
 
-# Pre-create DNS record in advance to speedup cert. issuance&validation.
-# Consider own ClusterIssuer + ACMEDNS + LE CA.
-# Watch for cert. issuance status: kubectl describe managedcertificates.networking.gke.io external-lb-l7-tls | grep "Certificate Status"
-# Test via https://yourfqdn.
+# Pre-create DNS record in advance to speedup cert. issuance & validation. Consider own ClusterIssuer + ACMEDNS + LE CA.
+# Watch for cert. issuance status, takes some time: kubectl describe managedcertificates.networking.gke.io external-lb-l7-tls | grep "Certificate Status"
+# Test via https://yourhost.domain
 
 ---
 apiVersion: networking.gke.io/v1
@@ -19,7 +20,7 @@ metadata:
   name: external-lb-l7-tls
 spec:
   domains:
-  - lala.sandbox.pan-net.cloud
+  - yourhost.domain
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -32,7 +33,7 @@ metadata:
     networking.gke.io/managed-certificates: external-lb-l7-tls
 spec:
   rules:
-  - host: lala.sandbox.pan-net.cloud
+  - host: yourhost.domain
     http:
       paths:
       - path: /*
