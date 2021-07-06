@@ -28,8 +28,8 @@ if [ $# -eq 0 ]; then
 fi
 
 export JH_IP=`gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)'`
-export ARGOCD_IP=`ssh user@$JH_EXTERNAL_IP -i $1 'kubectl -n argocd get svc argocd-server-internal-lb-l4 -o=jsonpath="{.status.loadBalancer.ingress[0].ip}"'`
-ssh -L 1234:$ARGOCD_IP:443 user@$JH_EXTERNAL_IP -i $1
+export ARGOCD_IP=`ssh user@$JH_IP -i $1 'kubectl -n argocd get svc argocd-server-internal-lb-l4 -o=jsonpath="{.status.loadBalancer.ingress[0].ip}"'`
+ssh -L 1234:$ARGOCD_IP:443 user@$JH_IP -i $1
 ```
 
 - Open browser on your machine: https://localhost:1234/.
