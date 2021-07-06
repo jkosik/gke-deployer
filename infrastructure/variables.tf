@@ -14,6 +14,10 @@ variable "zone" {
   description = "GCP Zone"
 }
 
+variable "subnet_cidr_range" {
+  description = "Subnet CIDR range"
+}
+
 variable "gke_cluster_name" {
   description = "GKE cluster name"
 }
