@@ -15,7 +15,7 @@ Note: Default login name is `admin`. When `<ARGOCD_SERVER>` is not exposed outsi
 #### 1. Using GitOps to manage Application in ArgoCD - RECOMMENDED
 TBD - using Application manifests
 
-#### 2. Using ArgoCD GUI tunneled over SSH form your workstation
+#### 2. Using ArgoCD GUI tunneled over SSH
 
 - Authenticate to appropriate GCP Project and `./tunnel-argocd.sh PATH_TO_JH_PRIVATE_SSH_KEY`, e.g. `./tunnel-argocd.sh /data/access/gcp`.
 
@@ -36,13 +36,15 @@ echo "Options to terminate the tunnel: 'fuser -k 1234/tcp' or 'your custom shell
 
 - Open browser on your machine: https://localhost:1234/.
 
-Note: LB for ArgoCD might not be ready immediately after infrastructure deployment. Check from JH using `kubectl -n argocd get svc argocd-server-internal-lb-l4`.
+Additional notes:
+- LB for ArgoCD might not be ready immediately after infrastructure deployment. Check from JH using `kubectl -n argocd get svc argocd-server-internal-lb-l4`.
+- ArgoCD tunneled to your workstation can be access via browser as well as via `argcd login localhost:1234`.
 
 #### 3. Exposing ArgoCD to directly reachable network
 Update AgroCD Service and deploy appropriate Ingress according to [official howto](https://argoproj.github.io/argo-cd/getting_started/#3-access-the-argo-cd-api-server) and expose GUI outside the cluster.
 
 
-#### 4. Using ArgoCD binary preinstalled on Jumphost
+#### 4. Using ArgoCD binary preinstalled on the Jumphost
 ```
 argocd --help
 ```
