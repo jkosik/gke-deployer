@@ -23,7 +23,20 @@
           - dnsutils
           - git
           - jq
+          - snapd
           - wget
+
+    - name: Install snaps
+      community.general.snap:
+        state: present
+        name:
+          - k9s
+
+    - name: Install Stern
+      get_url:
+        url: "https://github.com/wercker/stern/releases/download/1.11.0/stern_linux_amd64      "
+        dest: /usr/local/bin/stern
+        mode: 0755
 
     - name: Create jumphost directory
       file:
@@ -70,8 +83,6 @@
     - name: Install kubectl
       shell: |
         install -o root -g root -m 0755 /opt/kubectl /usr/local/bin/kubectl
-        mkdir -p ~/.local/bin/kubectl
-        mv /opt/kubectl ~/.local/bin/kubectl
 
     - name: Configure kubectl command completition
       shell: |
