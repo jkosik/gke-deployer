@@ -23,16 +23,19 @@
           - dnsutils
           - git
           - jq
-          - snapd
           - wget
 
-    - name: Install snaps
-      community.general.snap:
-        state: present
-        name:
-          - k9s
+    - name: Download k9s installer
+      get_url:
+        url: "https://webinstall.dev/k9s"
+        dest: /opt/k9s
+        mode: 0700
+
+    - name: Run k9s installer
+      shell: /opt/k9s
 
     - name: Install Stern
+      shell:
       get_url:
         url: "https://github.com/wercker/stern/releases/download/1.11.0/stern_linux_amd64      "
         dest: /usr/local/bin/stern
@@ -129,7 +132,7 @@
         dest: /opt/get_helm.sh
         mode: 0700
 
-    - name: Install Helm version
+    - name: Run Helm installer
       shell: /opt/get_helm.sh
 
     - name: Check installed Helm version
