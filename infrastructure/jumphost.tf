@@ -19,7 +19,7 @@ resource "google_compute_instance" "jumphost" {
 
   }
 
-  label = {
+  labels = {
     owner = var.owner
     app  = "jh"
   }
