@@ -57,7 +57,7 @@ resource "google_compute_firewall" "fwjh" {
 # Deploy Ops agent for log and metrics collection
 module "agent_policy" {
   source     = "terraform-google-modules/cloud-operations/google//modules/agent-policy"
-  version    = "~> 0.1.0"
+  version    = "> 0.2.1"
 
   project_id = var.project_id
   policy_id  = "ops-agents-example-policy"
