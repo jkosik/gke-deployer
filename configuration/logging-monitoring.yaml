@@ -1,0 +1,11 @@
+# https://github.com/GoogleCloudPlatform/google-cloud-ops-agents-ansible#ansible-role-for-cloud-ops
+
+---
+- name: Enable logging and monitoring
+  hosts: jh
+  become: true
+  gather_facts: false
+  roles:
+    - role: google_cloud_ops_agents
+      vars:
+        agent_type: ops-agent
