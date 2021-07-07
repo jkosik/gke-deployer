@@ -4,10 +4,9 @@
   become: true
   gather_facts: false
   roles:
-    role: ansible-apt
-    vars:
-      apt_unattended_updates_state: "disabled"
-
+    - role: ansible-apt
+      vars:
+        apt_unattended_updates_state: "disabled"
 
 - name: Install packages and copy files
   hosts: jh
