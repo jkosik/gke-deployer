@@ -19,8 +19,12 @@ resource "google_compute_instance" "jumphost" {
 
   }
 
+  label = {
+    owner = var.owner
+    app  = "jh"
+  }
+
   metadata = {
-    owner    = var.owner
     ssh-keys = <<EOF
       ${var.user1}:${var.user1_ssh_pubkey}
       ${var.user2}:${var.user2_ssh_pubkey}
@@ -48,4 +52,39 @@ resource "google_compute_firewall" "fwjh" {
   }
 
   target_tags = ["jh"]
+}
+
+# Deploy Ops agent for log and metrics collection
+module "agent_policy" {
+  source     = "terraform-google-modules/cloud-operations/google//modules/agent-policy"
+  version    = "~> 0.1.0"
+
+  project_id = var.project_id
+  policy_id  = "ops-agents-example-policy"
+  agent_rules = [
+    {
+      type               = "logging"
+      version            = "current-major"
+      package_state      = "installed"
+      enable_autoupgrade = true
+    },
+    {
+      type               = "metrics"
+      version            = "current-major"
+      package_state      = "installed"
+      enable_autoupgrade = true
+    },
+  ]
+  group_labels = [
+    {
+      owner = var.owner
+      app = "jh"
+    }
+  ]
+  os_types = [
+    {
+      short_name = "debian"
+      version    = "10"
+    },
+  ]
 }

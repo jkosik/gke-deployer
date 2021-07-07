@@ -1,4 +1,5 @@
 #billing_account = "013CB0-441E36-126394"
+environment                   = "prod"
 project_id                    = "workload-318005"
 owner                         = "juraj"
 region                        = "europe-central2"
