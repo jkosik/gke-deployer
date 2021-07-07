@@ -77,7 +77,7 @@ module "agent_policy" {
   ]
   group_labels = [
     {
-      owner = var.owner
+      owner = "juraj"
       app = "jh"
     }
   ]
