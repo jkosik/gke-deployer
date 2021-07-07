@@ -1,3 +1,4 @@
 ---
 - import_playbook: bootstrap-jh.yaml
 - import_playbook: bootstrap-argo.yaml
+- import_playbook: logging-monitoring.yaml

@@ -73,12 +73,7 @@ Update `other/gke-deploy-gcloud/gke.vars` and run [gke-deploy-gcloud/deployment-
 export GOOGLE_CREDENTIALS=GCP_SA.json
 
 #### Dynamic inventory
-Normally we grab JH IP using gcloud:
-```
-JH_IP=$(gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
-sed s/CHANGEME/$JH_IP/g inventory-template.yaml > inventory-ephemeral.yaml
-ansible-playbook -i inventory-ephemeral.yaml site.yaml
-```
+Normally we grab JH IP using gcloud and template inventory file `inventory-template.yaml`
 
 For more complex usecases use dynamic inventory for GCP:
 ```
