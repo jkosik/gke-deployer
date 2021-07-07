@@ -54,6 +54,19 @@ resource "google_compute_firewall" "fwjh" {
   target_tags = ["jh"]
 }
 
+module "gcloud" {
+  source  = "terraform-google-modules/gcloud/google"
+  version = "~> 2.0"
+
+  platform = "linux"
+  additional_components = ["kubectl", "beta"]
+
+  create_cmd_entrypoint  = "gcloud"
+  create_cmd_body        = "version"
+  destroy_cmd_entrypoint = "gcloud"
+  destroy_cmd_body       = "version"
+}
+
 # Deploy Ops agent for log and metrics collection
 module "agent_policy" {
   source     = "terraform-google-modules/cloud-operations/google//modules/agent-policy"
