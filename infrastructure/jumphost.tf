@@ -56,7 +56,7 @@ resource "google_compute_firewall" "fwjh" {
 
 module "gcloud" {
   source  = "terraform-google-modules/gcloud/google"
-  version = "~> 2.0"
+  version = "3.0.0"
 
   platform = "linux"
   additional_components = ["kubectl", "beta"]
