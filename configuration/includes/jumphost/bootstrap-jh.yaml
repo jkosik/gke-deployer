@@ -38,7 +38,7 @@
 
     - name: Copy k8s manifests
       copy:
-        src: {{ item }}
+        src: "{{ item }}"
         dest: /home/user/jumphost
       with_items:
         - manifests-postdeploy
