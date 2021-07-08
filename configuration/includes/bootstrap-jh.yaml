@@ -31,20 +31,15 @@
         dest: /usr/local/bin/stern
         mode: 0755
 
-    - name: Create jumphost directory
-      file:
-        path: /home/user/jumphost
-        state: directory
+    - name: Copy k8s manifests
+      copy:
+        src: jumphost/
+        dest: /home/user/jumphost
 
     - name: Copy Terraform vars to jumphost
       copy:
         src: "{{ playbook_dir }}/../infrastructure/{{ infra_env }}.tfvars"
         dest: "/home/user/jumphost"
-
-    - name: Copy sample k8s manifests
-      copy:
-        src: jumphost/manifests/
-        dest: /home/user/jumphost/manifests
 
     - name: Set permissions on /home/user/jumphost
       file:

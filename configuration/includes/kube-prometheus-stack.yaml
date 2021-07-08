@@ -1,0 +1,9 @@
+---
+- name: Deploy kube-prometheus-stack via ArgoCD
+  hosts: jh
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Deploy ArgoCD Application
+      become_user: user
+      shell: kubectl -n argocd apply -f jumphost/manifests-postdeploy/kube-prometheus-stack.yaml

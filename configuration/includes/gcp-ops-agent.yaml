@@ -2,7 +2,7 @@
 # minor bugfix applied in local role in vars/main/yaml: ops-agent_service_name: google-cloud-ops-agent.target must omit .target
 
 ---
-- name: Enable logging and monitoring
+- name: Enable GCP Ops-Agent for logging and monitoring
   hosts: jh
   become: true
   gather_facts: false
@@ -10,5 +10,3 @@
     - role: google_cloud_ops_agents
       vars:
         agent_type: ops-agent
-
-

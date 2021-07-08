@@ -12,8 +12,12 @@ argocd account update-password
 Note: Default login name is `admin`. When `<ARGOCD_SERVER>` is not exposed outside K8S Service, first use `kubectl port-forward` or other options described below.
 
 ## Manage ArgoCD:
-#### 1. Using GitOps to manage Application in ArgoCD - RECOMMENDED
-TBD - using Application manifests
+#### 1. Using GitOps to manage Applications in ArgoCD - RECOMMENDED
+Unless ArgoCD API is exposed to our CICD tool directly, we access target ArgoCD APIs via the Jumphost.
+It is recommended to enrich the ArgoCD Application deployment pipeline with checks, e.g.:
+- `kubectl -n argocd get applications.argoproj.io`
+- using e2e test of deployed application
+- using Prometheus rules
 
 #### 2. Using ArgoCD GUI tunneled over SSH
 
@@ -40,7 +44,7 @@ Additional notes:
 - LB for ArgoCD might not be ready immediately after infrastructure deployment. Check from JH using `kubectl -n argocd get svc argocd-server-internal-lb-l4`.
 - ArgoCD tunneled to your workstation can be access via browser as well as via `argcd login localhost:1234`.
 
-#### 3. Exposing ArgoCD to directly reachable network
+#### 3. Exposing ArgoCD GUI to directly reachable network
 Update AgroCD Service and deploy appropriate Ingress according to [official howto](https://argoproj.github.io/argo-cd/getting_started/#3-access-the-argo-cd-api-server) and expose GUI outside the cluster.
 
 
