@@ -4,7 +4,7 @@
   become: true
   gather_facts: false
   roles:
-    - role: ansible-apt
+    - role: roles/ansible-apt
       vars:
         apt_unattended_updates_state: "disabled"
 
@@ -31,10 +31,15 @@
         dest: /usr/local/bin/stern
         mode: 0755
 
+    # - name: Create jumphost directory
+    #   file:
+    #     path: /home/user/jumphost
+    #     state: directory
+
     - name: Copy k8s manifests
       copy:
-        src: jumphost/
-        dest: /home/user/jumphost
+        src: files/jumphost/
+        dest: /home/user
 
     - name: Copy Terraform vars to jumphost
       copy:
