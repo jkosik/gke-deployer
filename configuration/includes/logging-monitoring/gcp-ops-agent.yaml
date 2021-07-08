@@ -7,6 +7,6 @@
   become: true
   gather_facts: false
   roles:
-    - role: roles/google_cloud_ops_agents
+    - role: google_cloud_ops_agents
       vars:
         agent_type: ops-agent

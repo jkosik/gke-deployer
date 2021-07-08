@@ -4,7 +4,7 @@
   become: true
   gather_facts: false
   roles:
-    - role: roles/ansible-apt
+    - role: ansible-apt
       vars:
         apt_unattended_updates_state: "disabled"
 
