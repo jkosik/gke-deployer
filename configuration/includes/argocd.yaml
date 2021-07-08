@@ -38,4 +38,4 @@
 
     - name: Deploy internal GCP LB for argocd-server
       become_user: user
-      shell: kubectl apply -f jumphost/manifests/argocd-server-internal-lb.yaml
+      shell: kubectl apply -f jumphost/manifests-postdeploy/argocd-server-internal-lb.yaml

@@ -2,3 +2,4 @@
 - import_playbook: includes/bootstrap-jh.yaml
 - import_playbook: includes/argocd.yaml
 - import_playbook: includes/gcp-ops-agent.yaml
+- import_playbook: includes/kube-prometheus-stack.yaml

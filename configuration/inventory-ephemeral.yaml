@@ -1,6 +1,0 @@
-# Ephemeral Ansible inventory file. Templated from inventory-template.yaml.
----
-all:
-  hosts:
-    jh:
-      ansible_host: 1.2.3.4

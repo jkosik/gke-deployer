@@ -1,0 +1,51 @@
+---
+
+# - name: Fail on non-Debian distros
+#   assert:
+#     that: ansible_os_family == 'Debian'
+
+- name: Create apt.conf.d
+  file:
+    path: "/etc/apt/apt.conf.d"
+    state: directory
+    owner: "root"
+    mode: 0755
+
+- name: Disable unattended upgrades
+  lineinfile:
+    create: yes
+    dest: "/etc/apt/apt.conf.d/10periodic"
+    line: "APT::Periodic::Unattended-Upgrade \"{{ '0' if apt_unattended_updates_state == 'disabled' else '1' }}\";"
+
+- name: Disable unattended upgrades
+  lineinfile:
+    create: yes
+    dest: "/etc/apt/apt.conf.d/10periodic"
+    line: "APT::Periodic::Enable \"{{ '0' if apt_unattended_updates_state == 'disabled' else '1' }}\";"
+
+- name: Remove unattended upgrades package
+  apt:
+    name="unattended-upgrades"
+    state="{{ 'absent' if apt_unattended_updates_state == 'disabled' else 'present'}}"
+
+- name: Add extraneous apt repositories
+  apt_repository:
+    repo: "{{ item.repo }}"
+  notify: update apt cache
+  with_items:
+    - "{{ apt_extra_repositories }}"
+  when: apt_extra_repositories is defined
+
+- name: Add apt pinning preferences
+  blockinfile:
+    path: "/etc/apt/preferences.d/{{ item.package }}"
+    create: yes
+    content: |
+      Package: {{ item.package }}
+      Pin: {{ item.pin }} {% if item.origin is defined %}o={{ item.origin }}{% elif item.repo is defined %}r={{ item.repo }}{% endif %}
+
+      Pin-Priority: {{ item.prio }}
+  with_items:
+    - "{{ apt_pinning }}"
+  when: apt_pinning is defined
+

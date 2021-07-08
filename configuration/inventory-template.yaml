@@ -1,5 +1,5 @@
-# Templated from parsed dynamic inventory (inventory-dynamic-gcp.yaml) or gcloud output,
-# saved as inventory-ephemeral.yaml and used by ansible-playbook
+# Templated within CICD using gcloud output (possible also from inventory-dynamic-gcp.yaml).
+
 ---
 all:
   hosts:
