@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: kube-prometehus-stack
+  name: kube-prometheus-stack
   namespace: argocd
 spec:
   destination:
@@ -9,23 +9,9 @@ spec:
     namespace: prometheus
     server: 'https://kubernetes.default.svc'
   source:
-    path: charts/kube-prometheus-stack
-    repoURL: 'https://github.com/prometheus-community/helm-charts'
+    path: '.'
+    repoURL: 'https://github.com/jkosik/kube-prometheus-stack'
     targetRevision: HEAD
-    helm:
-      parameters:
-        - name: alertmanager.alertmanagerSpec.image.tag
-          value: v0.22.2
-        - name: prometheus.prometheusSpec.image.tag
-          value: v2.27.1
-        - name: prometheusOperator.admissionWebhooks.patch.image.tag
-          value: v1.5.2
-        - name: prometheusOperator.image.tag
-          value: v0.48.1
-        - name: prometheusOperator.prometheusConfigReloaderImage.tag
-          value: v0.48.1
-        - name: prometheusOperator.thanosImage.tag
-          value: v0.17.2
   project: default
   syncPolicy:
     syncOptions:
