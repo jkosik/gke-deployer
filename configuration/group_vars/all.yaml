@@ -1,4 +1,4 @@
 ---
 infra_env: none # Overwritten when CICD calls site.yaml using -extra-vars infra_env="${{ env.INFRA_ENV }}"
 argocd_version: v2.0.0
-kube_prometheus_stack: 16.12.1
+kube_prometheus_stack: 16.12.0
