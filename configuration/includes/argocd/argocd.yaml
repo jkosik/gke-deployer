@@ -9,11 +9,11 @@
       shell: kubectl create namespace argocd
       ignore_errors: true
 
-    - name: Install HA ArgoCD
+    - name: Install ArgoCD
       become_user: user
       shell: |
-        #- kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_version }}/manifests/ha/install.yaml
-        - kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_version }}/manifests/install.yaml
+        - #kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_version }}/manifests/ha/install.yaml
+          kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_version }}/manifests/install.yaml
 
     - name: Run a shell command and register its output as a variable
       uri:
