@@ -1,5 +1,5 @@
 ---
-- name: Deploy kube-prometheus-stack via ArgoCD
+- name: Deploy kube-prometheus-stack Helm chart
   hosts: jh
   become: yes
   gather_facts: no
