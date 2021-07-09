@@ -4,23 +4,12 @@
   become: yes
   gather_facts: no
   tasks:
-    # - name: Deploy kube-prometheus-stack
-    #   become_user: user
-    #   shell: |
-    #     helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-    #     helm repo update
-    #     helm upgrade --install prometheus prometheus-community/kube-prometheus-stack --version {{ kube_prometheus_stack }}
-
-    - name: Add Prometheus community Helm repo
-      community.kubernetes.helm_repository:
-        name: stable
-        repo_url: "https://prometheus-community.github.io/helm-charts"
-
-    - name: Deploy kube-prometheus-stack chart version
-      community.kubernetes.helm:
-        name: promstack
-        update_repo_cache: yes
-        release_namespace: prometheus
-        create_namespace: yes
-        chart_ref: prometheus-community/kube-prometheus-stack
-        chart_version: "{{ kube_prometheus_stack }}"
+    - name: Deploy kube-prometheus-stack
+      become_user: user
+      shell: |
+        helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+        helm repo update
+        helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
+          --version {{ kube_prometheus_stack }}
+          --create-namespace
+          --namespace promstack
