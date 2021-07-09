@@ -1,8 +1,8 @@
 ---
 - name: Install Argo
   hosts: jh
-  become: true
-  gather_facts: false
+  become: yes
+  gather_facts: no
   tasks:
     - name: Create ArgoCD namespace
       become_user: user

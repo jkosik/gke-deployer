@@ -4,8 +4,8 @@
 ---
 - name: Enable GCP Ops-Agent for logging and monitoring
   hosts: jh
-  become: true
-  gather_facts: false
+  become: yes
+  gather_facts: no
   roles:
     - role: google_cloud_ops_agents
       vars:

@@ -1,8 +1,8 @@
 ---
 - name: Disable unattended updates
   hosts: jh
-  become: true
-  gather_facts: false
+  become: yes
+  gather_facts: no
   roles:
     - role: ansible-apt
       vars:
@@ -10,13 +10,13 @@
 
 - name: Install packages and copy files
   hosts: jh
-  become: true
-  gather_facts: true
+  become: yes
+  gather_facts: yes
   tasks:
     - name: Install packages
       apt:
         state: present
-        update_cache: true
+        update_cache: yes
         name:
           - bash-completion
           - curl
@@ -58,8 +58,8 @@
 
 - name: Install kubectl and get and store kubeconfig
   hosts: jh
-  become: true
-  gather_facts: false
+  become: yes
+  gather_facts: no
   tasks:
     - name: Run a shell command and register its output as a variable
       uri:
@@ -116,8 +116,8 @@
 
 - name: Install Helm
   hosts: jh
-  become: true
-  gather_facts: false
+  become: yes
+  gather_facts: no
   tasks:
     - name: Download Helm installer
       get_url:
