@@ -54,6 +54,6 @@ parameters:
 steps:
 - script: echo Hello ${{ parameters.name }}.
   displayName: 'Run a one-line script'
-- script: echo Hello ${{ var.INFRA_ENV }}.
+- script: echo Hello ${{ variables.INFRA_ENV }}.
   displayName: 'Run a one-line script'
 
