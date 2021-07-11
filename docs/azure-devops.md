@@ -3,6 +3,6 @@ Azure DevOps can host git Repositories and run Pipelines the same way as GitHub 
 
 ## Migrate to Azure DevOps
 1. Fork the GitHub code to Azure DevOps.
-2. Create Azure DevOps Pipeline out of [azure-pipeline.yaml](.azure-devops/azure-pipelines.yaml).
+2. Create Azure DevOps Pipeline out of [azure-pipeline.yaml](../.azure-devops/azure-pipelines.yaml).
 3. Commit to the Repository hosted in Azure DevOps to run Azure DevOps pipeline.
 
