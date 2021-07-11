@@ -1,15 +1,15 @@
-# trigger:
-#   batch: true
-#   branches:
-#     include:
-#       - 'main'
-#     exclude:
-#       - 'docs'
-#   paths:
-#     include:
-#       - '.azure-devops/**'
+trigger:
+  batch: true
+  branches:
+    include:
+      - 'main'
+    exclude:
+      - 'docs'
+  paths:
+    include:
+      - '.azure-devops/**'
 
-trigger: none
+#trigger: none
 
 pr:
   branches:
@@ -35,11 +35,12 @@ variables:
 ## - name: GOOGLE_CREDENTIALS
 ##   value: "${{ secrets.GCP_SA }}"
 
+# Params for manually triggered pipelines
 parameters:
-- name: name
-  displayName: 'Username'
+- name: Environment
+  displayName: 'Environment'
   type: string
-  default: 'juraj'
+  default: 'prod'
 
 steps:
 - script: echo Hello ${{ parameters.name }}.
