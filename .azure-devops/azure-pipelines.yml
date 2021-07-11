@@ -1,13 +1,15 @@
-trigger:
-  batch: true
-  branches:
-    include:
-      - 'main'
-    exclude:
-      - 'docs'
-  paths:
-    include:
-      - '.azure-devops/**'
+# trigger:
+#   batch: true
+#   branches:
+#     include:
+#       - 'main'
+#     exclude:
+#       - 'docs'
+#   paths:
+#     include:
+#       - '.azure-devops/**'
+
+trigger: none
 
 pr:
   branches:
@@ -21,6 +23,18 @@ pool:
 
 container: ubuntu:18.04
 
+variables:
+- name: TF_LOG
+  value: DEBUG
+- name: CONF_DIR
+  value: configuration
+- name: INFRA_DIR
+  value: infrastructure
+- name: INFRA_ENV
+  value: $(Build.SourceBranchName)
+# - name: GOOGLE_CREDENTIALS
+#   value: "${{ secrets.GCP_SA }}"
+
 parameters:
 - name: name
   displayName: 'Username'
@@ -30,5 +44,6 @@ parameters:
 steps:
 - script: echo Hello ${{ parameters.name }}.
   displayName: 'Run a one-line script'
-
+- script: echo Hello ${{ var.INFRA_ENV }}.
+  displayName: 'Run a one-line script'
 
