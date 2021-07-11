@@ -4,11 +4,16 @@
   become: yes
   gather_facts: no
   tasks:
-    - name: Deploy kube-prometheus-stack
+    # using raw Helm commands. Helm module for Ansible not stable.
+    - name: Add prometheus-community Helm repo
       become_user: user
       shell: |
         helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
         helm repo update
+
+    - name: Helm install kube-prometheus-stack
+      become_user: user
+      shell: |
         helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
           --version {{ kube_prometheus_stack }} \
           --create-namespace \
