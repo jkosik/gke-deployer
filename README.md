@@ -1,5 +1,6 @@
 # gke-deployer
 Deploys GKE to GCP and postdeploys [Jumphost](docs/jh.md) with tooling as kubectl, Helm, [ArgoCD](docs/argocd.md).
+The code uses [GitHub Actions](.github/workflows/gke-deploy.yaml) for CICD. Alternatively follow [Azure DevOps howto](docs/azure-devops.md).
 
 ## Prerequisites
 - create GCP project, e.g. `workload-318005`
