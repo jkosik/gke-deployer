@@ -13,6 +13,10 @@ on:
     branches-ignore:
       - 'docs'
       - 'main'
+    paths:
+      - '.github/**'
+      - 'infrastructure/**'
+      - 'configuration/**'
 
 
   # Allows you to run this workflow manually from the Actions tab

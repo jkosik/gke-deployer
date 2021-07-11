@@ -2,21 +2,30 @@ trigger:
   batch: true
   branches:
     include:
-      - 'main'
+      - 'prod'
     exclude:
+      - 'main'
       - 'docs'
   paths:
     include:
       - '.azure-devops/**'
+      - 'infrastructure/**'
+      - 'configuration/**'
 
 #trigger: none
 
 pr:
   branches:
     include:
-      - 'main'
+      - 'prod'
     exclude:
+      - 'main'
       - 'docs'
+  paths:
+      include:
+        - '.azure-devops/**'
+        - 'infrastructure/**'
+        - 'configuration/**'
 
 pool:
   vmImage: ubuntu-latest
