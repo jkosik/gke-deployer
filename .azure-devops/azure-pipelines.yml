@@ -32,8 +32,8 @@ variables:
   value: infrastructure
 - name: INFRA_ENV
   value: $(Build.SourceBranchName)
-# - name: GOOGLE_CREDENTIALS
-#   value: "${{ secrets.GCP_SA }}"
+## - name: GOOGLE_CREDENTIALS
+##   value: "${{ secrets.GCP_SA }}"
 
 parameters:
 - name: name
