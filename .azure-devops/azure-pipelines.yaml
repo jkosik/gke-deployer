@@ -46,13 +46,13 @@ variables:
 
 # Params for manually triggered pipelines
 parameters:
-- name: Environment
+- name: environment
   displayName: 'Environment'
   type: string
   default: 'prod'
 
 steps:
-- script: echo Hello ${{ parameters.name }}.
+- script: echo Hello ${{ parameters.environment }}.
   displayName: 'Run a one-line script'
 - script: echo Hello ${{ variables.INFRA_ENV }}.
   displayName: 'Run a one-line script'
