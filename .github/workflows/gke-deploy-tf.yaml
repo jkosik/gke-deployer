@@ -5,9 +5,10 @@ on:
     branches-ignore:
       - 'docs'
       - 'main'
-    paths-ignore:
-      - 'docs/**'
-      - 'README.md'
+    paths:
+      - '.github/**'
+      - 'infrastructure/**'
+      - 'configuration/**'
   pull_request:
     branches-ignore:
       - 'docs'
