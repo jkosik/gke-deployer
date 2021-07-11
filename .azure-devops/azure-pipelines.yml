@@ -1,25 +1,25 @@
 trigger:
   batch: true
   branches:
-    include: 
+    include:
       - 'main'
-    exclude: 
+    exclude:
       - 'docs'
   paths:
-    exclude: 
-      - 'docs/**'
-      - 'README.md'
-pr: 
+    include:
+      - '.azure-devops/**'
+
+pr:
   branches:
-    include: 
+    include:
       - 'main'
-    exclude: 
+    exclude:
       - 'docs'
 
 pool:
   vmImage: ubuntu-latest
 
-container: ubuntu:18.04  
+container: ubuntu:18.04
 
 parameters:
 - name: name
