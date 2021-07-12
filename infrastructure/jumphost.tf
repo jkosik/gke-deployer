@@ -21,7 +21,7 @@ resource "google_compute_instance" "jumphost" {
 
   labels = {
     owner = var.owner
-    app  = "jh"
+    app   = "jh"
   }
 
   metadata = {

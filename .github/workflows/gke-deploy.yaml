@@ -48,8 +48,7 @@ jobs:
 
       - name: Terraform fmt
         run: |
-          terraform fmt -check
-        continue-on-error: true
+          terraform fmt -check -diff -recursive ${{ env.INFRA_DIR }}
 
       - name: Terraform init
         run: terraform init
