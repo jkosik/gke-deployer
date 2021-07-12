@@ -87,6 +87,7 @@ stages:
           workingDirectory: ${{ variables.INFRA_DIR }}
 
     - job: infrastructure_healthcheck
+      dependsOn: infrastructure
       container: jkosik/terraform:1.0.1
       steps:
         - bash: |
