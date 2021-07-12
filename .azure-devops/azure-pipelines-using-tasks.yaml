@@ -29,10 +29,10 @@ stages:
         - bash: |
             echo $(Build.SourceBranch)
             echo Current and source Branch is: ${{ variables.INFRA_ENV }}
-          displayName: Environment setting
+          displayName: "Environment setting"
 
         - task: TerraformInstaller@0
-          displayName: install terraform
+          displayName: "Install terraform"
           inputs:
             terraformVersion: 1.0.1
 
