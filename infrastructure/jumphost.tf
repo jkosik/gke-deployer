@@ -33,7 +33,7 @@ resource "google_compute_instance" "jumphost" {
 
   service_account {
     email  = data.google_service_account.sa.email
-    scopes   = ["cloud-platform"]
+    scopes = ["cloud-platform"]
   }
 
 }
