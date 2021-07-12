@@ -16,21 +16,19 @@ gcloud services enable \
 ```
 gsutil mb -p workload-318005 -c standard -l europe-central2 -b on gs://tfstate_PROJECT_ID_gke-deployer
 ```
-4. create GitHub Actions Secret for GCP_SA. Remove new lines before importing JSON file to the GitHub UI.
+4. create GitHub Actions Secret `GCP_SA`. Remove new lines before importing JSON file to the GitHub UI.
 ```
 jq -c . GCP_SA.json
 ```
-5. create GitHub Actions Secret for GCP_SSH_PRIVATE_KEY used in Jumphost (Ansible and administration).
+5. create GitHub Actions Secret `GCP_SSH_PRIVATE_KEY` for Jumphost access.
 
 ## Running CICD and git branch management
-Branches are organized as `dev/stage/prod`. Branch name is passed to `INFRA_ENV` varaible within CICD workflow. Based on that Terraform decides which *.tfvars file to use. Also Ansible
-and decides variable used within Terraform as well as Ansible for parametrization.
+Branches are organized as `dev/stage/prod`. Branch name is passed to `INFRA_ENV` variable within CICD workflow. Based on `INFRA_ENV` variable Terraform decides which *.tfvars file to use. Ansible utilizes the same variable as well.
 
 ## Deploying applications to K8S cluster
 Applications can be deployed in multiple ways:
 - using Jumphost with preinstalled kubectl (user can install additional tools as Helm)
 - using [ArgoCD](docs/argocd.md)
-
 
 ## Additional info
 #### Master-Workload architecture
@@ -44,13 +42,11 @@ Instead of Terraform you can use `gcloud` powered deployment pipeline. Update `o
 - Authenticate Terraform or gcloud using `export GOOGLE_CREDENTIALS=GCP_SA.json`
 
 #### Dynamic inventory
-Normally we grab JH IP using gcloud and template inventory file `inventory-template.yaml`
-
-For more complex usecases use dynamic inventory for GCP:
+For more complex usecases use dynamic inventory for GCP and parse output if needed:
 ```
 ansible-galaxy collection install google.cloud
 ansible-inventory -i inventory-dynamic-gcp.yaml --list
 ansible -i inventory-dynamic-gcp.yaml all -m ping
 ```
-- parse output and create inventory file on the fly
+
 
