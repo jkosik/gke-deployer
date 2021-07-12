@@ -1,0 +1,78 @@
+trigger: none
+
+variables:
+- name: TF_LOG
+  value: DEBUG
+- name: CONF_DIR
+  value: configuration
+- name: INFRA_DIR
+  value: infrastructure
+- name: INFRA_ENV
+  value: $(Build.SourceBranchName)
+
+# Params for manually triggered pipelines (if needed)
+parameters:
+- name: environment
+  displayName: 'Environment'
+  type: string
+  default: 'prod'
+
+pool:
+  vmImage: 'ubuntu-20.04'
+
+stages:
+  - stage: infrastructure
+    jobs:
+    - job: infrastructure
+      #container: jkosik/terraform:1.0.1
+      steps:
+        - bash: |
+            echo $(Build.SourceBranch)
+            echo Current and source Branch is: ${{ variables.INFRA_ENV }}
+          displayName: Environment setting
+
+        - task: TerraformInstaller@0
+          displayName: install terraform
+          inputs:
+            terraformVersion: 1.0.1
+
+        - bash: terraform fmt -check -diff -recursive
+          displayName: "terraform fmt"
+          workingDirectory: ${{ variables.INFRA_DIR }}
+
+        - task: TerraformTaskV2@2
+          displayName: "terraform init"
+          inputs:
+            provider: 'gcp'
+            command: 'init'
+            workingDirectory: '${{ variables.INFRA_DIR }}'
+            backendServiceGCP: 'gcp-workload-318005'
+            backendGCPBucketName: 'tfstate_workload-318005_gke-deployer'
+            backendGCPPrefix: 'dev'
+
+        - task: TerraformTaskV2@2
+          displayName: "terraform validate"
+          inputs:
+            provider: 'gcp'
+            command: 'validate'
+            workingDirectory: '${{ variables.INFRA_DIR }}'
+            commandOptions: '-no-color'
+
+        - task: TerraformTaskV2@2
+          displayName: "terraform plan"
+          inputs:
+            provider: 'gcp'
+            command: 'plan'
+            workingDirectory: '${{ variables.INFRA_DIR }}'
+            commandOptions: '-var-file=${{ variables.INFRA_ENV }}.tfvars'
+            environmentServiceNameGCP: 'gcp-workload-318005'
+
+        - task: TerraformTaskV2@2
+          displayName: "terraform apply"
+          inputs:
+            provider: 'gcp'
+            command: 'apply'
+            workingDirectory: '${{ variables.INFRA_DIR }}'
+            commandOptions: '-auto-approve -var-file=${{variables.INFRA_ENV}}.tfvars'
+            environmentServiceNameGCP: 'gcp-workload-318005'
+

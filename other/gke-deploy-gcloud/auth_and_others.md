@@ -11,7 +11,7 @@ region = europe-central2
 
 juraj@xps ~ $ gcloud config configurations activate dso-main
 juraj@xps ~ $ gcloud auth activate-service-account --key-file=creds-sa-owner-$DSO_PROJECT.json --project=$DSO_PROJECT
-juraj@xps ~ $ gcloud auth activate-service-account --key-file=/home/juraj/creds-sa-owner-workload-318005.json 
+juraj@xps ~ $ gcloud auth activate-service-account --key-file=/home/juraj/creds-sa-owner-workload-318005.json
 
 ```
 
@@ -31,4 +31,3 @@ gcloud projects add-iam-policy-binding $DSO_PROJECT --member=serviceAccount:sa-o
 gcloud iam service-accounts keys create creds-sa-owner-$DSO_PROJECT.json --iam-account=sa-owner@$DSO_PROJECT.iam.gserviceaccount.com
 gcloud secrets create sa-owner --data-file=creds-sa-owner-$DSO_PROJECT.json --labels=dso_owner=juraj,dso_project=$DSO_PROJECT
 ```
-

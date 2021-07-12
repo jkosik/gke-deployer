@@ -1,9 +1,16 @@
 # gke-deployer
+This projects assumes existing GCP projects with few prerequisites.
 Deploys GKE to GCP and postdeploys [Jumphost](docs/jh.md) with tooling as kubectl, Helm, [ArgoCD](docs/argocd.md).
-The code uses [GitHub Actions](.github/workflows/gke-deploy.yaml) for CICD. Alternatively follow [Azure DevOps howto](docs/azure-devops.md).
+The code uses [GitHub Actions](.github/workflows/gke-deploy.yaml). Alternatively follow [Azure DevOps howto](docs/azure-devops.md).
 
 ## Prerequisites
-- create GCP project, e.g. `workload-318005`
+- create GCP project, e.g. `workload-318005` with activated billing and few APIs:
+```
+gcloud beta billing projects link PROJECT_ID --billing-account=BILLING_ACCOUNT
+gcloud services enable \
+  cloudresourcemanager.googleapis.com \
+  secretmanager.googleapis.com
+```
 - create GCP Service account (SA) and store SA JSON file.
 - create GCP Cloud Storage for tfstate in the Workload project
 ```
@@ -25,53 +32,18 @@ Applications can be deployed in multiple ways:
 - using [ArgoCD](docs/argocd.md)
 
 
-
-
 ## Additional info
 #### Master-Workload architecture
-In production, optionally build Master GCP Project to manage Workload GCP Projects.
+In production, optionally build Master GCP Project to create and manage Workload GCP Projects. This project assumes target GCP project and SA exists.
 
 **Normally Master GCP Project would contain SA for running Terraform provisioning of Workload GCP Projects and GKEs within. Free Tier does not allow to use SA for creating another GCP Projects, thus we need workarounds using personal GCP account to create Workload GCP Projects or we precreate Workload GCP Project and Workload SA in advance manually.**
 
-- Export ENV vars
-```
-export DSO_PROJECT=dso-main
-export DSO_OWNER=juraj
-export DSO_BILLING_ACCOUNT=YOUR_BILLING_ACCOUNT_ID
-cd ~/
-```
-- Create GCP project, e.g. `dso-main`
-```
-gcloud projects create $DSO_PROJECT --labels=dso_owner=$DSO_OWNER
-```
-- Activate newly created project within your user profile
-```
-$ cat ~/.config/gcloud/configurations/config_juraj
-[core]
-project = dso-main
-account = EMAIL
-
-[compute]
-zone = europe-central2-a
-region = europe-central2
-
-$ gcloud config configurations activate juraj
-Activated [juraj].
-```
-- Activate billing and enable needed APIs
-```
-gcloud beta billing projects link $DSO_PROJECT --billing-account=$DSO_BILLING_ACCOUNT
-gcloud services enable \
-  cloudresourcemanager.googleapis.com \
-  secretmanager.googleapis.com
-```
-
 #### GKE Deployment using gcloud
-Creates minimalistic zonal GKE (for HA use regional cluster `--region` instead of `--zone`).
-Update `other/gke-deploy-gcloud/gke.vars` and run [gke-deploy-gcloud/deployment-local.sh](other/gke-deploy-gcloud/deployment-local.sh) to build GKE from the console. Optionally use Workflows for [GitHub Actions](.github/workflows/gke-deploy-gcloud.yaml).
+Instead of Terraform you can use `gcloud` powered deployment pipeline. Update `other/gke-deploy-gcloud/gke.vars` and run [gke-deploy-gcloud/deployment-local.sh](other/gke-deploy-gcloud/deployment-local.sh) to build GKE from the console. Optionally use [GitHub Actions](other/gke-deploy-gcloud/.github/workflows/gke-deploy-gcloud.yaml).
 
-#### Auth using SA for Terraform
-export GOOGLE_CREDENTIALS=GCP_SA.json
+### GCP side notes
+- When creating GKE, use `--region` fior HA cluster. Otherwise build just zonal GKE cluster instead of `--zone`).
+- Authenticate Terraform or gcloud using `export GOOGLE_CREDENTIALS=GCP_SA.json`
 
 #### Dynamic inventory
 Normally we grab JH IP using gcloud and template inventory file `inventory-template.yaml`

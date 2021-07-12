@@ -2,35 +2,30 @@ trigger:
   #batch: true
   branches:
     include:
-      - 'prod'
+      - prod
     exclude:
-      - 'main'
-      - 'docs'
+      - main
+      - docs
   paths:
     include:
-      - '.azure-devops/**'
-      - 'infrastructure/**'
-      - 'configuration/**'
+      - .azure-devops/*
+      - infrastructure/*
+      - configuration/*
 
-#trigger: none
+##trigger: none
 
 pr:
   branches:
     include:
-      - 'prod'
+      - prod
     exclude:
-      - 'main'
-      - 'docs'
+      - main
+      - docs
   paths:
       include:
-        - '.azure-devops/**'
-        - 'infrastructure/**'
-        - 'configuration/**'
-
-pool:
-  vmImage: ubuntu-latest
-
-container: ubuntu:18.04
+        - .azure-devops/*
+        - infrastructure/*
+        - configuration/*
 
 variables:
 - name: TF_LOG
@@ -41,8 +36,6 @@ variables:
   value: infrastructure
 - name: INFRA_ENV
   value: $(Build.SourceBranchName)
-## - name: GOOGLE_CREDENTIALS
-##   value: "${{ secrets.GCP_SA }}"
 
 # Params for manually triggered pipelines
 parameters:
@@ -51,9 +44,53 @@ parameters:
   type: string
   default: 'prod'
 
-steps:
-- script: echo Hello ${{ parameters.environment }}.
-  displayName: 'Run a one-line script'
-- script: echo Hello ${{ variables.INFRA_ENV }}.
-  displayName: 'Run a one-line script'
+pool:
+  vmImage: 'ubuntu-20.04'
+
+stages:
+  - stage: infrastructure
+    jobs:
+    - job: infrastructure
+      container: jkosik/terraform:1.0.1
+      steps:
+        - bash: |
+            echo $(Build.SourceBranch)
+            echo Current and source Branch is: ${{ variables.INFRA_ENV }}
+          displayName: Environment setting
+
+        - bash: terraform fmt -check -diff -recursive
+          displayName: "terraform fmt"
+          workingDirectory: ${{ variables.INFRA_DIR }}
+
+        - bash: terraform init
+          env:
+            GOOGLE_CREDENTIALS: $(GCP_SA) # Secrets have to be called explicitly
+          displayName: "terraform init"
+          workingDirectory: ${{ variables.INFRA_DIR }}
+
+        - bash: terraform validate -no-color
+          env:
+            GOOGLE_CREDENTIALS: $(GCP_SA)
+          displayName: "terraform validate"
+          workingDirectory: ${{ variables.INFRA_DIR }}
+
+        - bash: terraform plan -var-file=${{ variables.INFRA_ENV }}.tfvars
+          env:
+            GOOGLE_CREDENTIALS: $(GCP_SA)
+          displayName: "terraform plan"
+          workingDirectory: ${{ variables.INFRA_DIR }}
+
+        - bash: terraform apply -auto-approve -var-file=${{ variables.INFRA_ENV }}.tfvars
+          env:
+            GOOGLE_CREDENTIALS: $(GCP_SA)
+          displayName: "terraform apply"
+          workingDirectory: ${{ variables.INFRA_DIR }}
+
+    - job: infrastructure_healthcheck
+      container: jkosik/terraform:1.0.1
+      steps:
+        - bash: |
+            echo $(Build.SourceBranch)
+            echo Current and source Branch is: ${{ variables.INFRA_ENV }}
+          displayName: Environment setting
 
