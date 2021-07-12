@@ -1,26 +1,26 @@
 # gke-deployer
 This projects assumes existing GCP projects with few prerequisites.
 Deploys GKE to GCP and postdeploys [Jumphost](docs/jh.md) with tooling as kubectl, Helm, [ArgoCD](docs/argocd.md).
-The code uses [GitHub Actions](.github/workflows/gke-deploy.yaml). Alternatively follow [Azure DevOps howto](docs/azure-devops.md).
+The code uses [GitHub Actions CICD](.github/workflows/gke-deploy.yaml). Alternatively follow [Azure DevOps howto](docs/azure-devops.md).
 
 ## Prerequisites
-- create GCP project, e.g. `workload-318005` with activated billing and few APIs:
+1. create GCP project, e.g. `workload-318005` with activated billing and few APIs:
 ```
 gcloud beta billing projects link PROJECT_ID --billing-account=BILLING_ACCOUNT
 gcloud services enable \
   cloudresourcemanager.googleapis.com \
   secretmanager.googleapis.com
 ```
-- create GCP Service account (SA) and store SA JSON file.
-- create GCP Cloud Storage for tfstate in the Workload project
+2. create GCP Service account (SA) and store SA JSON file.
+3. create GCP Cloud Storage for tfstate in the Workload project
 ```
 gsutil mb -p workload-318005 -c standard -l europe-central2 -b on gs://tfstate_PROJECT_ID_gke-deployer
 ```
-- create GitHub Actions Secret for GCP_SA. Remove new lines before importing JSON file to the GitHub UI.
+4. create GitHub Actions Secret for GCP_SA. Remove new lines before importing JSON file to the GitHub UI.
 ```
 jq -c . GCP_SA.json
 ```
-- create GitHub Actions Secret for GCP_SSH_PRIVATE_KEY used in Jumphost (Ansible and administration).
+5. create GitHub Actions Secret for GCP_SSH_PRIVATE_KEY used in Jumphost (Ansible and administration).
 
 ## Running CICD and git branch management
 Branches are organized as `dev/stage/prod`. Branch name is passed to `INFRA_ENV` varaible within CICD workflow. Based on that Terraform decides which *.tfvars file to use. Also Ansible
