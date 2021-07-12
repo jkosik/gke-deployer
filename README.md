@@ -34,14 +34,12 @@ Applications can be deployed in multiple ways:
 
 ## Additional info
 #### Master-Workload architecture
-In production, optionally build Master GCP Project to create and manage Workload GCP Projects. This project assumes target GCP project and SA exists.
-
-**Normally Master GCP Project would contain SA for running Terraform provisioning of Workload GCP Projects and GKEs within. Free Tier does not allow to use SA for creating another GCP Projects, thus we need workarounds using personal GCP account to create Workload GCP Projects or we precreate Workload GCP Project and Workload SA in advance manually.**
+In production, consider building Master GCP Project to create and manage Workload GCP Projects e2e. Normally Master GCP Project would contain SA for running Terraform provisioning of the Workload GCP Projects and resources within. Free Tier does not allow to use SA for creating another GCP Projects, thus we precreate Workload GCP Project and Workload SA in advance manually.**
 
 #### GKE Deployment using gcloud
 Instead of Terraform you can use `gcloud` powered deployment pipeline. Update `other/gke-deploy-gcloud/gke.vars` and run [gke-deploy-gcloud/deployment-local.sh](other/gke-deploy-gcloud/deployment-local.sh) to build GKE from the console. Optionally use [GitHub Actions](other/gke-deploy-gcloud/.github/workflows/gke-deploy-gcloud.yaml).
 
-### GCP side notes
+#### GCP side notes
 - When creating GKE, use `--region` fior HA cluster. Otherwise build just zonal GKE cluster instead of `--zone`).
 - Authenticate Terraform or gcloud using `export GOOGLE_CREDENTIALS=GCP_SA.json`
 
