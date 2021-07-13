@@ -113,8 +113,10 @@ jobs:
 
       - name: Ansible lint
         run: |
-          ansible-lint *.{yml,yaml}
+          shopt -s globstar
+          ansible-lint **/*.{yaml,yml}
         continue-on-error: true
+        working-directory: ${{ env.CONF_DIR }}
 
       - name: Set up GCP Cloud SDK for Client
         uses: google-github-actions/setup-gcloud@master
