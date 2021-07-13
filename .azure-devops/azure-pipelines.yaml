@@ -56,42 +56,143 @@ stages:
         - bash: |
             echo $(Build.SourceBranch)
             echo Current and source Branch is: ${{ variables.INFRA_ENV }}
-          displayName: Environment setting
+          displayName: "Environment setting"
 
         - bash: terraform fmt -check -diff -recursive
           displayName: "terraform fmt"
           workingDirectory: ${{ variables.INFRA_DIR }}
 
         - bash: terraform init
-          env:
-            GOOGLE_CREDENTIALS: $(GCP_SA) # Secrets have to be called explicitly
           displayName: "terraform init"
+          env:
+            # Secrets have to be called explicitly. Unlike for gcloud, exporting GOOGLE_CREDENTIALS is sufficient for TF.
+            GOOGLE_CREDENTIALS: $(GCP_SA)
           workingDirectory: ${{ variables.INFRA_DIR }}
 
         - bash: terraform validate -no-color
+          displayName: "terraform validate"
           env:
             GOOGLE_CREDENTIALS: $(GCP_SA)
-          displayName: "terraform validate"
           workingDirectory: ${{ variables.INFRA_DIR }}
 
         - bash: terraform plan -var-file=${{ variables.INFRA_ENV }}.tfvars
+          displayName: "terraform plan"
           env:
             GOOGLE_CREDENTIALS: $(GCP_SA)
-          displayName: "terraform plan"
           workingDirectory: ${{ variables.INFRA_DIR }}
 
         - bash: terraform apply -auto-approve -var-file=${{ variables.INFRA_ENV }}.tfvars
+          displayName: "terraform apply"
           env:
             GOOGLE_CREDENTIALS: $(GCP_SA)
-          displayName: "terraform apply"
           workingDirectory: ${{ variables.INFRA_DIR }}
+
 
     - job: infrastructure_healthcheck
       dependsOn: infrastructure
-      container: jkosik/terraform:1.0.1
+      container: jkosik/gcp-deployer:346.0.0
       steps:
         - bash: |
-            echo $(Build.SourceBranch)
-            echo Current and source Branch is: ${{ variables.INFRA_ENV }}
-          displayName: Environment setting
+            echo $GOOGLE_CREDENTIALS > GCP_SA.json
+            gcloud auth activate-service-account --key-file ./GCP_SA.json
+          displayName: "Authenticate to GCP"
+          env:
+            GOOGLE_CREDENTIALS: $(GCP_SA)
+
+        - bash: |
+            PROJECT_ID=$(cat ${{ variables.INFRA_ENV }}.tfvars | grep project_id | cut -d\" -f2)
+            ZONE=$(cat ${{ variables.INFRA_ENV }}.tfvars | grep zone | cut -d\" -f2)
+            GKE_CLUSTER_NAME=$(cat ${{ variables.INFRA_ENV }}.tfvars | grep gke_cluster_name | cut -d\" -f2)
+
+            c=0
+            while true; do
+              while [[ $(gcloud container clusters describe $GKE_CLUSTER_NAME --zone $ZONE --project $PROJECT_ID --format="value(status)") != "RUNNING" ]] ; do
+                ((c++)) && ((c>60)) && printf "Timeout to deploy K8S cluster exceeded\n" && exit 1
+                sleep 5
+                echo "Checking K8S cluster build..."
+              done
+              echo "K8S cluster $GKE_CLUSTER_NAME in RUNNING state"
+              break
+            done;
+          displayName: "Check GKE readiness"
+          workingDirectory: ${{ variables.INFRA_DIR }}
+
+  - stage: configuration
+    jobs:
+    - job: configuration
+      container: jkosik/gcp-deployer:346.0.0
+      steps:
+        - bash: |
+            echo $GOOGLE_CREDENTIALS > GCP_SA.json
+            gcloud auth activate-service-account --key-file ./GCP_SA.json
+          env:
+            GOOGLE_CREDENTIALS: $(GCP_SA)
+          displayName: "Authenticate to GCP"
+
+        - bash: |
+            PROJECT_ID=$(cat ${{ variables.INFRA_ENV }}.tfvars | grep project_id | cut -d\" -f2)
+            ZONE=$(cat ${{ variables.INFRA_ENV }}.tfvars | grep zone | cut -d\" -f2)
+            GKE_CLUSTER_NAME=$(cat ${{ variables.INFRA_ENV }}.tfvars | grep gke_cluster_name | cut -d\" -f2)
+            JH_IP=$(gcloud compute instances describe jh --zone $ZONE --project $PROJECT_ID --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
+
+            # In the same Step just call $VARIABLE_NAME. To expose vars for next Steps in the same Job use lines below and call as $VARIABLE_NAME.
+            # Sharing vars between Jobs and Stages does not work as expected, need "isOutput=true" and "variables" section in calling Job/Stage.
+            echo "##vso[task.setvariable variable=PROJECT_ID]$PROJECT_ID"
+            echo "##vso[task.setvariable variable=ZONE]$ZONE"
+            echo "##vso[task.setvariable variable=GKE_CLUSTER_NAME]$GKE_CLUSTER_NAME"
+            echo "##vso[task.setvariable variable=JH_IP]$JH_IP"
+          displayName: "Populate variables"
+          workingDirectory: ${{ variables.INFRA_DIR }}
+
+        - bash: |
+            shopt -s globstar
+            ansible-lint **/*.{yaml,yml}
+          # Just to inform. Continue on error since also Google-maintained role generate errors.
+          displayName: "Ansible lint"
+          continueOnError: true
+          workingDirectory: ${{ variables.CONF_DIR }}
+
+        # We could use InstallSSHKey@0 tasks, Pipeline Library & Secure Files for private key and Secret variable for public part, etc...
+        # Service Connection for SSH requires static IP/hostname - not flexible.
+        - bash: |
+            echo "$GCP_SSH_PRIVATE_KEY" | base64 -d > gcp-ssh-private-key
+            chmod 600 gcp-ssh-private-key
+            eval "$(ssh-agent -s)"
+            ssh-add gcp-ssh-private-key
+            echo $JH_IP
+            sed -i s/CHANGEME/$JH_IP/g inventory-template.yaml
+            ansible-playbook -u user -i inventory-template.yaml site.yaml --extra-vars infra_env="${{ variables.INFRA_ENV }}"
+          displayName: "Run Ansible - site.yaml"
+          env:
+            GCP_SSH_PRIVATE_KEY: $(GCP_SSH_PRIVATE_KEY)
+          workingDirectory: ${{ variables.CONF_DIR }}
+
+        - bash: |
+            PROJECT_NUMBER=$(gcloud projects list --filter=$PROJECT_ID --format='value(PROJECT_NUMBER)')
+            echo "##vso[task.setvariable variable=PROJECT_NUMBER]$PROJECT_NUMBER"
+          displayName: "Populate additional variables for TF import"
+
+        - bash: |
+            # JH downloaded GKE kubeconfig and pushed to the Secret Manager. Import resource to Terraform.
+            terraform init
+            terraform import -var-file=${{ variables.INFRA_ENV }}.tfvars -allow-missing-config google_secret_manager_secret.kubeconfig projects/$PROJECT_NUMBER/secrets/kubeconfig-$GKE_CLUSTER_NAME
+            # check resource addition to Terraform
+            terraform show -json | jq '.values.root_module.resources[] | .type,.name ' | grep google_secret_manager_secret || { echo "google_secret_manager_secret not imported to TF"; exit 1; }
+          displayName: "Import kubeconfig Secret from Secret Manager to Terraform"
+          env:
+            GOOGLE_CREDENTIALS: $(GCP_SA)
+          workingDirectory: ${{ variables.INFRA_DIR }}
+
+        - bash: |
+            echo "$GCP_SSH_PRIVATE_KEY" | base64 -d > gcp-ssh-private-key
+            chmod 600 gcp-ssh-private-key
+            eval "$(ssh-agent -s)"
+            ssh-add gcp-ssh-private-key
+            ssh -o StrictHostKeyChecking=no user@$JH_IP 'gcloud compute instances list'
+            ssh -o StrictHostKeyChecking=no user@$JH_IP 'kubectl get ns'
+          displayName: "Run gcloud and kubectl from JH"
+          env:
+            GCP_SSH_PRIVATE_KEY: $(GCP_SSH_PRIVATE_KEY)
+          workingDirectory: ${{ variables.CONF_DIR }}
+
 

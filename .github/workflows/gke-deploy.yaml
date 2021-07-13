@@ -163,7 +163,7 @@ jobs:
           terraform init
           terraform import -var-file=${{ env.INFRA_ENV }}.tfvars -allow-missing-config google_secret_manager_secret.kubeconfig projects/$PROJECT_NUMBER/secrets/kubeconfig-$GKE_CLUSTER_NAME
           # check resource addition to Terraform
-          terraform show -json | jq '.values.root_module.resources[] | .type,.name '
+          terraform show -json | jq '.values.root_module.resources[] | .type,.name ' | grep google_secret_manager_secret || { echo "google_secret_manager_secret not imported to TF"; exit 1; }
         working-directory: ${{ env.INFRA_DIR }}
 
   configuration-healthcheck:
@@ -190,7 +190,7 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
 
-      - name: Run gcloud and kubectl
+      - name: Run gcloud and kubectl from JH
         run: |
           JH_IP=$(gcloud compute instances describe jh --zone $ZONE --project $PROJECT_ID --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
           ssh -o StrictHostKeyChecking=no user@$JH_IP 'gcloud compute instances list'
