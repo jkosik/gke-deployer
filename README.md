@@ -49,4 +49,6 @@ ansible-inventory -i inventory-dynamic-gcp.yaml --list
 ansible -i inventory-dynamic-gcp.yaml all -m ping
 ```
 
+#### TODO
+- Terraform import updates only state file. Add configuration block to TF, otherwise be ready to delete on apply.
 
