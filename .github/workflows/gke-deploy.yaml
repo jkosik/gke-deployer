@@ -130,7 +130,7 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
 
-      - name: Configure components using site.yaml
+      - name: Run Ansible - site.yaml
         run: |
           JH_IP=$(gcloud compute instances describe jh --zone $ZONE --project $PROJECT_ID --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
           sed -i s/CHANGEME/$JH_IP/g inventory-template.yaml
@@ -159,7 +159,7 @@ jobs:
 
       - name: Import kubeconfig Secret from Secret Manager to Terraform
         run: |
-          # JH created Secret in the Secret Manager holding kubeconfig. Import resource to Terraform.
+          # JH downloaded GKE kubeconfig and pushed to the Secret Manager. Import resource to Terraform.
           terraform init
           terraform import -var-file=${{ env.INFRA_ENV }}.tfvars -allow-missing-config google_secret_manager_secret.kubeconfig projects/$PROJECT_NUMBER/secrets/kubeconfig-$GKE_CLUSTER_NAME
           # check resource addition to Terraform

@@ -20,7 +20,7 @@ gsutil mb -p workload-318005 -c standard -l europe-central2 -b on gs://tfstate_P
 ```
 jq -c . GCP_SA.json
 ```
-5. create GitHub Actions Secret `GCP_SSH_PRIVATE_KEY` for Jumphost access.
+5. create GitHub Actions Secret `GCP_SSH_PRIVATE_KEY` for Jumphost access. GitHub actions support multiline variables. Not the case of Azure DevOps. Anyhow consider storing multiline variables as base64 and decode when using in the pipeline.
 
 ## Running CICD and git branch management
 Branches are organized as `dev/stage/prod`. Branch name is passed to `INFRA_ENV` variable within CICD workflow. Based on `INFRA_ENV` variable Terraform decides which *.tfvars file to use. Ansible utilizes the same variable as well.
