@@ -105,16 +105,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Populate variables
-        run: |
-          echo "PROJECT_ID=$(cat ${{ env.INFRA_ENV }}.tfvars | grep project_id | cut -d\" -f2)" >> $GITHUB_ENV
-          echo "ZONE=$(cat ${{ env.INFRA_ENV }}.tfvars | grep zone | cut -d\" -f2)" >> $GITHUB_ENV
-        working-directory: ${{ env.INFRA_DIR }}
+      # - name: Populate variables
+      #   run: |
+      #     echo "PROJECT_ID=$(cat ${{ env.INFRA_ENV }}.tfvars | grep project_id | cut -d\" -f2)" >> $GITHUB_ENV
+      #     echo "ZONE=$(cat ${{ env.INFRA_ENV }}.tfvars | grep zone | cut -d\" -f2)" >> $GITHUB_ENV
+      #   working-directory: ${{ env.INFRA_DIR }}
 
       - name: Ansible lint
         run: |
           shopt -s globstar
           ansible-lint **/*.{yaml,yml}
+        # Just to inform. Continue on error since also Google-maintained role generate errors.
         continue-on-error: true
         working-directory: ${{ env.CONF_DIR }}
 
