@@ -87,12 +87,12 @@ jobs:
         run: |
           c=0
           while true; do
-            while [[ $(gcloud container clusters describe ${GKE_CLUSTER_NAME} --zone $ZONE --project $PROJECT_ID --format="value(status)") != "RUNNING" ]] ; do
+            while [[ $(gcloud container clusters describe $GKE_CLUSTER_NAME --zone $ZONE --project $PROJECT_ID --format="value(status)") != "RUNNING" ]] ; do
               ((c++)) && ((c>60)) && printf "Timeout to deploy K8S cluster exceeded\n" && exit 1
               sleep 5
               echo "Checking K8S cluster build..."
             done
-            echo "K8S cluster ${GKE_CLUSTER_NAME} in RUNNING state"
+            echo "K8S cluster $GKE_CLUSTER_NAME in RUNNING state"
             break
           done;
         working-directory: ${{ env.INFRA_DIR }}
