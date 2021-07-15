@@ -17,7 +17,7 @@ Unless ArgoCD API is exposed to our CICD tool directly, we access target ArgoCD 
 It is recommended to enrich the ArgoCD Application deployment pipeline with checks, e.g.:
 - `kubectl -n argocd get applications.argoproj.io`
 - using e2e test of deployed application
-- using Prometheus rules
+- using PrometheusRules
 
 #### 2. Using ArgoCD GUI tunneled over SSH
 
@@ -42,7 +42,7 @@ echo "Options to terminate the tunnel: 'fuser -k 1234/tcp' or 'your custom shell
 
 Additional notes:
 - LB for ArgoCD might not be ready immediately after infrastructure deployment. Check from JH using `kubectl -n argocd get svc argocd-server-internal-lb-l4`.
-- ArgoCD tunneled to your workstation can be access via browser as well as via `argcd login localhost:1234`.
+- ArgoCD tunneled to your workstation can be access via browser as well as via CLI: `argcd login localhost:1234`.
 
 #### 3. Exposing ArgoCD GUI to directly reachable network
 Update AgroCD Service and deploy appropriate Ingress according to [official howto](https://argoproj.github.io/argo-cd/getting_started/#3-access-the-argo-cd-api-server) and expose GUI outside the cluster.

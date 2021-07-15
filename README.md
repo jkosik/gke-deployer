@@ -1,7 +1,13 @@
 # gke-deployer
-This projects assumes existing GCP projects with few prerequisites.
+This projects assumes existing GCP projects (limitation of GCP Free Tier).
 Deploys GKE to GCP and postdeploys [Jumphost](docs/jh.md) with tooling as kubectl, Helm, [ArgoCD](docs/argocd.md).
-The code uses [GitHub Actions CICD](.github/workflows/gke-deploy.yaml). Alternatively follow [Azure DevOps howto](docs/azure-devops.md).
+The code uses [GitHub Actions CICD](.github/workflows/gke-deploy.yaml) and [Azure DevOps howto](docs/azure-devops.md) alternative.
+Project assumes private GKE cluster not exposed to the external world. However GKE setup is ready to permit external access to API Server on demand.
+Documentation and provsioning code reflect this isolation. Normally many things could be done easier.
+
+
+## Architecture
+![architecture](docs/static/gke-deployer.png)
 
 ## Prerequisites
 1. create GCP project, e.g. `workload-318005` with activated billing and few APIs:
@@ -27,19 +33,20 @@ Branches are organized as `dev/stage/prod`. Branch name is passed to `INFRA_ENV`
 
 ## Deploying applications to K8S cluster
 Applications can be deployed in multiple ways:
-- using Jumphost with preinstalled kubectl (user can install additional tools as Helm)
+- using Jumphost with preinstalled kubectl and Helm
 - using [ArgoCD](docs/argocd.md)
 
 ## Additional info
-#### Master-Workload architecture
-In production, consider building Master GCP Project to create and manage Workload GCP Projects e2e. Normally Master GCP Project would contain SA for running Terraform provisioning of the Workload GCP Projects and resources within. Free Tier does not allow to use SA for creating another GCP Projects, thus we precreate Workload GCP Project and Workload SA in advance manually.**
+#### Production architecture
+In production, consider building Master GCP Project to create and manage Workload GCP Projects e2e. Normally Master GCP Project would contain SA for running Terraform provisioning of the Workload GCP Projects and resources within. GCP Free Tier does not allow SA to create other GCP Projects. Workaround is to precreate Workload GCP Project and Workload SA in advance manually.
+ClusterAPI project could be a long-term way to go though - Management CAPI cluster in every public cloud to deploy K8S clusters there.
 
 #### GKE Deployment using gcloud
 Instead of Terraform you can use `gcloud` powered deployment pipeline. Update `other/gke-deploy-gcloud/gke.vars` and run [gke-deploy-gcloud/deployment-local.sh](other/gke-deploy-gcloud/deployment-local.sh) to build GKE from the console. Optionally use [GitHub Actions](other/gke-deploy-gcloud/.github/workflows/gke-deploy-gcloud.yaml).
 
 #### GCP side notes
-- When creating GKE, use `--region` fior HA cluster. Otherwise build just zonal GKE cluster instead of `--zone`).
-- Authenticate Terraform or gcloud using `export GOOGLE_CREDENTIALS=GCP_SA.json`
+- `--region` creates HA cluster. `--zone` creates zonal non-HA GKE.
+- `export GOOGLE_CREDENTIALS=GCP_SA.json` is sufficient for Terraform. Gcloud needs `gcloud auth activate-service-account...`
 
 #### Dynamic inventory
 For more complex usecases use dynamic inventory for GCP and parse output if needed:
@@ -50,5 +57,5 @@ ansible -i inventory-dynamic-gcp.yaml all -m ping
 ```
 
 #### TODO
-- Terraform import updates only state file. Add configuration block to TF, otherwise be ready to delete on apply.
+- Terraform import updates only state file. Add configuration block to TF, otherwise be ready that imported object will be delete on TF apply.
 
