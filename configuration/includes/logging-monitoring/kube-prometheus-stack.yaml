@@ -16,6 +16,7 @@
       become_user: user
       shell: |
         kubectl create ns monitoring
+      ignore_errors: true
 
 # uncomment in prod cluster and consider including custom kube-prometheus-stack: https://github.com/jkosik/kube-prometheus-stack
     # - name: Helm install kube-prometheus-stack
