@@ -1,15 +1,16 @@
 # gke-deployer
-This projects assumes existing GCP projects (limitation of GCP Free Tier).
-Deploys GKE to GCP and postdeploys [Jumphost](docs/jh.md) with tooling as kubectl, Helm, [ArgoCD](docs/argocd.md).
-The code uses [GitHub Actions CICD](.github/workflows/gke-deploy.yaml) and [Azure DevOps howto](docs/azure-devops.md) alternative.
-Project assumes private GKE cluster not exposed to the external world. However GKE setup is ready to permit external access to API Server on demand.
-Documentation and provsioning code reflect this isolation. Normally many things could be done easier.
+This project deploys GKE and adidtional components to GCP using [GitHub Actions](.github/workflows/gke-deploy.yaml) or alternatively [Azure DevOps Pipelines] supported by Terraform and Ansible.
+[Jumphost](docs/jh.md) is equipped tooling as kubectl, Helm, [ArgoCD](docs/argocd.md) and sample k8s manifests.
+Both GKE and Jumphost are pre-configured to deliver logs and metrics to GCP Cloud Logging and Cloud Monitoring.
+
+Project assumes private GKE cluster not exposed to the external world. However GKE setup is preconfigured to permit external access to API Server on demand by running `gcloud container clusters update CLUSTER --master-authorized-networks CIDR` or by updating respective Terraform variables. Documentation and provsioning code reflect GKE isolation. Normally many things could be done easier for public CKE cluster.
 
 
 ## Architecture
 ![architecture](docs/static/gke-deployer.png)
 
 ## Prerequisites
+Projects assumes existing GCP projects (limitation of the GCP Free Tier).
 1. create GCP project, e.g. `workload-318005` with activated billing and few APIs:
 ```
 gcloud beta billing projects link PROJECT_ID --billing-account=BILLING_ACCOUNT
@@ -28,13 +29,18 @@ jq -c . GCP_SA.json
 ```
 5. create GitHub Actions Secret `GCP_SSH_PRIVATE_KEY` for Jumphost access. GitHub actions support multiline variables. Not the case of Azure DevOps. Anyhow consider storing multiline variables as base64 and decode when using in the pipeline.
 
+## Deployment
+1. Deploy GKE and components using [GitHub Actions](.github/workflows/gke-deploy.yaml) or alternatively [Azure DevOps Pipelines](docs/azure-devops.md).
+2. Deploy Argo CD Application manifest towards you application.
+3. Infrastructure logging and monitoring works out of the box. Application monitoring using `kube-prometheus-stack` needs configuring custom ServiceMonitors and/or PodMonitors as used [here](https://github.com/jkosik/kube-prometheus-stack).
+
+
 ## Running CICD and git branch management
 Branches are organized as `dev/stage/prod`. Branch name is passed to `INFRA_ENV` variable within CICD workflow. Based on `INFRA_ENV` variable Terraform decides which *.tfvars file to use. Ansible utilizes the same variable as well.
 
-## Deploying applications to K8S cluster
-Applications can be deployed in multiple ways:
-- using Jumphost with preinstalled kubectl and Helm
-- using [ArgoCD](docs/argocd.md)
+## TODO
+- Terraform import updates only state file. Add configuration block to TF, otherwise be ready that imported object will be delete on TF apply.
+- Application monitoring not deployed yet in Free Tier setup. Include e.g. https://github.com/jkosik/kube-prometheus-stack to the stack and define process - who will deploy and customize alerts? App developers or infra team?
 
 ## Additional info
 #### Production architecture
@@ -56,6 +62,4 @@ ansible-inventory -i inventory-dynamic-gcp.yaml --list
 ansible -i inventory-dynamic-gcp.yaml all -m ping
 ```
 
-#### TODO
-- Terraform import updates only state file. Add configuration block to TF, otherwise be ready that imported object will be delete on TF apply.
 
