@@ -1,0 +1,197 @@
+name: gke-deploy
+
+on:
+  push:
+    branches-ignore:
+      - 'docs'
+      - 'main'
+    paths:
+      - '.github/**'
+      - 'infrastructure/**'
+      - 'configuration/**'
+  pull_request:
+    branches-ignore:
+      - 'docs'
+      - 'main'
+    paths:
+      - '.github/**'
+      - 'infrastructure/**'
+      - 'configuration/**'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  #TF_LOG: DEBUG
+  CONF_DIR: configuration
+  INFRA_DIR: infrastructure
+  INFRA_ENV: ${GITHUB_REF##*/}
+  GOOGLE_CREDENTIALS: "${{ secrets.GCP_SA }}"
+
+jobs:
+  infrastructure:
+    runs-on: ubuntu-latest
+    container: jkosik/terraform:1.0.1
+    steps:
+      - name: Environment setting
+        run: |
+          echo $GITHUB_HEAD_REF
+          echo Current ENV and source Branch is: ${{ env.INFRA_ENV }}
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Terraform fmt
+        run: terraform fmt -check -diff -recursive
+        working-directory: ${{ env.INFRA_DIR }}
+
+      - name: Terraform init
+        run: terraform init
+        working-directory: ${{ env.INFRA_DIR }}
+
+      - name: Terraform validate
+        run: terraform validate -no-color
+        working-directory: ${{ env.INFRA_DIR }}
+
+      - name: Terraform plan and apply
+        run: |
+          terraform plan -var-file=${{ env.INFRA_ENV }}.tfvars
+          terraform apply -auto-approve -var-file=${{ env.INFRA_ENV }}.tfvars
+        working-directory: ${{ env.INFRA_DIR }}
+
+  infrastructure-healthcheck:
+    needs: infrastructure
+    runs-on: ubuntu-latest
+    container: jkosik/gcp-deployer:346.0.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Populate variables
+        run: |
+          echo "PROJECT_ID=$(cat ${{ env.INFRA_ENV }}.tfvars | grep project_id | cut -d\" -f2)" >> $GITHUB_ENV
+          echo "ZONE=$(cat ${{ env.INFRA_ENV }}.tfvars | grep zone | cut -d\" -f2)" >> $GITHUB_ENV
+          echo "GKE_CLUSTER_NAME=$(cat ${{ env.INFRA_ENV }}.tfvars | grep gke_cluster_name | cut -d\" -f2)" >> $GITHUB_ENV
+        working-directory: ${{ env.INFRA_DIR }}
+
+      - name: Set up GCP Cloud SDK for Client
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.GCP_SA }}
+
+      - name: Check GKE readiness
+        run: |
+          c=0
+          while true; do
+            while [[ $(gcloud container clusters describe $GKE_CLUSTER_NAME --zone $ZONE --project $PROJECT_ID --format="value(status)") != "RUNNING" ]] ; do
+              ((c++)) && ((c>60)) && printf "Timeout to deploy K8S cluster exceeded\n" && exit 1
+              sleep 5
+              echo "Checking K8S cluster build..."
+            done
+            echo "K8S cluster $GKE_CLUSTER_NAME in RUNNING state"
+            break
+          done;
+        working-directory: ${{ env.INFRA_DIR }}
+
+  configuration:
+    needs: infrastructure-healthcheck
+    runs-on: ubuntu-latest
+    container: jkosik/ansible:4.2.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Re-populating vars. $GITHUB_ENV are not transferred between Jobs.
+      - name: Populate variables
+        run: |
+          echo "PROJECT_ID=$(cat ${{ env.INFRA_ENV }}.tfvars | grep project_id | cut -d\" -f2)" >> $GITHUB_ENV
+          echo "ZONE=$(cat ${{ env.INFRA_ENV }}.tfvars | grep zone | cut -d\" -f2)" >> $GITHUB_ENV
+        working-directory: ${{ env.INFRA_DIR }}
+
+      - name: Ansible lint
+        run: |
+          shopt -s globstar
+          ansible-lint **/*.{yaml,yml}
+        # Just to inform. Continue on error since also Google-maintained role generate errors.
+        continue-on-error: true
+        working-directory: ${{ env.CONF_DIR }}
+
+      - name: Set up GCP Cloud SDK for Client
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.GCP_SA }}
+
+      - name: Configure SSH Agent
+        uses: webfactory/ssh-agent@v0.5.2
+        with:
+          ssh-private-key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
+
+      - name: Run Ansible - site.yaml
+        run: |
+          JH_IP=$(gcloud compute instances describe jh --zone $ZONE --project $PROJECT_ID --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
+          sed -i s/CHANGEME/$JH_IP/g inventory-template.yaml
+          ansible-playbook -u user -i inventory-template.yaml site.yaml --extra-vars infra_env="${{ env.INFRA_ENV }}"
+        working-directory: ${{ env.CONF_DIR }}
+
+  terraform-import:
+    needs: configuration
+    runs-on: ubuntu-latest
+    container: jkosik/terraform:1.0.1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up GCP Cloud SDK for Client
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.GCP_SA }}
+
+      - name: Populate variables
+        run: |
+          echo "PROJECT_ID=$(cat ${{ env.INFRA_ENV }}.tfvars | grep project_id | cut -d\" -f2)" >> $GITHUB_ENV
+          echo "PROJECT_NUMBER=$(gcloud projects list --filter=$PROJECT_ID --format='value(PROJECT_NUMBER)')" >> $GITHUB_ENV
+          echo "GKE_CLUSTER_NAME=$(cat ${{ env.INFRA_ENV }}.tfvars | grep gke_cluster_name | cut -d\" -f2)" >> $GITHUB_ENV
+        working-directory: ${{ env.INFRA_DIR }}
+
+      - name: Import kubeconfig Secret from Secret Manager to Terraform
+        run: |
+          # JH downloaded GKE kubeconfig and pushed to the Secret Manager. Import resource to Terraform.
+          terraform init
+          terraform import -var-file=${{ env.INFRA_ENV }}.tfvars -allow-missing-config google_secret_manager_secret.kubeconfig projects/$PROJECT_NUMBER/secrets/kubeconfig-$GKE_CLUSTER_NAME
+          # check resource addition to Terraform
+          terraform show -json | jq '.values.root_module.resources[] | .type,.name ' | grep google_secret_manager_secret || { echo "google_secret_manager_secret not imported to TF"; exit 1; }
+        working-directory: ${{ env.INFRA_DIR }}
+
+  configuration-healthcheck:
+    needs: configuration
+    runs-on: ubuntu-latest
+    container: jkosik/gcp-deployer:346.0.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Populate variables
+        run: |
+          echo "PROJECT_ID=$(cat ${{ env.INFRA_ENV }}.tfvars | grep project_id | cut -d\" -f2)" >> $GITHUB_ENV
+          echo "ZONE=$(cat ${{ env.INFRA_ENV }}.tfvars | grep zone | cut -d\" -f2)" >> $GITHUB_ENV
+        working-directory: ${{ env.INFRA_DIR }}
+
+      - name: Set up GCP Cloud SDK for Client
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.GCP_SA }}
+
+      - name: Configure SSH Agent
+        uses: webfactory/ssh-agent@v0.5.2
+        with:
+          ssh-private-key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
+
+      - name: Run gcloud and kubectl from JH
+        run: |
+          JH_IP=$(gcloud compute instances describe jh --zone $ZONE --project $PROJECT_ID --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
+          ssh -o StrictHostKeyChecking=no user@$JH_IP 'gcloud compute instances list'
+          ssh -o StrictHostKeyChecking=no user@$JH_IP 'kubectl get ns'

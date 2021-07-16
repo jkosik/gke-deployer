@@ -1,0 +1,5 @@
+---
+- import_playbook: includes/jumphost/bootstrap-jh.yaml
+- import_playbook: includes/argocd/argocd.yaml
+- import_playbook: includes/logging-monitoring/gcp-ops-agent.yaml
+- import_playbook: includes/logging-monitoring/kube-prometheus-stack.yaml

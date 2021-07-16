@@ -1,0 +1,4 @@
+---
+# defaults file for ansible-apt
+
+apt_unattended_updates_state: "disabled"

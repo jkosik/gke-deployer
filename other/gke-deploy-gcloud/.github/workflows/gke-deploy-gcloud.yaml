@@ -1,0 +1,117 @@
+name: gke-deploy-gcloud
+
+on:
+#  push:
+#    branches-ignore:
+#      - 'docs'
+#    paths-ignore:
+#      - 'docs/**'
+#      - 'README.md'
+#  pull_request:
+#    branches-ignore:
+#      - 'docs'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  run-deployment-script:
+    runs-on: ubuntu-latest
+    container: jkosik/gcp-deployer:346.0.0
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Load Client variables to GITHUB_ENV map
+        run: |
+          while read line; do
+            echo "$line" >> $GITHUB_ENV
+          done < $GITHUB_WORKSPACE/other/gke-deploy-gcloud/gke.vars
+
+      - name: Set up GCP Cloud SDK for Client
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ env.DSO_PROJECT }}
+          service_account_key: ${{ secrets.GCP_SA }}
+
+      - name: Sourcing vars
+        run: |
+          echo "Sourcing vars"
+          source $GITHUB_WORKSPACE/other/gke-deploy-gcloud/gke.vars
+
+      - name: Deploy Client GKE
+        run: |
+          echo "Deploying to $DSO_PROJECT"
+          source $GITHUB_WORKSPACE/other/gke-deploy-gcloud/deployment-github-actions.sh
+
+      - name: Bootstrap JH
+        run: |
+          echo "Bootstrapping Jumphost"
+          gcloud compute scp --recurse $GITHUB_WORKSPACE/other/gke-deploy-gcloud/jumphost/ user@jh:~/jumphost
+          gcloud compute scp $GITHUB_WORKSPACE/other/gke-deploy-gcloud/gke.vars user@jh:~/jumphost/gke.vars
+          gcloud compute ssh user@jh -- 'cd ~/jumphost && source bootstrap-jh.sh'
+          gcloud compute ssh user@jh -- 'cd ~/jumphost/argocd && source argocd.sh'
+
+      - name: Set GCP zone and region
+        run: |
+          gcloud config set compute/region ${{ env.DSO_GCP_REGION }}
+          gcloud config set compute/zone ${{ env.DSO_GCP_ZONE }}
+
+      - name: Check GKE readiness
+        run: |
+          c=0
+          while true; do
+            while [[ $(gcloud container clusters describe ${{ env.DSO_GKE_CLUSTER_NAME }} --format="value(status)") != "RUNNING" ]] ; do
+              ((c++)) && ((c>60)) && printf "Timeout to deploy K8S cluster exceeded\n" && exit 1
+              sleep 5
+              echo "Checking K8S cluster build..."
+            done
+            echo "K8S cluster ${{ env.DSO_GKE_CLUSTER_NAME }} in RUNNING state"
+            break
+          done;
+
+      - name: Identify Jumphost public IP
+        run: |
+          JH_IP=$(gcloud compute instances describe jh --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
+          echo "Jumphost listening on:" $JH_IP
+          echo "JH_IP=$JH_IP" >> $GITHUB_ENV
+
+      - name: Test Jumphost using metadata-managed SSH
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        run: |
+          echo "Deploying to ${{ env.DSO_PROJECT }}"
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ env.JH_IP }} >> ~/.ssh/known_hosts
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          ssh-add - <<< "${{ secrets.GCP_SSH_PRIVATE_KEY }}"
+
+          echo "Running commands from inside the jumphost at:" ${{ env.JH_IP }}
+          check_remote_success () {
+            if [[ $(echo $?) -eq 0 ]]; then
+              echo "Remote test for $1 passed."
+            else
+              echo "remote test for $1 failed."
+              exit 1
+            fi
+          }
+          # to remove StrictHostKeyChecking=no and fix ssh-keyscan
+          #ssh user@${{ env.JH_IP }} "gcloud projects list"
+          ssh -o StrictHostKeyChecking=no user@${{ env.JH_IP }} "gcloud projects list"
+          check_remote_success gcloud
+          #ssh user@${{ env.JH_IP }} "kubectl get ns"
+          ssh -o StrictHostKeyChecking=no user@${{ env.JH_IP }} "kubectl get ns"
+          check_remote_success kubectl
+
+  to-slack:
+    needs: run-deployment-script
+    runs-on: ubuntu-latest
+    container: jkosik/gcp-deployer:346.0.0
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2

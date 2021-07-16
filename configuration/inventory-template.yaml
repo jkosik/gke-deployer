@@ -1,0 +1,7 @@
+# Templated within CICD using gcloud output (possible also from inventory-dynamic-gcp.yaml).
+
+---
+all:
+  hosts:
+    jh:
+      ansible_host: CHANGEME

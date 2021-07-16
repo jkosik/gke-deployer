@@ -1,0 +1,84 @@
+# External L7 LB +TLS using Ingress
+
+# https://cloud.google.com/kubernetes-engine/docs/how-to/managed-certs
+
+# Use static IP (to ensure stable validation process):
+  # Create static IP:
+  # gcloud compute addresses create external-lb-l7-tls --global
+  # gcloud compute addresses describe external-lb-l7-tls --global
+  # Release static IP:
+  # gcloud compute addresses delete external-lb-l7-tls --global
+
+# Pre-create DNS record in advance to speedup cert. issuance & validation. Consider own ClusterIssuer + ACMEDNS + LE CA.
+# Watch for cert. issuance status, takes some time: kubectl describe managedcertificates.networking.gke.io external-lb-l7-tls | grep "Certificate Status"
+# Test via https://yourhost.domain
+
+---
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: external-lb-l7-tls
+spec:
+  domains:
+  - yourhost.domain
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: external-lb-l7-tls
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.global-static-ip-name: external-lb-l7-tls
+    networking.gke.io/managed-certificates: external-lb-l7-tls
+spec:
+  rules:
+  - host: yourhost.domain
+    http:
+      paths:
+      - path: /*
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: external-lb-l7-tls
+            port:
+              number: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-lb-l7-tls
+spec:
+  type: NodePort
+  selector:
+    app: external-lb-l7-tls
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 9376
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-lb-l7-tls
+  labels:
+    app: external-lb-l7-tls
+spec:
+  selector:
+    matchLabels:
+      app: external-lb-l7-tls
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: external-lb-l7-tls
+    spec:
+      containers:
+      - image: k8s.gcr.io/serve_hostname:v1.4
+        name: external-lb-l7-tls
+        ports:
+        - containerPort: 9376
+          protocol: TCP

@@ -1,0 +1,43 @@
+---
+- name: Install Argo
+  hosts: jh
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: Create ArgoCD namespace
+      become_user: user
+      shell: kubectl create namespace argocd
+      ignore_errors: true
+
+    - name: Install ArgoCD
+      become_user: user
+      shell: |
+        #kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_version }}/manifests/ha/install.yaml
+        kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_version }}/manifests/install.yaml
+
+    - name: Run a shell command and register its output as a variable
+      uri:
+        url: https://api.github.com/repos/argoproj/argo-cd/releases/latest
+        return_content: true
+        body_format: json
+      register: argocd_latest_version
+
+    - name: Run a shell command and register its output as a variable
+      uri:
+        url: https://api.github.com/repos/argoproj/argo-cd/releases/latest
+        return_content: true
+        body_format: json
+      register: argocd_latest_version
+
+    - name: Current latest ArgoCD version
+      debug: msg={{ argocd_latest_version.json.tag_name }}
+
+    - name: Download ArgoCD binary
+      get_url:
+        url: "https://github.com/argoproj/argo-cd/releases/download/{{ argocd_version }}/argocd-linux-amd64"
+        dest: /usr/local/bin/argocd
+        mode: 0755
+
+    - name: Deploy internal GCP LB for argocd-server
+      become_user: user
+      shell: kubectl apply -f jumphost/manifests-postdeploy/argocd-server-internal-lb.yaml

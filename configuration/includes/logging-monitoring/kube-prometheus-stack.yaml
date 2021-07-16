@@ -1,0 +1,28 @@
+---
+- name: Deploy kube-prometheus-stack Helm chart
+  hosts: jh
+  become: yes
+  gather_facts: no
+  tasks:
+    # using raw Helm commands. Helm module for Ansible not stable.
+    - name: Add prometheus-community Helm repo and check latest versions
+      become_user: user
+      shell: |
+        helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+        helm repo update
+        helm search repo prometheus-community/kube-prometheus-stack --versions | head
+
+    - name: Create monitoring namespace
+      become_user: user
+      shell: |
+        kubectl create ns monitoring
+
+# uncomment in prod cluster and consider including custom kube-prometheus-stack: https://github.com/jkosik/kube-prometheus-stack
+    # - name: Helm install kube-prometheus-stack
+    #   become_user: user
+    #   shell: |
+    #     helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
+    #       --version {{ kube_prometheus_stack }} \
+    #       --wait-for-jobs \
+    #       --timeout 5m
+

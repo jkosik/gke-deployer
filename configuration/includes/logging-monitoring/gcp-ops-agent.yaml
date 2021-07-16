@@ -1,0 +1,12 @@
+# https://github.com/GoogleCloudPlatform/google-cloud-ops-agents-ansible#ansible-role-for-cloud-ops
+# minor bugfix applied in local role in vars/main/yaml: ops-agent_service_name: google-cloud-ops-agent.target must omit .target
+
+---
+- name: Enable GCP Ops-Agent for logging and monitoring
+  hosts: jh
+  become: yes
+  gather_facts: no
+  roles:
+    - role: google_cloud_ops_agents
+      vars:
+        agent_type: ops-agent
