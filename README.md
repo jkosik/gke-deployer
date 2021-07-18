@@ -48,7 +48,7 @@ In production, consider building Master GCP Project to create and manage workloa
 ClusterAPI project could be a long-term way to go though - Management CAPI cluster in every public cloud to deploy and bootstrap K8S clusters there.
 
 #### Secrets management
-This project uses [SealedSecrets](docs/sealed-secrets.md). SealedSecrets controller is deployed to GKE and [GKE specifics](https://github.com/bitnami-labs/sealed-secrets/blob/main/docs/GKE.md) are configured during the provisioning phase. `kubeseal` client is preconfigured on the [Jumphost](docs/jh.md).
+This project uses [SealedSecrets](docs/sealed-secrets.md). SealedSecrets controller is deployed to GKE and [GKE specifics](https://github.com/bitnami-labs/sealed-secrets/blob/main/docs/GKE.md) are configured during the provisioning phase. `kubeseal` client is preconfigured on the [Jumphost](docs/jh.md). SealedSecrets support also offline sealing and "bring your own certificates" - consideration for multicloud and private clouds.
 
 #### GKE Deployment using gcloud
 Instead of Terraform you can use `gcloud` powered deployment pipeline. Update `other/gke-deploy-gcloud/gke.vars` and run [gke-deploy-gcloud/deployment-local.sh](other/gke-deploy-gcloud/deployment-local.sh) to build GKE from the console. Optionally use [GitHub Actions](other/gke-deploy-gcloud/.github/workflows/gke-deploy-gcloud.yaml).

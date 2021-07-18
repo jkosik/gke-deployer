@@ -48,14 +48,20 @@
           --wait-for-jobs \
           --timeout 5m
 
-        helm upgrade --install sealed-secrets sealed-secrets/sealed-secrets --version 1.16.1 --wait-for-jobs --timeout 5m
+    - name: Export secrets to GCP Secret Manager
+      become_user: user
+      shell: |
+        PROJECT_ID=$(cat /home/user/jumphost/{{ infra_env }}.tfvars | grep project_id | cut -d\" -f2)
+        ZONE=$(cat /home/user/jumphost/{{ infra_env }}.tfvars | grep zone | cut -d\" -f2)
+        GKE_CLUSTER_NAME=$(cat /home/user/jumphost/{{ infra_env }}.tfvars | grep gke_cluster_name | cut -d\" -f2)
 
-        kubeseal --fetch-cert > mycert.pem
+        if gcloud secrets describe kubeconfig-$GKE_CLUSTER_NAME; then
+          echo "Secret kubeconfig-$GKE_CLUSTER_NAME already exists."
+        else
+          gcloud secrets create kubeconfig-$GKE_CLUSTER_NAME --data-file=/home/user/.kube/config --labels=owner=dso,info=jumphost-generated
+        fi
 
 
-install sealed secret
-update fw for private GKE
 
 
-publish kubeconfig - presun z bootstrap.jh
 
