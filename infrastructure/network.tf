@@ -44,5 +44,5 @@ resource "google_compute_firewall" "gke-to-kubeseal-8080" {
   }
 
   source_ranges = var.gke_master_ipv4_cidr
-  target_tags = ["gke-nodes"]
+  target_tags   = ["gke-nodes"]
 }
