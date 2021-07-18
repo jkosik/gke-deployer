@@ -33,6 +33,7 @@ jq -c . GCP_SA.json
 1. Deploy GKE and components using [GitHub Actions](.github/workflows/gke-deploy.yaml) or alternatively [Azure DevOps Pipelines](docs/azure-devops.md).
 2. Deploy Argo CD Application manifest towards you application.
 3. Infrastructure logging and monitoring work out of the box. Application monitoring using `kube-prometheus-stack` needs configuring custom ServiceMonitors and/or PodMonitors as used [here](https://github.com/jkosik/kube-prometheus-stack).
+4. [Deploy sample application using ArgoCD](https://github.com/jkosik/sample-app).
 
 
 ## Running CICD and git branch management
