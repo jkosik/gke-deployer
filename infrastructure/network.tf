@@ -43,6 +43,6 @@ resource "google_compute_firewall" "gke-to-kubeseal-8080" {
     ports    = ["8080"]
   }
 
-  source_ranges = var.gke_master_ipv4_cidr
+  source_ranges = ["${var.gke_master_ipv4_cidr}"]
   target_tags   = ["gke-nodes"]
 }
