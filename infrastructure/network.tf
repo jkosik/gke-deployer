@@ -43,7 +43,7 @@ resource "google_compute_firewall" "gke-to-kubeseal-8080" {
     protocol = "tcp"
     ports    = ["8080"]
   }
-  source_tags = ["${var.gke_master_ipv4_cidr}"]
+  source_ranges = ["${var.gke_master_ipv4_cidr}"]
   # limit the target only to masternodes based on their tag
   # target_tags = ["TBD"]
   priority = 1000

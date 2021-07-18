@@ -36,17 +36,13 @@
     - name: Install SealedSecrets Controller
       become_user: user
       shell: |
-        helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
-        helm repo update
-        helm search repo sealed-secrets/sealed-secrets --versions | head
+        kubectl apply -f https://github.com/bitnami-labs/sealed-secrets/releases/download/{{ sealed_secret_version }}/controller.yaml
 
-    - name: Helm install sealed-secrets
+    - name: Install kubeseal client
       become_user: user
       shell: |
-        helm upgrade --install sealed-secrets sealed-secrets/sealed-secrets \
-          --version {{ sealed_secret_version }} \
-          --wait-for-jobs \
-          --timeout 5m
+        wget https://github.com/bitnami-labs/sealed-secrets/releases/download/{{ sealed_secret_version }}/kubeseal-linux-amd64 -O /usr/local/bin/kubeseal
+        chmod 755 /usr/local/bin/kubeseal
 
     - name: Export secrets to GCP Secret Manager
       become_user: user
