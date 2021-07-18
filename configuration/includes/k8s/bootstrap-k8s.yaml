@@ -67,7 +67,7 @@
         if gcloud secrets describe sealedsecrets-certpem-$GKE_CLUSTER_NAME; then
           echo "Secret sealedsecrets-certpem-$GKE_CLUSTER_NAME already exists."
         else
-          gcloud secrets create sealedsecrets-certpem-$GKE_CLUSTER_NAME --data-file=/home/user/sealedsecrets-cert.pem- --labels=owner=dso,info=jumphost-generated
+          gcloud secrets create sealedsecrets-certpem-$GKE_CLUSTER_NAME --data-file=/home/user/sealedsecrets-cert.pem --labels=owner=dso,info=jumphost-generated
         fi
 
 
