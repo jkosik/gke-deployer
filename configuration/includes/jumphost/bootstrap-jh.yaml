@@ -23,7 +23,6 @@
           - dnsutils
           - git
           - jq
-          - snapd
           - wget
 
     - name: Create jumphost directory

@@ -43,17 +43,17 @@
         wget https://github.com/bitnami-labs/sealed-secrets/releases/download/{{ sealed_secret_version }}/kubeseal-linux-amd64 -O /usr/local/bin/kubeseal
         chmod 755 /usr/local/bin/kubeseal
 
-    - name: Export secrets to GCP Secret Manager
+    - name: Backup SealedSecrets master key to GCP Secret Manager
       become_user: user
       shell: |
-        PROJECT_ID=$(cat /home/user/jumphost/{{ infra_env }}.tfvars | grep project_id | cut -d\" -f2)
-        ZONE=$(cat /home/user/jumphost/{{ infra_env }}.tfvars | grep zone | cut -d\" -f2)
+        kubectl get secret -n kube-system -l sealedsecrets.bitnami.com/sealed-secrets-key -o yaml > sealedsecrets-master.key
+
         GKE_CLUSTER_NAME=$(cat /home/user/jumphost/{{ infra_env }}.tfvars | grep gke_cluster_name | cut -d\" -f2)
 
         if gcloud secrets describe kubeconfig-$GKE_CLUSTER_NAME; then
-          echo "Secret kubeconfig-$GKE_CLUSTER_NAME already exists."
+          echo "Secret sealedsecrets-$GKE_CLUSTER_NAME already exists."
         else
-          gcloud secrets create kubeconfig-$GKE_CLUSTER_NAME --data-file=/home/user/.kube/config --labels=owner=dso,info=jumphost-generated
+          gcloud secrets create sealedsecrets-$GKE_CLUSTER_NAME --data-file=/home/user/sealedsecrets-master.key --labels=owner=dso,info=jumphost-generated
         fi
 
 

@@ -14,3 +14,5 @@ crash.log
 # Secret yamls - use sealedsecret.yaml explicitly in the repo
 secret.yaml
 secret.yml
+secrets.yaml
+secrets.yml
