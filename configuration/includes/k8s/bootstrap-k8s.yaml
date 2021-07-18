@@ -1,0 +1,75 @@
+---
+- name: Bootstrap Kubernetes cluster
+  hosts: jh
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: Create /home/user/.kube directory
+      file:
+        path: /home/user/.kube
+        state: directory
+        owner: user
+        group: user
+
+    - name: Remove obsolete kubeconfig files
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /home/user/.kube/config
+        - /root/.kube/config
+
+    - name: Import kubeconfig to user "user" homedir and store to GCP Secret Manager
+      become_user: user
+      shell: |
+        PROJECT_ID=$(cat /home/user/jumphost/{{ infra_env }}.tfvars | grep project_id | cut -d\" -f2)
+        ZONE=$(cat /home/user/jumphost/{{ infra_env }}.tfvars | grep zone | cut -d\" -f2)
+        GKE_CLUSTER_NAME=$(cat /home/user/jumphost/{{ infra_env }}.tfvars | grep gke_cluster_name | cut -d\" -f2)
+        gcloud container clusters get-credentials $GKE_CLUSTER_NAME --zone $ZONE --project $PROJECT_ID --internal-ip
+
+        if gcloud secrets describe kubeconfig-$GKE_CLUSTER_NAME; then
+          echo "Secret kubeconfig-$GKE_CLUSTER_NAME already exists."
+        else
+          gcloud secrets create kubeconfig-$GKE_CLUSTER_NAME --data-file=/home/user/.kube/config --labels=owner=dso,info=jumphost-generated
+        fi
+
+    - name: Install SealedSecrets Controller
+      become_user: user
+      shell: |
+        kubectl apply -f https://github.com/bitnami-labs/sealed-secrets/releases/download/{{ sealed_secret_version }}/controller.yaml
+
+    - name: Install kubeseal client
+      shell: |
+        wget https://github.com/bitnami-labs/sealed-secrets/releases/download/{{ sealed_secret_version }}/kubeseal-linux-amd64 -O /usr/local/bin/kubeseal
+        chmod 755 /usr/local/bin/kubeseal
+
+    # Not importing Secret Manager SealedSecrets to Terraform. Lets keep them even after TF destroy
+    - name: Backup SealedSecrets master key to GCP Secret Manager
+      become_user: user
+      shell: |
+        kubectl get secret -n kube-system -l sealedsecrets.bitnami.com/sealed-secrets-key -o yaml > sealedsecrets-master.key
+
+        GKE_CLUSTER_NAME=$(cat /home/user/jumphost/{{ infra_env }}.tfvars | grep gke_cluster_name | cut -d\" -f2)
+
+        if gcloud secrets describe sealedsecrets-masterkey-$GKE_CLUSTER_NAME; then
+          echo "Secret sealedsecrets-masterkey-$GKE_CLUSTER_NAME already exists."
+        else
+          gcloud secrets create sealedsecrets-masterkey-$GKE_CLUSTER_NAME --data-file=/home/user/sealedsecrets-master.key --labels=owner=dso,info=jumphost-generated
+        fi
+
+    - name: Backup SealedSecrets PEM certificate for offline encryption to GCP Secret Manager
+      become_user: user
+      shell: |
+        kubeseal --fetch-cert > sealedsecrets-cert.pem
+
+        GKE_CLUSTER_NAME=$(cat /home/user/jumphost/{{ infra_env }}.tfvars | grep gke_cluster_name | cut -d\" -f2)
+
+        if gcloud secrets describe sealedsecrets-certpem-$GKE_CLUSTER_NAME; then
+          echo "Secret sealedsecrets-certpem-$GKE_CLUSTER_NAME already exists."
+        else
+          gcloud secrets create sealedsecrets-certpem-$GKE_CLUSTER_NAME --data-file=/home/user/sealedsecrets-cert.pem --labels=owner=dso,info=jumphost-generated
+        fi
+
+
+
+

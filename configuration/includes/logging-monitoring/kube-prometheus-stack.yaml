@@ -10,7 +10,6 @@
       shell: |
         helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
         helm repo update
-        helm search repo prometheus-community/kube-prometheus-stack --versions | head
 
     - name: Create monitoring namespace
       become_user: user
@@ -23,7 +22,7 @@
     #   become_user: user
     #   shell: |
     #     helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
-    #       --version {{ kube_prometheus_stack }} \
+    #       --version {{ kube_prometheus_stack_version }} \
     #       --wait-for-jobs \
     #       --timeout 5m
 
