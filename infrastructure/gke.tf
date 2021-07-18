@@ -32,6 +32,8 @@ resource "google_container_node_pool" "nodepool" {
   node_config {
     preemptible  = true
     machine_type = var.gke_machine_type
+    # defined for sealedsecret fw rules (target tags)
+    tags = ["gke-nodes"]
 
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
     service_account = data.google_service_account.sa.email
