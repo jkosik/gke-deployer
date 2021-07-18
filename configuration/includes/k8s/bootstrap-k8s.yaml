@@ -39,7 +39,6 @@
         kubectl apply -f https://github.com/bitnami-labs/sealed-secrets/releases/download/{{ sealed_secret_version }}/controller.yaml
 
     - name: Install kubeseal client
-      become_user: user
       shell: |
         wget https://github.com/bitnami-labs/sealed-secrets/releases/download/{{ sealed_secret_version }}/kubeseal-linux-amd64 -O /usr/local/bin/kubeseal
         chmod 755 /usr/local/bin/kubeseal
