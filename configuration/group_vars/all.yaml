@@ -1,5 +1,5 @@
 ---
 infra_env: none # Overwritten when CICD calls site.yaml using -extra-vars infra_env="${{ env.INFRA_ENV }}"
-argocd_version: v2.0.0 # latest version: https://github.com/argoproj/argo-cd/releases/latest
+argocd_version: v2.0.4 # latest version: https://github.com/argoproj/argo-cd/releases/latest
 kube_prometheus_stack_version: 16.14.1 # latest version: helm search repo prometheus-community/kube-prometheus-stack --versions | head
 sealed_secret_version: v0.16.0 # latest version: https://github.com/bitnami-labs/sealed-secrets/releases/latest
