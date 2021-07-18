@@ -116,19 +116,6 @@
         dest: /usr/local/bin/stern
         mode: 0755
 
-- name: Install Kubeseal
-  hosts: jh
-  become: yes
-  gather_facts: no
-  tasks:
-    - name: Install sealed-secrets-kubeseal-nsg (kubeseal)
-      shell: snap install sealed-secrets-kubeseal-nsg
-
-    - name: Alias sealed-secrets-kubeseal-nsg
-      shell: |
-        alias kubeseal="sealed-secrets-kubeseal-nsg" >> /home/user/.bashrc
-        source /home/user/.bashrc
-
 
 
 
