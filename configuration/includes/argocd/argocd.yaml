@@ -12,6 +12,7 @@
     - name: Install ArgoCD
       become_user: user
       shell: |
+        # Could be substituted later on by Helm installation and custom values.yaml with predefined Repos and so on.
         #kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_version }}/manifests/ha/install.yaml
         kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_version }}/manifests/install.yaml
 
