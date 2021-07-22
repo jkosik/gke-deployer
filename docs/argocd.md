@@ -1,4 +1,10 @@
 # ArgoCD
+This project preinstall ArgoCD to the GKE.
+
+There are multiple ways of managing ArgoCD:
+1. Infrastructure is built with Argo CD & Application owners use Argo GUI or CLI for further configuration.
+2. Infrastructure is built with Argo CD & Application owners follow self-managed ArgoCD pattern and build master Application with ArgoCD manifests, e.g. `argocd-cm.yaml`
+3. Application owners deploy ArgoCD by themselves, e.g. using Helm and [custom values.yaml file](configuration/argocd/values-custom.yaml).
 
 ## Change initial ArgoCD password
 The initial password is stored in `argocd-initial-admin-secret` Secret in `argocd` namespace. [Login to Jumphost](jh.md) and update password.
