@@ -21,3 +21,5 @@ You can fetch SealedSecrets PEM certificate from the cluster and encrypt offline
 ## Additional info
 - Applying `sealedsecret.yaml` to k8s cluster results in creating Secret and SealedSecret resources.
 - `gke-deployer` project backups SealedSecrets master key and encryption certificate to the GCP Secret Manager.
+- SealedSecrets work out of box for Helm as well as ArgoCD
+- Challenge: multicloud deployment. Separate Secrets manifests for all target clusters?
