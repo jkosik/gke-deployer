@@ -69,16 +69,18 @@ helm search repo argo/argo-cd --versions | head
 helm upgrade --install -f values-custom.yaml argocd argo/argo-cd --version 3.10.0 -n argocd
 ```
 
-## Login to Argo Workflows
+## Argo Workflows
+#### Login to Argo Workflows
 Enable access to Argo UI, e.g. by SSH tunneling via Jumphost as described above.
 To access UI we will need Bearer token.
 
-kubectl create clusterrole argouser --verb=list,update --resource=workflows.argoproj.io,workflowtemplates.argoproj.io
+```
+kubectl create clusterrole argouser --verb=list,update --resource=workflows.argoproj.io,workflowtemplates.argoproj.io,eventsources.argoproj.io
 
 kubectl create sa argouser1 -n argo
 kubectl create clusterrolebinding argouser1 --clusterrole=argouser --serviceaccount=argo:argouser1
 SECRET=$(kubectl -n argo get sa argouser1 -o=jsonpath='{.secrets[0].name}')
 ARGO_TOKEN="Bearer $(kubectl -n argo  get secret $SECRET -o=jsonpath='{.data.token}' | base64 --decode)"
 echo $ARGO_TOKEN
-
+```
 Use $ARGO_TOKEN in the frontpage of Argo Workflow UI.
