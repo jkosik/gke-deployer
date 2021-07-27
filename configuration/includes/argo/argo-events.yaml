@@ -1,0 +1,42 @@
+---
+- name: Install Argo Events
+  hosts: jh
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: Create Argo Events namespace
+      become_user: user
+      shell: kubectl create namespace argo-events
+      ignore_errors: true
+
+    - name: Install Argo Events
+      become_user: user
+      shell: |
+        kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/{{ argo_events_version }}/manifests/install.yaml
+        kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/{{ argo_events_version }}/manifests/install-validating-webhook.yaml
+        kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/{{ argo_events_version }}/examples/eventbus/native.yaml
+
+    - name: Run a shell command and register its output as a variable
+      uri:
+        url: https://api.github.com/repos/argoproj/argo-events/releases/latest
+        return_content: true
+        body_format: json
+      register: argo_events_latest_version
+
+    - name: Current latest Argo Events version
+      debug: msg={{ argo_events_latest_version.json.tag_name }}
+
+    - name: Download Argo binary
+      get_url:
+        url: https://github.com/argoproj/argo-workflows/releases/download/{{ argo_workflows_version }}/argo-linux-amd64.gz
+        dest: /opt/argo.gz
+        mode: 0755
+
+    - name: Unarchive Argo binary
+      shell: |
+        gunzip -c /opt/argo.gz > /usr/local/bin/argo
+        chmod 755 /usr/local/bin/argo
+
+    - name: Deploy internal GCP LB for Argo Workflows
+      become_user: user
+      shell: kubectl apply -f jumphost/manifests-postdeploy/argo-server-internal-lb.yaml
