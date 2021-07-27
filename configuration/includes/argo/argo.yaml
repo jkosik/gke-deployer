@@ -16,7 +16,7 @@
 
     - name: Download Argo binary
       get_url:
-        url: https://github.com/argoproj/argo/releases/download/{{ argocd_version }}/argo-linux-amd64
+        url: https://github.com/argoproj/argo/releases/download/{{ argo_version }}/argo-linux-amd64
 
         dest: /usr/local/bin/argo
         mode: 0755
