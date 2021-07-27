@@ -13,8 +13,8 @@
       become_user: user
       shell: |
         # Could be substituted later on by Helm installation and custom values.yaml with predefined Repos and so on.
-        #kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_version }}/manifests/ha/install.yaml
-        kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_version }}/manifests/install.yaml
+        #kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/{{ argo_cd_version }}/manifests/ha/install.yaml
+        kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/{{ argo_cd_version }}/manifests/install.yaml
 
     - name: Run a shell command and register its output as a variable
       uri:
@@ -28,7 +28,7 @@
 
     - name: Download ArgoCD binary
       get_url:
-        url: "https://github.com/argoproj/argo-cd/releases/download/{{ argocd_version }}/argocd-linux-amd64"
+        url: "https://github.com/argoproj/argo-cd/releases/download/{{ argo_cd_version }}/argocd-linux-amd64"
         dest: /usr/local/bin/argocd
         mode: 0755
 
