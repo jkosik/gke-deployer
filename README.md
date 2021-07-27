@@ -1,6 +1,6 @@
 # gke-deployer
 This project deploys GKE and additional components to GCP using [GitHub Actions](.github/workflows/gke-deploy.yaml) or alternatively [Azure DevOps Pipelines](docs/azure-devops.md) supported by Terraform and Ansible.
-[Jumphost](docs/jh.md) is equipped tooling as kubectl, Helm, [ArgoCD](docs/argocd.md) and sample k8s manifests.
+[Jumphost](docs/jh.md) is equipped tooling as kubectl, Helm, [ArgoCD](docs/argo.md) and sample k8s manifests.
 Both GKE and Jumphost are pre-configured to deliver logs and metrics to GCP Cloud Logging and Cloud Monitoring.
 
 Project assumes private GKE cluster not exposed to the external world. However GKE setup is preconfigured to permit external access to API Server on demand by running `gcloud container clusters update CLUSTER --master-authorized-networks CIDR` or by updating respective Terraform variables. Documentation and provsioning code reflect GKE isolation. Normally many things could be done easier for public GKE cluster.
