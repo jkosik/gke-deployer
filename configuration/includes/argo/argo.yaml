@@ -16,9 +16,14 @@
 
     - name: Download Argo binary
       get_url:
-        url: https://github.com/argoproj/argo/releases/download/{{ argo_version }}/argo-linux-amd64
+        url: https://github.com/argoproj/argo-workflows/releases/download/{{ argo_version }}/argo-darwin-amd64.gz
+        dest: /opt/argo-darwin-amd64.gz
 
-        dest: /usr/local/bin/argo
+    - name: Unzip Argo binary
+      unarchive:
+        src: "/opt/argo-darwin-amd64.gz"
+        dest: "/usr/local/bin/argo"
+        remote_src: true
         mode: 0755
 
     - name: Deploy internal GCP LB for Argo Workflows
