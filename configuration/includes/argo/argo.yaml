@@ -1,0 +1,26 @@
+---
+- name: Install Argo Workflows
+  hosts: jh
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: Create Argo namespace
+      become_user: user
+      shell: kubectl create namespace argo
+      ignore_errors: true
+
+    - name: Install Argo Workflows
+      become_user: user
+      shell: |
+        kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo-workflows/{{ argo_version }}/manifests/install.yaml
+
+    - name: Download Argo binary
+      get_url:
+        url: https://github.com/argoproj/argo/releases/download/{{ argocd_version }}/argo-linux-amd64
+
+        dest: /usr/local/bin/argo
+        mode: 0755
+
+    - name: Deploy internal GCP LB for Argo Workflows
+      become_user: user
+      shell: kubectl apply -f jumphost/manifests-postdeploy/argo-server-internal-lb.yaml
