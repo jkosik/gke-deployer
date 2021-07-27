@@ -22,7 +22,8 @@
     - name: Unzip Argo binary
       unarchive:
         src: "/opt/argo-darwin-amd64.gz"
-        dest: "/usr/local/bin/argo"
+        dest: "/usr/local/bin/"
+        creates: "/usr/local/bin/argo"
         remote_src: true
         mode: 0755
 
